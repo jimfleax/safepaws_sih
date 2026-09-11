@@ -3,7 +3,7 @@ import numpy as np
 import json
 import os
 from pathlib import Path
-from backend.scripts.evaluate import compute_eer, evaluate_verification, validate_identity_disjoint, main
+from scripts.evaluate import compute_eer, evaluate_verification, validate_identity_disjoint, main
 
 def test_eer_calculation():
     # If fpr and fnr cross perfectly
