@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Tuple
 import numpy as np
 
-from app.database.session import get_db
+from app.db.session import get_db
 from app.services.biometric_service import BiometricPipelineService
 from app.services.registration_service import RegistrationService
 
