@@ -22,6 +22,7 @@ import { BiometricModal } from './components/modals/BiometricModal';
 import { CommunityModal } from './components/modals/CommunityModal';
 import { HowItWorksModal } from './components/modals/HowItWorksModal';
 import { InfoModal } from './components/modals/InfoModal';
+import { IdentifyModal } from './components/modals/IdentifyModal';
 
 // Mock Data
 import { initialPets, sampleAlerts, sampleSightings } from './data/mockData';
@@ -115,6 +116,7 @@ export default function App() {
   const [isLostAlertModalOpen, setIsLostAlertModalOpen] = useState(false);
   const [isBiometricModalOpen, setIsBiometricModalOpen] = useState(false);
   const [isCommunityModalOpen, setIsCommunityModalOpen] = useState(false);
+  const [isIdentifyModalOpen, setIsIdentifyModalOpen] = useState(false);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
   const [infoModalType, setInfoModalType] = useState<'privacy' | 'guidelines' | 'contact' | null>(null);
 
@@ -200,6 +202,7 @@ export default function App() {
     isLostAlertModalOpen ||
     isBiometricModalOpen ||
     isCommunityModalOpen ||
+    isIdentifyModalOpen ||
     isHowItWorksOpen ||
     infoModalType !== null;
 
@@ -237,6 +240,7 @@ export default function App() {
             setIsProfileModalOpen(true);
           }}
           onOpenLostAlert={() => setIsLostAlertModalOpen(true)}
+          onIdentifyClick={() => setIsIdentifyModalOpen(true)}
         />
 
         {/* 3. Feature Bento Cards: "ONE PLACE TO KEEP THEM SAFE" */}
@@ -321,6 +325,21 @@ export default function App() {
           setSelectedPetId(al.petId);
           setIsCommunityModalOpen(false);
           setIsLostAlertModalOpen(true);
+        }}
+      />
+
+      <IdentifyModal
+        isOpen={isIdentifyModalOpen}
+        onClose={() => setIsIdentifyModalOpen(false)}
+        onIdentifySuccess={(res) => {
+          // If match, maybe open pet profile? 
+          if (res.status === 'MATCH' && res.matches.length > 0) {
+             setSelectedPetId(res.matches[0].pet_id);
+             setTimeout(() => {
+                setIsIdentifyModalOpen(false);
+                setIsProfileModalOpen(true);
+             }, 1500);
+          }
         }}
       />
 
