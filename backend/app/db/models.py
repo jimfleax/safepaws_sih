@@ -8,67 +8,33 @@ from app.db.base_class import Base
 def generate_uuid():
     return str(uuid.uuid4())
 
-class Owner(Base):
-    __tablename__ = 'owners'
-    
-    id = Column(String, primary_key=True, default=generate_uuid)
-    name = Column(String, nullable=False)
-    phone = Column(String, nullable=False, index=True)
-    email = Column(String, nullable=True)
-    neighborhood = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    pets = relationship("Pet", back_populates="owner", cascade="all, delete-orphan")
-
 class Pet(Base):
     __tablename__ = 'pets'
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    owner_id = Column(String, ForeignKey('owners.id'), nullable=False)
     name = Column(String, nullable=False)
     species = Column(String, nullable=False)
-    breed = Column(String, nullable=True)
-    color = Column(String, nullable=True)
-    age = Column(String, nullable=True)
+    breed = Column(String, nullable=False)
+    color = Column(String, nullable=False)
+    age = Column(String, nullable=False)
+    owner_name = Column(String, nullable=False)
+    owner_phone = Column(String, nullable=False)
+    neighborhood = Column(String, nullable=False)
+    
     weight = Column(String, nullable=True)
     microchip_id = Column(String, nullable=True, unique=True)
-    status = Column(String, nullable=False, default="safe")
+    owner_email = Column(String, nullable=True)
     medical_notes = Column(String, nullable=True)
     diet_notes = Column(String, nullable=True)
     reward = Column(String, nullable=True)
     distinctive_features = Column(ARRAY(String), default=[])
+    
+    consent_given = Column(Boolean, nullable=False, default=False)
+    
+    status = Column(String, nullable=False, default="safe")
     qr_tag_id = Column(String, nullable=True, unique=True)
+    photo_url = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-
-    owner = relationship("Owner", back_populates="pets")
-    photos = relationship("PetPhoto", back_populates="pet", cascade="all, delete-orphan")
-    enrollments = relationship("PetBiometricEnrollment", back_populates="pet", cascade="all, delete-orphan")
-
-class PetPhoto(Base):
-    __tablename__ = 'pet_photos'
-
-    id = Column(String, primary_key=True, default=generate_uuid)
-    pet_id = Column(String, ForeignKey('pets.id'), nullable=False)
-    photo_url = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    pet = relationship("Pet", back_populates="photos")
-    enrollments = relationship("PetBiometricEnrollment", back_populates="photo")
-
-class PetBiometricEnrollment(Base):
-    __tablename__ = 'pet_biometric_enrollments'
-
-    id = Column(String, primary_key=True, default=generate_uuid)
-    pet_id = Column(String, ForeignKey('pets.id'), nullable=False)
-    photo_id = Column(String, ForeignKey('pet_photos.id'), nullable=False)
-    embedding = Column(ARRAY(Float), nullable=False)
-    model_version = Column(String, nullable=False)
-    dimension = Column(Integer, nullable=False)
-    normalization = Column(String, nullable=False) # e.g. 'L2'
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    pet = relationship("Pet", back_populates="enrollments")
-    photo = relationship("PetPhoto", back_populates="enrollments")
 
 class Sighting(Base):
     __tablename__ = 'sightings'
@@ -76,7 +42,8 @@ class Sighting(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     alert_id = Column(String, nullable=True, index=True)
     reporter_name = Column(String, nullable=False)
-    location_geom = Column(Geography(geometry_type='POINT', srid=4326), nullable=False)
+    location = Column(String, nullable=False)
+    location_geom = Column(Geography(geometry_type='POINT', srid=4326), nullable=True)
     notes = Column(String, nullable=True)
-    time = Column(DateTime, default=datetime.utcnow)
+    time = Column(String, nullable=False, default=lambda: datetime.utcnow().isoformat())
     confirmed = Column(Boolean, default=False)
