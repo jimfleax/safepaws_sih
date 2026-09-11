@@ -47,12 +47,16 @@ def main():
     print("WARNING: Production biometric accuracy cannot currently be established.")
     print("This script is currently a scaffold. Real datasets and embedding extraction logic are required.")
     
-    # MOCK evaluation logic to demonstrate the schema
-    # In production, this would load the dataset, run embeddings, and compute scores.
-    mock_scores = np.random.uniform(0.3, 1.0, 1000).tolist()
-    mock_labels = np.random.randint(0, 2, 1000).tolist()
-    
-    results = evaluate_verification(mock_scores, mock_labels)
+    if not Path(args.dataset_path).exists():
+        print(f"Dataset not found at {args.dataset_path}. Generating SYNTHETIC SCAFFOLD DATA.")
+        # MOCK evaluation logic to demonstrate the schema
+        mock_scores = np.random.uniform(0.3, 1.0, 1000).tolist()
+        mock_labels = np.random.randint(0, 2, 1000).tolist()
+        results = evaluate_verification(mock_scores, mock_labels)
+        results["_WARNING"] = "SYNTHETIC SCAFFOLD DATA. Production biometric accuracy cannot currently be established."
+    else:
+        # In production, this would load the dataset, run embeddings, and compute scores.
+        raise NotImplementedError("Real biometric evaluation path requires actual genuine/impostor score pairs from the dataset.")
     
     with open(args.output, "w") as f:
         json.dump(results, f, indent=4)
