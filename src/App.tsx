@@ -228,6 +228,7 @@ export default function App() {
         }}
         onOpenProfile={() => setIsProfileModalOpen(true)}
         onOpenAlerts={() => setIsLostAlertModalOpen(true)}
+        onOpenIdentify={() => setIsIdentifyModalOpen(true)}
         activeAlertCount={alerts.filter((a) => a.status === 'active').length}
       />
 

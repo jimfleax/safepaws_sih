@@ -46,6 +46,7 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
     medicalNotes: '',
     distinctiveFeatures: '',
     photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+    file: null as File | null,
   });
 
   const handleCreateSubmit = (e: React.FormEvent) => {
@@ -160,6 +161,18 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
               /* New Pet Form */
               <form onSubmit={handleCreateSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
+                      Pet Photo (For Biometric Registration) *
+                    </label>
+                    <input
+                      type="file"
+                      required
+                      accept="image/jpeg, image/png, image/webp"
+                      onChange={(e) => setFormData({ ...formData, file: e.target.files?.[0] || null })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#DCCEC0] bg-white text-[#241812] text-sm focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+                    />
+                  </div>
                   <div>
                     <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
                       Pet Name *
