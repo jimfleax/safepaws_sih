@@ -23,6 +23,7 @@ import { CommunityModal } from './components/modals/CommunityModal';
 import { HowItWorksModal } from './components/modals/HowItWorksModal';
 import { InfoModal } from './components/modals/InfoModal';
 import { IdentifyModal } from './components/modals/IdentifyModal';
+import { ApiClient } from './utils/apiClient';
 
 // Mock Data
 import { initialPets, sampleAlerts, sampleSightings } from './data/mockData';
@@ -183,7 +184,12 @@ export default function App() {
     setIsLostAlertModalOpen(true);
   };
 
-  const handleAddSighting = (newSighting: CommunitySighting) => {
+  const handleAddSighting = async (newSighting: CommunitySighting) => {
+    try {
+      await ApiClient.reportSighting(newSighting);
+    } catch (e) {
+      console.error('Failed to report sighting to API', e);
+    }
     setSightings((prev) => [newSighting, ...prev]);
   };
 

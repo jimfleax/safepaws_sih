@@ -3,12 +3,15 @@ import numpy as np
 from app.services.biometric_service import BiometricPipelineService
 from app.schemas.search import SearchResponse
 from app.core.config import settings
+from app.services.ml_interfaces import QualityResult
 
 class MockDetector:
-    async def detect(self, image: bytes): return [{"x":0}]
+    async def detect(self, image: bytes):
+        return [{"x_min": 0, "y_min": 0, "x_max": 10, "y_max": 10, "confidence": 0.98}]
 
 class MockQualityGate:
-    async def evaluate(self, image: bytes, bbox: dict): return 0.9
+    async def evaluate(self, image: bytes, bbox: dict) -> QualityResult:
+        return QualityResult(accepted=True, score=0.9)
 
 class MockEmbedder:
     async def generate_embedding(self, image: bytes, bbox: dict): return np.array([1.0])

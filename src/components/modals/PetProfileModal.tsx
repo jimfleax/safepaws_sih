@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Plus, ShieldCheck, QrCode, Phone, MapPin, AlertCircle, CheckCircle2, Heart, Sparkles, Upload, Trash2 } from 'lucide-react';
 import { Pet } from '../../types';
 import confetti from 'canvas-confetti';
+import { ApiClient } from '../../utils/apiClient';
 
 interface PetProfileModalProps {
   isOpen: boolean;
@@ -49,39 +50,63 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
     file: null as File | null,
   });
 
-  const handleCreateSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.breed) return;
+    if (!formData.name || !formData.breed || !formData.file) return;
 
-    const newPet: Pet = {
-      id: `pet-${Date.now()}`,
-      name: formData.name,
-      species: formData.species,
-      breed: formData.breed,
-      color: formData.color || 'Standard',
-      age: formData.age || '2 years',
-      weight: formData.weight || '30 lbs',
-      photoUrl: formData.photoUrl,
-      microchipId: formData.microchipId,
-      status: 'safe',
-      ownerName: formData.ownerName || 'Verified Owner',
-      ownerPhone: formData.ownerPhone || '+1 (555) 123-4567',
-      neighborhood: formData.neighborhood,
-      medicalNotes: formData.medicalNotes,
-      distinctiveFeatures: formData.distinctiveFeatures ? formData.distinctiveFeatures.split(',').map((s) => s.trim()) : ['Very friendly'],
-      qrTagId: `SP-${Math.floor(100 + Math.random() * 900)}-${formData.name.substring(0, 3).toUpperCase()}`,
-    };
+    setIsSubmitting(true);
+    setSubmitError('');
 
-    onSavePet(newPet);
-    onSelectPet(newPet.id);
-    setIsCreatingNew(false);
+    try {
+      const petPayload = {
+        name: formData.name,
+        species: formData.species,
+        breed: formData.breed,
+        color: formData.color || 'Standard',
+        age: formData.age || '2 years',
+        weight: formData.weight || '30 lbs',
+        photoUrl: formData.photoUrl,
+        microchipId: formData.microchipId,
+        status: 'safe' as const,
+        ownerName: formData.ownerName || 'Verified Owner',
+        ownerPhone: formData.ownerPhone || '+1 (555) 123-4567',
+        neighborhood: formData.neighborhood,
+        medicalNotes: formData.medicalNotes,
+        distinctiveFeatures: formData.distinctiveFeatures ? formData.distinctiveFeatures.split(',').map((s) => s.trim()) : ['Very friendly'],
+        qrTagId: `SP-${Math.floor(100 + Math.random() * 900)}-${formData.name.substring(0, 3).toUpperCase()}`,
+      };
 
-    confetti({
-      particleCount: 50,
-      spread: 60,
-      origin: { y: 0.6 },
-      colors: ['#DE6828', '#F5E2BE', '#34A853'],
-    });
+      // 1. Register pet profile
+      // @ts-ignore
+      const registeredPet = await ApiClient.registerPet(petPayload);
+
+      // 2. Enroll biometric image
+      await ApiClient.enrollImage(registeredPet.id, formData.file);
+
+      // Create object to store locally (with file blob URL so we can show it immediately)
+      const newPet = {
+        ...registeredPet,
+        photoUrl: URL.createObjectURL(formData.file)
+      };
+
+      onSavePet(newPet);
+      onSelectPet(newPet.id);
+      setIsCreatingNew(false);
+
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#DE6828', '#F5E2BE', '#34A853'],
+      });
+    } catch (err: any) {
+      setSubmitError(err.message || 'Registration failed');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -268,22 +293,32 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E8DCce]">
-                  <button
-                    type="button"
-                    onClick={() => setIsCreatingNew(false)}
-                    className="px-5 py-2.5 rounded-full text-sm font-medium text-[#5E4C41] hover:bg-[#EAE0D3] cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    id="save-new-pet-btn"
-                    className="px-6 py-2.5 rounded-full bg-[#DE6828] hover:bg-[#C9581B] text-white text-sm font-semibold shadow-md cursor-pointer"
-                  >
-                    Complete Profile & Generate Tag
-                  </button>
-                </div>
+                  <div className="flex flex-col gap-3 pt-4 border-t border-[#E8DCce]">
+                    {submitError && (
+                      <div className="p-3 bg-red-50 text-red-700 rounded-xl flex gap-2 items-start text-sm">
+                        <AlertCircle className="w-5 h-5 shrink-0" />
+                        <p>{submitError}</p>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsCreatingNew(false)}
+                        disabled={isSubmitting}
+                        className="px-5 py-2.5 rounded-full text-sm font-medium text-[#5E4C41] hover:bg-[#EAE0D3] cursor-pointer disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        id="save-new-pet-btn"
+                        disabled={isSubmitting}
+                        className="px-6 py-2.5 rounded-full bg-[#DE6828] hover:bg-[#C9581B] text-white text-sm font-semibold shadow-md cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {isSubmitting ? 'Creating Profile...' : 'Complete Profile & Generate Tag'}
+                      </button>
+                    </div>
+                  </div>
               </form>
             ) : (
               /* Selected Pet Detail Card */

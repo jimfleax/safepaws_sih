@@ -32,4 +32,14 @@ export class ApiClient {
     if (!res.ok) throw new Error(`Identification failed: ${res.status}`);
     return res.json();
   }
+
+  static async reportSighting(sighting: any): Promise<any> {
+    const res = await fetch('/api/v1/sightings/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sighting),
+    });
+    if (!res.ok) throw new Error(`Sighting failed: ${res.statusText}`);
+    return res.json();
+  }
 }

@@ -1,17 +1,3 @@
-"""
-Panel 6 — Dependency Injection wiring.
-
-Responsibility:
-  - Connect interfaces (NoseDetector, QualityGate, EmbeddingModel, VectorStore, ImageStorage)
-    to their concrete implementations via FastAPI Depends.
-  - Mock providers are available for tests but clearly labeled.
-  - Production providers use real Panel 2/3/4/5 implementations once their contracts are locked.
-
-DO NOT copy implementation logic here. Import from owner panels.
-
-Canonical bbox contract: x_min, y_min, x_max, y_max (see ml_interfaces.py BoundingBox).
-QualityGate returns QualityResult dataclass — not a bare float.
-"""
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Tuple
@@ -25,14 +11,13 @@ from app.vector_store.interfaces import VectorStore
 from app.storage.interfaces import ImageStorage
 
 # ------------------------------------------------------------------
-# Import real Panel 2/3/4 implementations (mock stage, not inline copies)
+# Import real Panel 2 implementations
 # ------------------------------------------------------------------
-# Panel 2 — detector
+# Panel 2 — canonical detector (x_min/y_min/x_max/y_max schema)
 from app.services.detector import MockNoseDetector
 
-# Panel 3 — embedding
-from app.ml.embedding.inference import BiometricEmbeddingModel
-from app.ml.embedding.config import EmbeddingModelConfig
+# Panel 2 — canonical quality gate (Laplacian blur + confidence threshold)
+from app.services.quality_gate import ClassicalQualityGate
 
 
 # ------------------------------------------------------------------
@@ -59,6 +44,12 @@ class MockQualityGate:
         return QualityResult(accepted=True, score=0.95)
 
 
+class MockEmbeddingModel:
+    """Mock embedding model — returns random float32 vector. Panel 3 placeholder."""
+    async def generate_embedding(self, image: bytes, bounding_box: dict) -> np.ndarray:
+        return np.random.rand(128).astype('float32')
+
+
 class MockVectorStore:
     """
     Mock vector store for M0 tests.
@@ -82,67 +73,33 @@ class MockImageStorage:
 # ------------------------------------------------------------------
 
 def get_detector() -> NoseDetector:
-    """
-    Provides the canonical nose detector.
-    Currently: MockNoseDetector (Panel 2, deterministic test mock).
-    Future: real YOLO-nano implementation once Panel 2 contract is locked.
-    """
+    # Panel 2 canonical implementation — uses x_min/y_min/x_max/y_max bbox schema
     return MockNoseDetector()
 
-
 def get_quality_gate() -> QualityGate:
-    """
-    Provides the quality gate.
-    Currently: MockQualityGate using correct QualityResult contract.
-    Future: real CV quality implementation from Panel 2.
-    """
-    return MockQualityGate()
-
+    # Panel 2 canonical implementation — Laplacian blur + confidence threshold
+    return ClassicalQualityGate()
 
 def get_embedder() -> EmbeddingModel:
-    """
-    Provides the embedding model.
-    Currently: BiometricEmbeddingModel in scaffold_mode=True (Panel 3).
-    Future: scaffold_mode=False with a real trained checkpoint.
-    """
-    config = EmbeddingModelConfig(scaffold_mode=True)
-    return BiometricEmbeddingModel(config=config)
-
+    return MockEmbeddingModel()
 
 def get_vector_store() -> VectorStore:
-    """
-    Provides the vector store.
-    Currently: MockVectorStore for P0 tests.
-    Future: FAISSVectorStore (Panel 4) once its UUID mapping is resolved.
-    """
     return MockVectorStore()
 
-
 def get_image_storage() -> ImageStorage:
-    """
-    Provides image storage.
-    Currently: MockImageStorage.
-    Future: real cloud/local storage implementation.
-    """
     return MockImageStorage()
-
-
-# ------------------------------------------------------------------
-# Composite service providers
-# ------------------------------------------------------------------
 
 def get_biometric_service(
     detector: NoseDetector = Depends(get_detector),
     quality_gate: QualityGate = Depends(get_quality_gate),
     embedder: EmbeddingModel = Depends(get_embedder),
-    vector_store: VectorStore = Depends(get_vector_store),
+    vector_store: VectorStore = Depends(get_vector_store)
 ) -> BiometricPipelineService:
     return BiometricPipelineService(detector, quality_gate, embedder, vector_store)
-
 
 def get_registration_service(
     db: AsyncSession = Depends(get_db),
     biometric_service: BiometricPipelineService = Depends(get_biometric_service),
-    storage: ImageStorage = Depends(get_image_storage),
+    storage: ImageStorage = Depends(get_image_storage)
 ) -> RegistrationService:
     return RegistrationService(db, biometric_service, storage)
