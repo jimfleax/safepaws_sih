@@ -66,6 +66,9 @@ class BiometricEmbeddingModel(EmbeddingModel):
         Implements the EmbeddingModel Protocol.
         Input: Raw image bytes and verified bounding box.
         Output: L2-Normalized biometric embedding vector.
+        
+        DEVELOPMENT/TEST SCAFFOLD ONLY. 
+        Not a trained biometric model; do not use to claim biometric accuracy.
         """
         if not self.is_loaded:
             raise DomainException("Model not loaded", "MODEL_NOT_LOADED", 500)

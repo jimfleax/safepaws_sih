@@ -7,7 +7,7 @@ class EmbeddingModelConfig(BaseModel):
     )
     embedding_dimension: int = Field(
         default=128, 
-        description="Dimensionality of the output embedding vector"
+        description="Dimensionality of the output embedding vector (configurable/provisional and pending empirical selection)"
     )
     input_size: tuple[int, int] = Field(
         default=(224, 224), 
