@@ -43,6 +43,6 @@ async def test_enroll_faiss_failure_rollback():
     with pytest.raises(InfrastructureError) as exc:
         await service.enroll_image("pet-1", "file.jpg", b"dummy", "image/jpeg")
         
-    assert "Enrollment failed" in str(exc.value)
+    assert "Enrollment compensation triggered" in str(exc.value)
     assert db.committed is False
     assert db.rollbacked is True

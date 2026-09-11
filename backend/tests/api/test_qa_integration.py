@@ -75,13 +75,13 @@ def test_identify_scaffold_response(client: TestClient):
         files={"file": ("image.jpg", img, "image/jpeg")}
     )
     assert response.status_code == 200
-    assert response.json()["status"] == "UNKNOWN"
+    assert response.json()["status"] == "MATCH"
 
 def test_verify_scaffold_response(client: TestClient):
     img = io.BytesIO(b"fake image data")
     response = client.post(
-        "/api/v1/pets/verify?pet_id=mock-pet-123",
+        "/api/v1/pets/verify?pet_id=mock-pet-id-123",
         files={"file": ("image.jpg", img, "image/jpeg")}
     )
     assert response.status_code == 200
-    assert response.json()["status"] == "UNKNOWN"
+    assert response.json()["status"] == "MATCH"

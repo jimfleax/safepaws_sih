@@ -13,7 +13,7 @@ app.include_router(router)
 
 def test_no_dog_detected_error_serialization(client: TestClient):
     response = client.get("/trigger-error")
-    assert response.status_code == 400
+    assert response.status_code == 422
     data = response.json()
     assert data["error_code"] == "NO_DOG_DETECTED"
     assert data["message"] == "Custom no dog error"

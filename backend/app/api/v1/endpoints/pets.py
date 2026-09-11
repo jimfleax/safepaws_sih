@@ -30,8 +30,7 @@ async def register_pet(
     Register a new pet profile.
     """
     if not hasattr(pet_in, 'consent_given') or not getattr(pet_in, 'consent_given', True):
-        # We assume consent is validated in schema or implicitly if absent in M0 schema.
-        pass
+        raise HTTPException(status_code=403, detail="Consent is required for registration")
         
     return await service.register_pet(pet_in)
 
