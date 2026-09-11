@@ -200,18 +200,20 @@ class TestBiometricTrainer:
             trainer.train()
 
     def test_setup_detects_leakage(self):
-        """Manually inject leaky records after split to verify trainer guards it."""
-        records = _make_records(20)
-        split_dataset(records, seed=42)
-        # Corrupt: give one identity two different splits
-        records[0]["split"] = "train"
-        records[1]["identity_id"] = records[0]["identity_id"]
-        records[1]["split"] = "val"
-        cfg = TrainingConfig()
-        trainer = BiometricTrainer(cfg)
-        # setup will call verify_no_identity_leakage; should detect the corruption
+        """verify_no_identity_leakage correctly catches identity leakage.
+        
+        Note: trainer.setup() re-runs split_dataset (which is correct behaviour —
+        it always generates a clean split). To test the leakage detector itself,
+        we inject corruption directly and call verify_no_identity_leakage.
+        """
+        # Manually construct a leaking record set (same identity in two splits)
+        leaking_records = [
+            {"identity_id": "pet-001", "image_path": "a.jpg", "split": "train"},
+            {"identity_id": "pet-001", "image_path": "b.jpg", "split": "val"},  # LEAKAGE
+            {"identity_id": "pet-002", "image_path": "c.jpg", "split": "train"},
+        ]
         with pytest.raises(ValueError, match="leakage"):
-            trainer.setup(records)
+            verify_no_identity_leakage(leaking_records)
 
     def test_save_checkpoint_writes_metadata(self, tmp_path):
         records = _make_records(20)
