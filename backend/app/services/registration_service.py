@@ -39,22 +39,27 @@ class RegistrationService:
         # 2. Upload to storage (Assume we do this before DB/FAISS commit)
         photo_url = await self.storage.upload_image(file_name, file_bytes, content_type)
         
-        # 3. DB and FAISS transactional boundary logic
-        # Since FAISS isn't atomic with Postgres, we save to DB first but don't commit.
-        # In a real SQLAlchemy setup, we'd do:
-        # self.db.add(ImageRecord(...))
+        # 3. Two-Phase Enrollment Orchestration (Compensation Strategy)
+        # PostgreSQL and FAISS are not an atomic system. 
+        # Strategy:
+        #   a. Save image and pending enrollment to DB (without committing).
+        #   b. Insert embedding to FAISS.
+        #   c. If FAISS insertion fails, rollback the uncommitted DB transaction (Compensation).
+        #      This prevents authoritative DB records from existing without a searchable vector.
+        #   d. If FAISS succeeds, commit the DB transaction.
         
         try:
-            # 4. Insert into FAISS
+            # Step b: Insert into FAISS
             success = await self.pipeline.vector_store.add_vector(pet_id, embedding)
             if not success:
-                raise InfrastructureError("Failed to add vector to FAISS")
+                raise InfrastructureError("FAISS insertion returned failure")
                 
-            # 5. Commit DB
+            # Step d: Commit DB
             await self.db.commit()
             return {"status": "success", "message": f"Image enrolled for pet {pet_id}", "photo_url": photo_url}
             
         except Exception as e:
-            # Rollback DB transaction on FAISS failure
+            # Step c: Compensate DB by rolling back the pending transaction
             await self.db.rollback()
-            raise InfrastructureError(f"Enrollment failed during orchestration: {str(e)}")
+            # Escalate as InfrastructureError, avoiding silent failures
+            raise InfrastructureError(f"Enrollment compensation triggered. Orchestration failed: {str(e)}")

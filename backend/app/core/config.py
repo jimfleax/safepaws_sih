@@ -9,7 +9,11 @@ class Settings(BaseSettings):
     FAISS_INDEX_PATH: str = "faiss_index.bin"
     EMBEDDING_DIMENSION: int = 128
 
-    # Biometric Decision Thresholds (Configurable)
+    # Biometric Decision Thresholds
+    # PROVISIONAL: These values (0.85/0.70) are strictly uncalibrated placeholders for M0 development.
+    # They DO NOT correspond to any verified FAR/FRR/EER metrics.
+    # Final production thresholds MUST be calibrated by Panel 7 using an appropriate 
+    # real biometric evaluation protocol.
     MATCH_THRESHOLD: float = 0.85
     AMBIGUOUS_THRESHOLD: float = 0.70
 
