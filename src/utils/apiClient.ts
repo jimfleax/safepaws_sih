@@ -29,7 +29,14 @@ export class ApiClient {
       method: 'POST',
       body: formData,
     });
-    if (!res.ok) throw new Error(`Identification failed: ${res.status}`);
+    if (!res.ok) {
+      let msg = res.statusText;
+      try {
+        const errData = await res.json();
+        msg = errData.detail || msg;
+      } catch (e) {}
+      throw new Error(`Identification failed: ${msg}`);
+    }
     return res.json();
   }
 
