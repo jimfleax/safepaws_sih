@@ -1,10 +1,12 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from app.schemas.search import SearchResponse
+from app.services.biometric_service import BiometricPipelineService
+from app.api.dependencies import get_biometric_service
 
 router = APIRouter()
 
-MAX_FILE_SIZE = 5 * 1024 * 1024 # 5 MB
-ALLOWED_TYPES = ["image/jpeg", "image/png"]
+ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
+MAX_FILE_SIZE = 5 * 1024 * 1024 # 5MB
 
 def validate_image(file: UploadFile):
     if file.content_type not in ALLOWED_TYPES:
@@ -18,27 +20,26 @@ def validate_image(file: UploadFile):
         raise HTTPException(status_code=413, detail="File too large")
 
 @router.post("/identify", response_model=SearchResponse)
-async def identify_pet(file: UploadFile = File(...)):
+async def identify_pet(
+    file: UploadFile = File(...),
+    service: BiometricPipelineService = Depends(get_biometric_service)
+):
     """
-    Identify a pet from an image using the biometric pipeline. (Scaffolded)
+    Identify a pet from an image using the biometric pipeline.
     """
     validate_image(file)
-    # M0 Scaffold
-    return SearchResponse(
-        status="UNKNOWN",
-        matches=[],
-        message="Identification strictly scaffolded in M0"
-    )
+    file_bytes = await file.read()
+    return await service.identify(file_bytes)
 
 @router.post("/verify", response_model=SearchResponse)
-async def verify_pet(pet_id: str, file: UploadFile = File(...)):
+async def verify_pet(
+    pet_id: str,
+    file: UploadFile = File(...),
+    service: BiometricPipelineService = Depends(get_biometric_service)
+):
     """
-    Verify if an image matches a specific pet ID. (Scaffolded)
+    Verify if an image matches a specific pet ID.
     """
     validate_image(file)
-    # M0 Scaffold
-    return SearchResponse(
-        status="UNKNOWN",
-        matches=[],
-        message="Verification strictly scaffolded in M0"
-    )
+    file_bytes = await file.read()
+    return await service.verify(pet_id, file_bytes)

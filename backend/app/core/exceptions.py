@@ -28,17 +28,20 @@ async def domain_exception_handler(request: Request, exc: DomainException) -> JS
 
 class NoDogDetectedError(DomainException):
     def __init__(self, message: str = "No dog detected in the provided image."):
-        super().__init__(message=message, error_code="NO_DOG_DETECTED", status_code=400)
+        super().__init__(message=message, error_code="NO_DOG_DETECTED", status_code=422)
+
+class MultiDogDetectedError(DomainException):
+    def __init__(self, message: str = "Multiple dogs detected. Please provide an image with only one dog."):
+        super().__init__(message=message, error_code="MULTI_DOG_DETECTED", status_code=422)
 
 class LowQualityImageError(DomainException):
     def __init__(self, message: str = "Image quality is too low for reliable processing."):
-        super().__init__(message=message, error_code="LOW_QUALITY_IMAGE", status_code=400)
+        super().__init__(message=message, error_code="LOW_QUALITY_IMAGE", status_code=422)
 
 class VectorStoreError(DomainException):
     def __init__(self, message: str = "Vector store operation failed."):
-        super().__init__(message=message, error_code="VECTOR_STORE_FAILURE", status_code=500)
+        super().__init__(message=message, error_code="VECTOR_STORE_FAILURE", status_code=503)
 
-class MultiDogDetectedError(DomainException):
-    def __init__(self, message: str = "Multiple dogs detected in the image. Please upload an image with only one dog."):
-        super().__init__(message=message, error_code="MULTI_DOG_DETECTED", status_code=400)
-
+class InfrastructureError(DomainException):
+    def __init__(self, message: str = "A required infrastructure service is unavailable.", error_code: str = "INFRASTRUCTURE_FAILURE"):
+        super().__init__(message=message, error_code=error_code, status_code=503)
