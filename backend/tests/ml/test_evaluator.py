@@ -16,8 +16,8 @@ def test_eer_calculation():
 
 def test_score_direction_and_auc():
     # Genuine = 1, Impostor = 0. Higher score = stronger match
-    labels = [1, 1, 0, 0]
-    scores = [0.9, 0.8, 0.2, 0.1]
+    labels = [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+    scores = [0.9, 0.8, 0.7, 0.8, 0.9, 0.2, 0.1, 0.2, 0.3, 0.1]
     # Perfect separation, AUC should be 1.0
     results = evaluate_verification(scores, labels)
     assert results["AUC"] == 1.0
