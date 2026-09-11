@@ -4,11 +4,28 @@ from typing import Dict, Any
 
 router = APIRouter()
 
+MAX_FILE_SIZE = 5 * 1024 * 1024 # 5 MB
+ALLOWED_TYPES = ["image/jpeg", "image/png"]
+
+def validate_image(file: UploadFile):
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(status_code=415, detail="Unsupported file type")
+    
+    file.file.seek(0, 2)
+    size = file.file.tell()
+    file.file.seek(0)
+    
+    if size > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="File too large")
+
 @router.post("/register", response_model=PetResponse, status_code=status.HTTP_201_CREATED)
 async def register_pet(pet_in: PetCreate):
     """
     Register a new pet profile. (Scaffolded)
     """
+    if not pet_in.consent_given:
+        raise HTTPException(status_code=403, detail="Consent is required for registration")
+        
     # M0 Scaffold: Return mock data matching interface
     return PetResponse(
         id="mock-pet-id-123",
@@ -23,6 +40,7 @@ async def enroll_image(pet_id: str, file: UploadFile = File(...)):
     """
     Enroll an image for an existing pet for biometric registration. (Scaffolded)
     """
+    validate_image(file)
     # M0 Scaffold
     return {"status": "success", "message": f"Image enrolled for pet {pet_id}"}
 
@@ -46,5 +64,6 @@ async def get_pet(pet_id: str):
         neighborhood="Downtown",
         photo_url="https://mock-image.url",
         status="safe",
-        qr_tag_id=f"qr-{pet_id}"
+        qr_tag_id=f"qr-{pet_id}",
+        consent_given=True
     )

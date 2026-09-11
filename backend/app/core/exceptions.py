@@ -37,3 +37,8 @@ class LowQualityImageError(DomainException):
 class VectorStoreError(DomainException):
     def __init__(self, message: str = "Vector store operation failed."):
         super().__init__(message=message, error_code="VECTOR_STORE_FAILURE", status_code=500)
+
+class MultiDogDetectedError(DomainException):
+    def __init__(self, message: str = "Multiple dogs detected in the image. Please upload an image with only one dog."):
+        super().__init__(message=message, error_code="MULTI_DOG_DETECTED", status_code=400)
+

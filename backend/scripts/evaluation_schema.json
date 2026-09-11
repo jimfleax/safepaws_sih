@@ -1,0 +1,27 @@
+{
+  "dataset_name": "string",
+  "protocol": "string",
+  "num_identities": "integer",
+  "num_images": "integer",
+  "metrics": {
+    "verification": {
+      "AUC": "float",
+      "EER": "float",
+      "EER_Threshold": "float",
+      "Operating_Points": {
+        "TAR@FAR=0.1": "float",
+        "TAR@FAR=0.01": "float",
+        "TAR@FAR=0.001": "float"
+      }
+    },
+    "identification": {
+      "Rank-1": "float",
+      "Rank-5": "float"
+    },
+    "open_set": {
+      "Unknown_Rejection_Rate": "float",
+      "Ambiguity_Rate": "float"
+    }
+  },
+  "limitations": "string"
+}

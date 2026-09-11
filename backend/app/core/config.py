@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/safepaws"
     DEBUG: bool = True
+    FAISS_INDEX_PATH: str = "faiss_index.bin"
+    EMBEDDING_DIMENSION: int = 128
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

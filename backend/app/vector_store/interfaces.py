@@ -19,3 +19,19 @@ class VectorStore(Protocol):
         Ownership: Infrastructure / Backend (Panel 1/6)
         """
         pass
+
+    async def remove_vector(self, pet_id: str) -> bool:
+        """
+        Input: Pet ID to remove.
+        Output: True on success.
+        Failure: Raises VectorStoreError.
+        """
+        pass
+
+    async def rebuild(self, vectors: List[Tuple[str, np.ndarray]]) -> bool:
+        """
+        Input: List of (pet_id, vector) to rebuild the entire index.
+        Output: True on success.
+        Failure: Raises VectorStoreError.
+        """
+        pass

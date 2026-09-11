@@ -1,5 +1,5 @@
 from typing import Optional, List
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 class PetBase(BaseModel):
     name: str
@@ -18,6 +18,8 @@ class PetBase(BaseModel):
     diet_notes: Optional[str] = None
     reward: Optional[str] = None
     distinctive_features: List[str] = []
+    
+    consent_given: bool = Field(default=False, description="User must explicitly give consent to store biometric data")
 
 class PetCreate(PetBase):
     pass
