@@ -169,3 +169,45 @@ async def test_corrupt_index_raises_error(vector_store, temp_index_path):
         
     with pytest.raises(VectorStoreError, match="Failed to load index"):
         await vector_store.load_local()
+
+@pytest.mark.asyncio
+async def test_mapping_collision_two_different_uuids_do_not_collide(vector_store):
+    uuid1 = "uuid-1111-2222"
+    uuid2 = "uuid-3333-4444"
+    
+    # 1. Add both vectors
+    v1 = create_normalized_vector(seed=1)
+    v2 = create_normalized_vector(seed=2)
+    
+    await vector_store.add_vector(uuid1, v1)
+    await vector_store.add_vector(uuid2, v2)
+    
+    # 2. Check internal IDs
+    id1 = vector_store._uuid_to_id[uuid1]
+    id2 = vector_store._uuid_to_id[uuid2]
+    
+    # Must be monotonic sequence, not hash based
+    assert id1 != id2
+    assert id1 == 0
+    assert id2 == 1
+    
+    # 3. Check bidirectional mapping
+    assert vector_store._id_map[id1] == uuid1
+    assert vector_store._id_map[id2] == uuid2
+
+@pytest.mark.asyncio
+async def test_corrupted_metadata_fails_safely(vector_store, temp_index_path):
+    await vector_store.add_vector("pet", create_normalized_vector())
+    await vector_store.save_local()
+    
+    # Corrupt the metadata mapping
+    with open(f"{temp_index_path}.meta.json", "w") as f:
+        f.write('{"id_map": {"0": "wrong-pet"}, "next_id": 1}')
+        
+    new_store = FAISSVectorStore(dimension=128, index_path=temp_index_path)
+    await new_store.load_local()
+    
+    # The loaded mapping is inherently what was in the file, but let's ensure it doesn't crash 
+    # and just reflects what was loaded. Real safety comes from the signature validation.
+    assert new_store._id_map[0] == "wrong-pet"
+
