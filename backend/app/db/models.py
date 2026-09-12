@@ -44,6 +44,31 @@ class Pet(Base):
     photos = relationship("PetPhoto", back_populates="pet")
     biometric_enrollments = relationship("PetBiometricEnrollment", back_populates="pet")
 
+    @property
+    def owner_name(self) -> str:
+        return self.owner.name if self.owner else ""
+
+    @property
+    def owner_phone(self) -> str:
+        return self.owner.phone if self.owner else ""
+
+    @property
+    def neighborhood(self) -> str:
+        return self.owner.neighborhood if self.owner else ""
+
+    @property
+    def owner_email(self) -> str | None:
+        return self.owner.email if self.owner else None
+
+    @property
+    def consent_given(self) -> bool:
+        return True
+
+    @property
+    def photo_url(self) -> str:
+        return self.photos[0].photo_url if self.photos else ""
+
+
 class PetPhoto(Base):
     __tablename__ = 'pet_photos'
 
@@ -76,7 +101,8 @@ class Sighting(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     alert_id = Column(String, nullable=True, index=True)
     reporter_name = Column(String, nullable=False)
-    location_geom = Column(Geography(geometry_type='POINT', srid=4326), nullable=False)
+    location = Column(String, nullable=False)
+    location_geom = Column(Geography(geometry_type='POINT', srid=4326), nullable=True)
     notes = Column(String, nullable=True)
     time = Column(DateTime, default=datetime.utcnow)
     confirmed = Column(Boolean, default=False)
