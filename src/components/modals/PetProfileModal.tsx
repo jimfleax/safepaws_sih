@@ -28,9 +28,13 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
   onOpenQrTag,
   onTriggerLostAlert,
 }) => {
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [isCreatingNew, setIsCreatingNew] = useState(pets.length === 0);
   const [petToDelete, setPetToDelete] = useState<Pet | null>(null);
   const selectedPet = pets.find((p) => p.id === selectedPetId) || pets[0];
+
+  React.useEffect(() => {
+    if (pets.length === 0) setIsCreatingNew(true);
+  }, [pets.length]);
 
   // New Pet Form State
   const [formData, setFormData] = useState({

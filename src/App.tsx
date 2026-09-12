@@ -25,91 +25,16 @@ import { InfoModal } from './components/modals/InfoModal';
 import { IdentifyModal } from './components/modals/IdentifyModal';
 import { ApiClient } from './utils/apiClient';
 
-// Mock Data
-import { initialPets, sampleAlerts, sampleSightings } from './data/mockData';
 import { Pet, NeighborhoodAlert, CommunitySighting } from './types';
 
 export default function App() {
   // Always show the starting portal animation on every page refresh / load
   const [hasEntered, setHasEntered] = useState<boolean>(false);
 
-  const [pets, setPets] = useState<Pet[]>(() => {
-    try {
-      const saved = localStorage.getItem('safepaws_pets');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      console.error('Failed to parse saved pets from localStorage', e);
-    }
-    return initialPets;
-  });
-
-  const [selectedPetId, setSelectedPetId] = useState<string>(() => {
-    try {
-      const savedId = localStorage.getItem('safepaws_selected_pet_id');
-      if (savedId) return savedId;
-    } catch {}
-    return 'pet-olive';
-  });
-
-  const [alerts, setAlerts] = useState<NeighborhoodAlert[]>(() => {
-    try {
-      const saved = localStorage.getItem('safepaws_alerts');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      console.error('Failed to parse saved alerts from localStorage', e);
-    }
-    return sampleAlerts;
-  });
-
-  const [sightings, setSightings] = useState<CommunitySighting[]>(() => {
-    try {
-      const saved = localStorage.getItem('safepaws_sightings');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch (e) {
-      console.error('Failed to parse saved sightings from localStorage', e);
-    }
-    return sampleSightings;
-  });
-
-  // Keep localStorage in sync with state changes
-  useEffect(() => {
-    try {
-      localStorage.setItem('safepaws_pets', JSON.stringify(pets));
-    } catch (e) {
-      console.error('Failed to save pets to localStorage', e);
-    }
-  }, [pets]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('safepaws_selected_pet_id', selectedPetId);
-    } catch {}
-  }, [selectedPetId]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('safepaws_alerts', JSON.stringify(alerts));
-    } catch (e) {
-      console.error('Failed to save alerts to localStorage', e);
-    }
-  }, [alerts]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('safepaws_sightings', JSON.stringify(sightings));
-    } catch (e) {
-      console.error('Failed to save sightings to localStorage', e);
-    }
-  }, [sightings]);
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [selectedPetId, setSelectedPetId] = useState<string>('');
+  const [alerts, setAlerts] = useState<NeighborhoodAlert[]>([]);
+  const [sightings, setSightings] = useState<CommunitySighting[]>([]);
 
   // Modal Visibility States
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -122,7 +47,7 @@ export default function App() {
   const [infoModalType, setInfoModalType] = useState<'privacy' | 'guidelines' | 'contact' | null>(null);
 
   const activePet = pets.find((p) => p.id === selectedPetId) || pets[0];
-  const activeAlert = alerts[0] || {
+  const activeAlert = alerts[0] || (activePet ? {
     id: 'alert-default',
     petId: activePet.id,
     petName: activePet.name,
@@ -135,7 +60,7 @@ export default function App() {
     lastSeenAddress: 'Oakridge Park near Elm St',
     description: 'Slipped out the back gate.',
     sightingsCount: sightings.length,
-  };
+  } : undefined);
 
   const handleSavePet = (newPet: Pet) => {
     setPets((prev) => [newPet, ...prev]);
@@ -214,6 +139,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#241812] selection:bg-[#DE6828]/20 selection:text-[#B54C14]">
+      {/* Prototype Indicator */}
+      <div className="fixed bottom-4 right-4 z-[999] bg-[#DE6828] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg opacity-80 pointer-events-none flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+        Prototype Mode
+      </div>
+
       {/* Clean Custom Cursor: inner dot follows immediately, outer circle lags smoothly with no blur */}
       <CustomCursor isModalOpen={isAnyModalOpen} />
 
@@ -233,7 +164,7 @@ export default function App() {
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
         onOpenProfile={() => setIsProfileModalOpen(true)}
-        onOpenAlerts={() => setIsLostAlertModalOpen(true)}
+        onOpenAlerts={() => activePet ? setIsLostAlertModalOpen(true) : setIsProfileModalOpen(true)}
         onOpenIdentify={() => setIsIdentifyModalOpen(true)}
         activeAlertCount={alerts.filter((a) => a.status === 'active').length}
       />
@@ -243,25 +174,27 @@ export default function App() {
         <Hero
           onJoinClick={() => setIsProfileModalOpen(true)}
           onOpenOliveProfile={() => {
-            setSelectedPetId('pet-olive');
+            if (pets.length > 0) {
+              setSelectedPetId(pets[0].id);
+            }
             setIsProfileModalOpen(true);
           }}
-          onOpenLostAlert={() => setIsLostAlertModalOpen(true)}
+          onOpenLostAlert={() => activePet ? setIsLostAlertModalOpen(true) : setIsProfileModalOpen(true)}
           onIdentifyClick={() => setIsIdentifyModalOpen(true)}
         />
 
         {/* 3. Feature Bento Cards: "ONE PLACE TO KEEP THEM SAFE" */}
         <FeaturesSection
-          onOpenBiometric={() => setIsBiometricModalOpen(true)}
+          onOpenBiometric={() => activePet ? setIsBiometricModalOpen(true) : setIsProfileModalOpen(true)}
           onOpenNetwork={() => setIsCommunityModalOpen(true)}
-          onOpenQrTags={() => setIsQrModalOpen(true)}
+          onOpenQrTags={() => activePet ? setIsQrModalOpen(true) : setIsProfileModalOpen(true)}
         />
 
         {/* 4. Espresso Dark Section: "SIMPLE FROM DAY ONE" */}
         <StepsDarkSection
           onStep1Click={() => setIsProfileModalOpen(true)}
           onStep2Click={() => setIsCommunityModalOpen(true)}
-          onStep3Click={() => setIsLostAlertModalOpen(true)}
+          onStep3Click={() => activePet ? setIsLostAlertModalOpen(true) : setIsProfileModalOpen(true)}
         />
 
         {/* 5. Bottom Call to Action: "YOUR NEIGHBORHOOD, CONNECTED" */}
@@ -290,38 +223,44 @@ export default function App() {
         onTriggerLostAlert={handleTriggerLostAlertForPet}
       />
 
-      <QrTagModal
-        isOpen={isQrModalOpen}
-        onClose={() => setIsQrModalOpen(false)}
-        pet={activePet}
-        onReportSighting={(loc, note) => {
-          handleAddSighting({
-            id: `sight-${Date.now()}`,
-            alertId: activeAlert.id,
-            reporterName: 'Good Samaritan (QR Tag Scan)',
-            location: loc,
-            time: 'Just now',
-            notes: note,
-            confirmed: true,
-          });
-        }}
-      />
+      {activePet && (
+        <QrTagModal
+          isOpen={isQrModalOpen}
+          onClose={() => setIsQrModalOpen(false)}
+          pet={activePet}
+          onReportSighting={(loc, note) => {
+            handleAddSighting({
+              id: `sight-${Date.now()}`,
+              alertId: activeAlert?.id || 'alert-default',
+              reporterName: 'Good Samaritan (QR Tag Scan)',
+              location: loc,
+              time: 'Just now',
+              notes: note,
+              confirmed: true,
+            });
+          }}
+        />
+      )}
 
-      <LostAlertModal
-        isOpen={isLostAlertModalOpen}
-        onClose={() => setIsLostAlertModalOpen(false)}
-        pet={activePet}
-        alert={activeAlert}
-        sightings={sightings}
-        onAddSighting={handleAddSighting}
-        onResolveAlert={handleResolveAlert}
-      />
+      {activePet && activeAlert && (
+        <LostAlertModal
+          isOpen={isLostAlertModalOpen}
+          onClose={() => setIsLostAlertModalOpen(false)}
+          pet={activePet}
+          alert={activeAlert}
+          sightings={sightings}
+          onAddSighting={handleAddSighting}
+          onResolveAlert={handleResolveAlert}
+        />
+      )}
 
-      <BiometricModal
-        isOpen={isBiometricModalOpen}
-        onClose={() => setIsBiometricModalOpen(false)}
-        pet={activePet}
-      />
+      {activePet && (
+        <BiometricModal
+          isOpen={isBiometricModalOpen}
+          onClose={() => setIsBiometricModalOpen(false)}
+          pet={activePet}
+        />
+      )}
 
       <CommunityModal
         isOpen={isCommunityModalOpen}
@@ -338,10 +277,19 @@ export default function App() {
       <IdentifyModal
         isOpen={isIdentifyModalOpen}
         onClose={() => setIsIdentifyModalOpen(false)}
-        onIdentifySuccess={(res) => {
-          // If match, maybe open pet profile? 
+        onIdentifySuccess={async (res) => {
           if (res.status === 'MATCH' && res.matches.length > 0) {
-             setSelectedPetId(res.matches[0].pet_id);
+             const matchedId = res.matches[0].pet_id;
+             let petExists = pets.some(p => p.id === matchedId);
+             if (!petExists) {
+               try {
+                 const fetchedPet = await ApiClient.getPet(matchedId);
+                 setPets(prev => [fetchedPet, ...prev]);
+               } catch (e) {
+                 console.error("Failed to fetch identified pet details", e);
+               }
+             }
+             setSelectedPetId(matchedId);
              setTimeout(() => {
                 setIsIdentifyModalOpen(false);
                 setIsProfileModalOpen(true);

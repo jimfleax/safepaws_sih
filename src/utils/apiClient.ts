@@ -26,6 +26,30 @@ export class ApiClient {
     return res.json();
   }
 
+  static async getPet(petId: string): Promise<Pet> {
+    const res = await fetch(`/api/v1/pets/${petId}`);
+    if (!res.ok) throw new Error(`Failed to fetch pet: ${res.statusText}`);
+    const data = await res.json();
+    return {
+      id: data.id,
+      name: data.name,
+      species: data.species,
+      breed: data.breed,
+      color: data.color,
+      age: data.age,
+      weight: data.weight,
+      ownerName: data.owner_name,
+      ownerPhone: data.owner_phone,
+      neighborhood: data.neighborhood,
+      medicalNotes: data.medical_notes,
+      distinctiveFeatures: data.distinctive_features,
+      microchipId: data.microchip_id,
+      photoUrl: data.photo_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+      status: data.status,
+      qrTagId: data.qr_tag_id
+    };
+  }
+
   static async enrollImage(petId: string, file: File): Promise<{status: string, message: string}> {
     const formData = new FormData();
     formData.append('file', file);
