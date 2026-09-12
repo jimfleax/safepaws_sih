@@ -78,6 +78,7 @@ def test_identify_scaffold_response(client: TestClient):
     from app.services.ml_interfaces import QualityResult
 
     class _FakeEmbedder:
+        is_scaffold_mode = True
         async def generate_embedding(self, image: bytes, bbox: dict):
             return np.random.rand(128).astype("float32")
 
@@ -108,6 +109,7 @@ def test_identify_scaffold_response(client: TestClient):
         )
         assert response.status_code == 200
         assert response.json()["status"] == "MATCH"
+        assert response.json()["pipeline_mode"] == "DEMONSTRATOR"
     finally:
         app.dependency_overrides.clear()
 
@@ -118,6 +120,7 @@ def test_verify_scaffold_response(client: TestClient):
     from app.services.ml_interfaces import QualityResult
 
     class _FakeEmbedder:
+        is_scaffold_mode = True
         async def generate_embedding(self, image: bytes, bbox: dict):
             return np.random.rand(128).astype("float32")
 
@@ -148,5 +151,6 @@ def test_verify_scaffold_response(client: TestClient):
         )
         assert response.status_code == 200
         assert response.json()["status"] == "MATCH"
+        assert response.json()["pipeline_mode"] == "DEMONSTRATOR"
     finally:
         app.dependency_overrides.clear()

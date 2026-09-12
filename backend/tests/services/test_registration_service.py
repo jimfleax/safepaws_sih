@@ -8,11 +8,13 @@ class MockBiometricService:
     def __init__(self, fail_faiss=False):
         self.fail_faiss = fail_faiss
         self.vector_store = self
+        self.embedder = self
+        self.is_scaffold_mode = True
         
     async def _process_image(self, b): return b"emb"
     async def add_vector(self, pet_id, emb):
         if self.fail_faiss:
-            raise Exception("FAISS crashed")
+            return False
         return True
 
 class MockStorage:
