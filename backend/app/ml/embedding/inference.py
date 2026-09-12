@@ -162,6 +162,10 @@ class BiometricEmbeddingModel:
         self._checkpoint_metadata: dict = {}
         self._load_model()
 
+    @property
+    def is_scaffold_mode(self) -> bool:
+        return self.config.scaffold_mode
+
     # ------------------------------------------------------------------
     # Model loading (once at startup)
     # ------------------------------------------------------------------

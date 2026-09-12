@@ -154,5 +154,10 @@ class EmbeddingModel(Protocol):
     - Raises DomainException on preprocessing or inference failure.
     - Ownership: Panel 3 (embedding model internals); interface owned by Panel 2.
     """
+    @property
+    def is_scaffold_mode(self) -> bool:
+        """Returns True if the model is running in a demonstrator/scaffold mode rather than real biometric inference."""
+        ...
+
     async def generate_embedding(self, image: bytes, bounding_box: dict) -> np.ndarray: ...
 

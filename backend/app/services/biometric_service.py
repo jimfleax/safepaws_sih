@@ -65,22 +65,23 @@ class BiometricPipelineService:
         Infrastructure failure raises 503 — never silently becomes UNKNOWN.
         """
         embedding = await self._process_image(file_bytes)
+        mode = "DEMONSTRATOR" if getattr(self.embedder, "is_scaffold_mode", False) else "PRODUCTION"
 
         # VectorStoreError propagates as 503 — never swallowed as UNKNOWN.
         results = await self.vector_store.search(embedding, top_k=5)
 
         if not results:
-            return SearchResponse(status="UNKNOWN", matches=[], message="No candidates in gallery.")
+            return SearchResponse(status="UNKNOWN", matches=[], message="No candidates in gallery.", pipeline_mode=mode)
 
         top_match_id, top_score = results[0]
         matches = [SearchResultMatch(pet_id=pid, confidence=score) for pid, score in results]
 
         if top_score >= settings.MATCH_THRESHOLD:
-            return SearchResponse(status="MATCH", matches=matches, message="High confidence match found.")
+            return SearchResponse(status="MATCH", matches=matches, message="High confidence match found.", pipeline_mode=mode)
         elif top_score >= settings.AMBIGUOUS_THRESHOLD:
-            return SearchResponse(status="AMBIGUOUS", matches=matches, message="Possible matches found. Manual review required.")
+            return SearchResponse(status="AMBIGUOUS", matches=matches, message="Possible matches found. Manual review required.", pipeline_mode=mode)
         else:
-            return SearchResponse(status="UNKNOWN", matches=[], message="No candidate met the acceptance threshold.")
+            return SearchResponse(status="UNKNOWN", matches=[], message="No candidate met the acceptance threshold.", pipeline_mode=mode)
 
     async def verify(self, pet_id: str, file_bytes: bytes) -> SearchResponse:
         """
@@ -88,6 +89,7 @@ class BiometricPipelineService:
         Infrastructure failure propagates as 503.
         """
         embedding = await self._process_image(file_bytes)
+        mode = "DEMONSTRATOR" if getattr(self.embedder, "is_scaffold_mode", False) else "PRODUCTION"
 
         # VectorStoreError propagates as 503 — never swallowed as UNKNOWN.
         results = await self.vector_store.search(embedding, top_k=5)
@@ -98,14 +100,16 @@ class BiometricPipelineService:
                     return SearchResponse(
                         status="MATCH",
                         matches=[SearchResultMatch(pet_id=pid, confidence=score)],
-                        message="Identity verified."
+                        message="Identity verified.",
+                        pipeline_mode=mode
                     )
                 elif score >= settings.AMBIGUOUS_THRESHOLD:
                     return SearchResponse(
                         status="AMBIGUOUS",
                         matches=[SearchResultMatch(pet_id=pid, confidence=score)],
-                        message="Verification inconclusive. Manual review required."
+                        message="Verification inconclusive. Manual review required.",
+                        pipeline_mode=mode
                     )
 
         # Pet not found in top-k, or score below threshold — genuine no-match
-        return SearchResponse(status="UNKNOWN", matches=[], message="Identity not verified.")
+        return SearchResponse(status="UNKNOWN", matches=[], message="Identity not verified.", pipeline_mode=mode)

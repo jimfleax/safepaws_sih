@@ -11,80 +11,39 @@ from app.vector_store.interfaces import VectorStore
 from app.storage.interfaces import ImageStorage
 
 # ------------------------------------------------------------------
-# Import real Panel 2 implementations
+# Import real Panel implementations
 # ------------------------------------------------------------------
-# Panel 2 — canonical detector (x_min/y_min/x_max/y_max schema)
 from app.services.detector import MockNoseDetector
-
-# Panel 2 — canonical quality gate (Laplacian blur + confidence threshold)
 from app.services.quality_gate import ClassicalQualityGate
-
-
-# ------------------------------------------------------------------
-# Test / development mock providers
-# These are used in tests and as fallbacks while real implementations
-# are being calibrated. They are clearly identified — never passed off
-# as production implementations.
-# ------------------------------------------------------------------
-
-class MockQualityGate:
-    """
-    Mock quality gate for M0 tests.
-    Uses canonical QualityResult return type (NOT a bare float).
-    Accepts all images by default; returns rejection on mock_low_quality payload.
-    """
-    async def evaluate(self, image: bytes, bounding_box: dict) -> QualityResult:
-        payload = image.decode("utf-8", errors="ignore")
-        if "mock_low_quality" in payload:
-            return QualityResult(
-                accepted=False,
-                score=0.25,
-                rejection_reason=QualityResult.REASON_BLUR
-            )
-        return QualityResult(accepted=True, score=0.95)
-
-
-class MockEmbeddingModel:
-    """Mock embedding model — returns random float32 vector. Panel 3 placeholder."""
-    async def generate_embedding(self, image: bytes, bounding_box: dict) -> np.ndarray:
-        return np.random.rand(128).astype('float32')
-
-
-class MockVectorStore:
-    """
-    Mock vector store for M0 tests.
-    Returns a predictable result for test assertions.
-    """
-    async def add_vector(self, pet_id: str, vector: np.ndarray) -> bool:
-        return True
-
-    async def search(self, vector: np.ndarray, top_k: int = 5) -> List[Tuple[str, float]]:
-        return [("mock-pet-id-123", 0.9)]
-
+from app.ml.embedding.inference import BiometricEmbeddingModel
+from app.ml.embedding.config import EmbeddingModelConfig
+from app.vector_store.faiss_store import FAISSVectorStore
 
 class MockImageStorage:
     """Mock image storage for M0 tests."""
     async def upload_image(self, file_name: str, file_bytes: bytes, content_type: str) -> str:
         return f"https://mock-storage.com/{file_name}"
 
-
 # ------------------------------------------------------------------
 # Provider functions — wired via FastAPI Depends
 # ------------------------------------------------------------------
 
 def get_detector() -> NoseDetector:
-    # Panel 2 canonical implementation — uses x_min/y_min/x_max/y_max bbox schema
+    # Panel 2 canonical implementation
     return MockNoseDetector()
 
 def get_quality_gate() -> QualityGate:
-    # Panel 2 canonical implementation — Laplacian blur + confidence threshold
+    # Panel 2 canonical implementation
     return ClassicalQualityGate()
 
 def get_embedder() -> EmbeddingModel:
-    return MockEmbeddingModel()
+    # Panel 3 implementation, scaffold_mode=True for M0
+    config = EmbeddingModelConfig(scaffold_mode=True)
+    return BiometricEmbeddingModel(config=config)
 
 def get_vector_store() -> VectorStore:
-    return MockVectorStore()
+    # Panel 4 canonical implementation
+    return FAISSVectorStore()
 
 def get_image_storage() -> ImageStorage:
     return MockImageStorage()

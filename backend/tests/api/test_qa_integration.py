@@ -89,9 +89,16 @@ def test_identify_scaffold_response(client: TestClient):
         async def evaluate(self, image: bytes, bbox: dict) -> QualityResult:
             return QualityResult(accepted=True, score=0.95)
 
+    class _FakeVectorStore:
+        async def add_vector(self, pet_id: str, vector: np.ndarray): return True
+        async def search(self, vector: np.ndarray, top_k: int): return [("mock-pet-id-123", 0.9)]
+        async def remove_vector(self, pet_id: str): return True
+        async def rebuild(self, vectors): return True
+
     app.dependency_overrides[dependencies.get_embedder] = lambda: _FakeEmbedder()
     app.dependency_overrides[dependencies.get_detector] = lambda: _FakeDetector()
     app.dependency_overrides[dependencies.get_quality_gate] = lambda: _FakeQuality()
+    app.dependency_overrides[dependencies.get_vector_store] = lambda: _FakeVectorStore()
 
     img = io.BytesIO(b"fake image data")
     try:
@@ -122,9 +129,16 @@ def test_verify_scaffold_response(client: TestClient):
         async def evaluate(self, image: bytes, bbox: dict) -> QualityResult:
             return QualityResult(accepted=True, score=0.95)
 
+    class _FakeVectorStore:
+        async def add_vector(self, pet_id: str, vector: np.ndarray): return True
+        async def search(self, vector: np.ndarray, top_k: int): return [("mock-pet-id-123", 0.9)]
+        async def remove_vector(self, pet_id: str): return True
+        async def rebuild(self, vectors): return True
+
     app.dependency_overrides[dependencies.get_embedder] = lambda: _FakeEmbedder()
     app.dependency_overrides[dependencies.get_detector] = lambda: _FakeDetector()
     app.dependency_overrides[dependencies.get_quality_gate] = lambda: _FakeQuality()
+    app.dependency_overrides[dependencies.get_vector_store] = lambda: _FakeVectorStore()
 
     img = io.BytesIO(b"fake image data")
     try:

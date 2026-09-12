@@ -35,6 +35,7 @@ class RegistrationService:
     async def enroll_image(self, pet_id: str, file_name: str, file_bytes: bytes, content_type: str) -> dict:
         # 1. Pipeline ML processing (Detection, Quality, Embed)
         embedding = await self.pipeline._process_image(file_bytes)
+        mode = "DEMONSTRATOR" if getattr(self.pipeline.embedder, "is_scaffold_mode", False) else "PRODUCTION"
         
         # 2. Upload to storage (Assume we do this before DB/FAISS commit)
         photo_url = await self.storage.upload_image(file_name, file_bytes, content_type)
@@ -56,7 +57,12 @@ class RegistrationService:
                 
             # Step d: Commit DB
             await self.db.commit()
-            return {"status": "success", "message": f"Image enrolled for pet {pet_id}", "photo_url": photo_url}
+            return {
+                "status": "success", 
+                "message": f"Image enrolled for pet {pet_id}", 
+                "photo_url": photo_url,
+                "pipeline_mode": mode
+            }
             
         except Exception as e:
             # Step c: Compensate DB by rolling back the pending transaction
