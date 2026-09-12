@@ -3,7 +3,10 @@ from app.schemas.pet import PetCreate, PetResponse
 from typing import Dict, Any
 
 from app.services.registration_service import RegistrationService
-from app.api.dependencies import get_registration_service
+from app.api.dependencies import get_registration_service, get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.db.models import Pet, Owner
 
 router = APIRouter()
 
@@ -32,8 +35,6 @@ async def register_pet(
     Register a new pet profile.
     Requires explicit owner consent (consent_given=true) before any data is stored.
     """
-    # Pydantic-level check — consent_given is a required field in PetCreate.
-    # Reject at the API layer before the service is called.
     if not pet_in.consent_given:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -51,8 +52,6 @@ async def enroll_image(
 ):
     """
     Enroll a biometric image for an existing pet profile.
-    Runs the full detector → quality → embedding → FAISS insertion pipeline.
-    DB and FAISS are not atomic; compensation (rollback) is applied on failure.
     """
     validate_image(file)
     file_bytes = await file.read()
@@ -65,20 +64,46 @@ async def enroll_image(
 
 
 @router.get("/{pet_id}", response_model=PetResponse)
-async def get_pet(pet_id: str):
+async def get_pet(
+    pet_id: str,
+    db: AsyncSession = Depends(get_db)
+):
     """
-    Get a public-safe pet profile by ID.
-
-    SCAFFOLD: Real DB query via Panel 5 session not yet wired.
-    Returns 404 for all IDs until Panel 5 DB integration is active.
-    Panel 1 must wire the DB session dependency here to enable real lookups.
+    Get a public-safe pet profile by ID from the database.
     """
-    # Temporary: return 404 until real DB session + Pet model query is integrated.
-    # This avoids returning fabricated PII or stale mock data in test/staging.
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=(
-            f"Pet '{pet_id}' not found. "
-            "Note: GET /pets/{pet_id} requires Panel 5 DB integration — not yet active."
+    stmt = select(Pet).where(Pet.id == pet_id)
+    result = await db.execute(stmt)
+    pet = result.scalars().first()
+    
+    if not pet:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Pet '{pet_id}' not found."
         )
+        
+    owner_stmt = select(Owner).where(Owner.id == pet.owner_id)
+    owner_result = await db.execute(owner_stmt)
+    owner = owner_result.scalars().first()
+    
+    return PetResponse(
+        id=pet.id,
+        name=pet.name,
+        species=pet.species,
+        breed=pet.breed or "",
+        color=pet.color or "",
+        age=pet.age or "",
+        owner_name=owner.name if owner else "",
+        owner_phone=owner.phone if owner else "",
+        neighborhood=owner.neighborhood if owner else "",
+        weight=pet.weight,
+        microchip_id=pet.microchip_id,
+        owner_email=owner.email if owner else None,
+        medical_notes=pet.medical_notes,
+        diet_notes=pet.diet_notes,
+        reward=pet.reward,
+        distinctive_features=pet.distinctive_features or [],
+        consent_given=True,
+        photo_url="",
+        status=pet.status,
+        qr_tag_id=pet.qr_tag_id or ""
     )
