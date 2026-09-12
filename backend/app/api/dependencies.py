@@ -28,25 +28,36 @@ class MockImageStorage:
 # Provider functions — wired via FastAPI Depends
 # ------------------------------------------------------------------
 
+# ------------------------------------------------------------------
+# Global Singletons
+# ------------------------------------------------------------------
+_detector = MockNoseDetector()
+_quality_gate = ClassicalQualityGate()
+_embedder = BiometricEmbeddingModel(config=EmbeddingModelConfig(scaffold_mode=True))
+_vector_store = FAISSVectorStore()
+_image_storage = MockImageStorage()
+
+# Try to load existing FAISS index on startup
+import asyncio
+try:
+    asyncio.run(_vector_store.load_local())
+except Exception:
+    pass # Ignore if it doesn't exist yet
+
 def get_detector() -> NoseDetector:
-    # Panel 2 canonical implementation
-    return MockNoseDetector()
+    return _detector
 
 def get_quality_gate() -> QualityGate:
-    # Panel 2 canonical implementation
-    return ClassicalQualityGate()
+    return _quality_gate
 
 def get_embedder() -> EmbeddingModel:
-    # Panel 3 implementation, scaffold_mode=True for M0
-    config = EmbeddingModelConfig(scaffold_mode=True)
-    return BiometricEmbeddingModel(config=config)
+    return _embedder
 
 def get_vector_store() -> VectorStore:
-    # Panel 4 canonical implementation
-    return FAISSVectorStore()
+    return _vector_store
 
 def get_image_storage() -> ImageStorage:
-    return MockImageStorage()
+    return _image_storage
 
 def get_biometric_service(
     detector: NoseDetector = Depends(get_detector),

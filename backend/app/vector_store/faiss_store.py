@@ -77,6 +77,7 @@ class FAISSVectorStore(VectorStore):
                 self.index.add_with_ids(validated_vec, np.array([internal_id], dtype=np.int64))
             
             await asyncio.to_thread(_add)
+            await self.save_local()
             return True
         except Exception as e:
             if isinstance(e, VectorStoreError):
@@ -123,6 +124,7 @@ class FAISSVectorStore(VectorStore):
             del self._uuid_to_id[pet_id]
             del self._id_map[internal_id]
             
+            await self.save_local()
             return True
         except Exception as e:
             raise VectorStoreError(f"Failed to remove vector: {str(e)}")
@@ -131,6 +133,7 @@ class FAISSVectorStore(VectorStore):
         try:
             self._init_index()
             if not vectors:
+                await self.save_local()
                 return True
                 
             internal_ids = []
@@ -147,6 +150,7 @@ class FAISSVectorStore(VectorStore):
             def _rebuild():
                 self.index.add_with_ids(vecs_arr, ids_arr)
             await asyncio.to_thread(_rebuild)
+            await self.save_local()
             return True
         except Exception as e:
             if isinstance(e, VectorStoreError):
