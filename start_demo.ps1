@@ -29,16 +29,16 @@ Write-Host "[Migration] Done." -ForegroundColor Green
 
 # 3 ── Start FastAPI backend ──────────────────────────────────────────────────
 Write-Host "[Backend] Starting FastAPI on http://localhost:8000 ..." -ForegroundColor Cyan
-Start-Process -FilePath "powershell" `
-    -ArgumentList "-NoExit", "-Command", "cd `"$Root\backend`"; & `"$Root\.venv\Scripts\python.exe`" -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+$backendCmd = "powershell -NoProfile -Command `"cd '$Root\backend'; ..\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`""
+Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList $backendCmd | Out-Null
 
 Start-Sleep -Seconds 2
 Write-Host "[Backend] FastAPI started." -ForegroundColor Green
 
 # 4 ── Start React frontend ───────────────────────────────────────────────────
 Write-Host "[Frontend] Starting Vite on http://localhost:3000 ..." -ForegroundColor Cyan
-Start-Process -FilePath "powershell" `
-    -ArgumentList "-NoExit", "-Command", "cd `"$Root`"; npm run dev"
+$frontendCmd = "powershell -NoProfile -Command `"cd '$Root'; npm run dev`""
+Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList $frontendCmd | Out-Null
 
 Write-Host ""
 Write-Host "====================================" -ForegroundColor Yellow
