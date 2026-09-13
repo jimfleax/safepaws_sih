@@ -33,7 +33,7 @@ test.describe.serial('SafePaws Core Flows', () => {
 
   test('Registration Flow', async ({ page }) => {
     // Increase timeout for this test since it involves API calls
-    test.setTimeout(60000);
+    test.setTimeout(90000);
 
     await page.goto('http://127.0.0.1:3000');
     await dismissSplash(page);
@@ -45,22 +45,31 @@ test.describe.serial('SafePaws Core Flows', () => {
     // Verify the modal header shows registration form
     await expect(page.locator('h2:has-text("Register New Companion")')).toBeVisible({ timeout: 10000 });
 
-    // Set file directly on the hidden file input in the form
-    // (The UI's file input is directly in the form, not behind a file chooser dialog)
-    await page.setInputFiles('input[type="file"]', validImage);
-
-    // Fill required fields
+    // Fill required fields first (file input is at top but we fill text first)
     await page.fill('input[placeholder="e.g. Olive, Bailey, Cooper"]', 'Test Doggo');
     await page.fill('input[placeholder="e.g. Golden Retriever, Tabby Cat"]', 'Pug');
-    // Phone is optional but fill it
     await page.fill('input[placeholder="e.g. +1 (555) 234-5678"]', '+15555555555');
 
-    // Submit the form
-    await page.click('button:has-text("Complete Profile")');
+    // Set file on the file input in the form
+    await page.setInputFiles('input[type="file"]', validImage);
+
+    // Submit the form — button text is "Complete Profile & Generate Tag"
+    await page.click('button[type="submit"]');
 
     // After successful registration + enrollment, the modal switches to pet profile view
-    // The pet name appears as a tab button in the selector
-    await expect(page.locator('button:has-text("Test Doggo")')).toBeVisible({ timeout: 30000 });
+    // Wait for either success (pet name button) or error message
+    const petButton = page.locator('button:has-text("Test Doggo")');
+    const errorMsg = page.locator('[class*="text-red"]').first();
+
+    await Promise.race([
+      expect(petButton).toBeVisible({ timeout: 40000 }),
+      expect(errorMsg).toBeVisible({ timeout: 40000 }).then(async () => {
+        const errText = await errorMsg.textContent();
+        throw new Error(`Registration failed with UI error: ${errText}`);
+      }),
+    ]);
+
+    await expect(petButton).toBeVisible({ timeout: 5000 });
   });
 
   test('Identify - No Dog', async ({ page }) => {
