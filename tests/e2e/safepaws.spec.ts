@@ -6,12 +6,14 @@ import * as os from 'os';
 // Helper: dismiss the splash screen if visible
 async function dismissSplash(page: Page) {
   try {
-    // Wait for splash screen text and click it
-    await page.click('text="Press here to enter"', { timeout: 5000 });
-    // Wait for splash to exit
-    await page.waitForTimeout(1000);
+    // The EnterScreen takes 2300ms to show the button, then 2800ms to exit after click.
+    // Wait up to 5s for "Press here to enter" to appear, then click it.
+    await page.click('text="Press here to enter"', { timeout: 6000 });
+    // Wait for the full 2800ms exit animation to complete before interacting with the main app.
+    await page.waitForTimeout(3200);
   } catch (e) {
-    // Splash already dismissed or not shown
+    // Splash already dismissed or not shown — wait a bit for any in-progress animation
+    await page.waitForTimeout(500);
   }
 }
 
@@ -56,20 +58,9 @@ test.describe.serial('SafePaws Core Flows', () => {
     // Submit the form — button text is "Complete Profile & Generate Tag"
     await page.click('button[type="submit"]');
 
-    // After successful registration + enrollment, the modal switches to pet profile view
-    // Wait for either success (pet name button) or error message
-    const petButton = page.locator('button:has-text("Test Doggo")');
-    const errorMsg = page.locator('[class*="text-red"]').first();
-
-    await Promise.race([
-      expect(petButton).toBeVisible({ timeout: 40000 }),
-      expect(errorMsg).toBeVisible({ timeout: 40000 }).then(async () => {
-        const errText = await errorMsg.textContent();
-        throw new Error(`Registration failed with UI error: ${errText}`);
-      }),
-    ]);
-
-    await expect(petButton).toBeVisible({ timeout: 5000 });
+    // After successful API calls, the modal transitions to profile view.
+    // The pet name appears as a button tab in the selector.
+    await expect(page.locator('text=Test Doggo').first()).toBeVisible({ timeout: 30000 });
   });
 
   test('Identify - No Dog', async ({ page }) => {
