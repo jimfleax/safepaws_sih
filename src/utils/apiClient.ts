@@ -72,7 +72,7 @@ export class ApiClient {
       let msg = res.statusText;
       try {
         const errData = await res.json();
-        msg = errData.detail || msg;
+        msg = errData.message || errData.detail || msg;
       } catch (e) {}
       throw new Error(`Identification failed: ${msg}`);
     }
@@ -91,6 +91,12 @@ export class ApiClient {
       body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error(`Sighting failed: ${res.statusText}`);
+    return res.json();
+  }
+
+  static async getHealth(): Promise<{status: string, pipeline_mode: string}> {
+    const res = await fetch('/api/v1/health/');
+    if (!res.ok) throw new Error('Health check failed');
     return res.json();
   }
 }

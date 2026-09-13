@@ -1,8 +1,73 @@
+# Dependency directories
 node_modules/
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Build and distribution directories
 build/
 dist/
+out/
+.next/
+
+# Testing and coverage
 coverage/
+.pytest_cache/
+test-results/
+.coverage
+htmlcov/
+playwright-report/
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
 *.log
-.env*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment and sensitive files
+.env
+.env.*
 !.env.example
+*.pem
+secrets/
+
+# IDE and Editor directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Database and ML temporary files
+*.sqlite3
+*.db
+pgsql_bin/
+pgsql_bin_fast/
+pgsql_data/
+postgis_bin/
+*.zip
+*.faiss
+.meta.json
+faiss_index/
+
+# Other temporary or generated files
+*.tmp
+*.temp
+valid_dog.jpg
+faiss_index.bin*

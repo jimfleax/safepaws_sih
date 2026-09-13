@@ -28,10 +28,10 @@ class MockNoseDetector(NoseDetector):
             
         if "mock_low_confidence" in payload:
             bboxes = [{
-                "x_min": 0.1,
-                "y_min": 0.1,
-                "x_max": 0.3,
-                "y_max": 0.3,
+                "x_min": 10.0,
+                "y_min": 10.0,
+                "x_max": 30.0,
+                "y_max": 30.0,
                 "confidence": 0.45
             }]
             logger.info(f"Mock evaluation: Low confidence detection completed. BBoxes: {bboxes}")
@@ -39,10 +39,10 @@ class MockNoseDetector(NoseDetector):
             
         # Default successful single detection
         bboxes = [{
-            "x_min": 0.4,
-            "y_min": 0.4,
-            "x_max": 0.6,
-            "y_max": 0.6,
+            "x_min": 40.0,
+            "y_min": 40.0,
+            "x_max": 160.0,
+            "y_max": 160.0,
             "confidence": 0.98
         }]
         logger.info(f"Mock evaluation: Successful detection. BBoxes: {bboxes}")

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
-import { X, Fingerprint, Upload, AlertCircle, CheckCircle, Search } from 'lucide-react';
+import { X, Fingerprint, Upload, AlertCircle, CheckCircle, Search, Info } from 'lucide-react';
 import { ApiClient } from '../../utils/apiClient';
 import { SearchResponse } from '../../types';
 
@@ -8,12 +8,14 @@ interface IdentifyModalProps {
   isOpen: boolean;
   onClose: () => void;
   onIdentifySuccess?: (result: SearchResponse) => void;
+  pipelineMode: string;
 }
 
 export const IdentifyModal: React.FC<IdentifyModalProps> = ({
   isOpen,
   onClose,
-  onIdentifySuccess
+  onIdentifySuccess,
+  pipelineMode
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -127,9 +129,17 @@ export const IdentifyModal: React.FC<IdentifyModalProps> = ({
           )}
 
           {status === 'success' && (
-            <div className="p-3 bg-green-50 text-green-800 rounded-xl flex gap-2 items-start text-sm">
-              <CheckCircle className="w-5 h-5 shrink-0" />
-              <p>{message}</p>
+            <div className="p-3 bg-green-50 text-green-800 rounded-xl flex flex-col gap-2 text-sm">
+              <div className="flex gap-2 items-start">
+                <CheckCircle className="w-5 h-5 shrink-0" />
+                <p>{message}</p>
+              </div>
+              {pipelineMode === 'DEMONSTRATOR' && (
+                <div className="mt-1 flex gap-2 items-start bg-[#FAF6F0] p-2 rounded border border-[#E9DCcb] text-[#241812]">
+                  <Info className="w-4 h-4 shrink-0 text-[#DE6828]" />
+                  <p className="text-xs">Prototype Mode: This match is a deterministic scaffold demonstration, not a scientifically validated biometric result.</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -139,7 +149,7 @@ export const IdentifyModal: React.FC<IdentifyModalProps> = ({
             className="w-full py-3 rounded-full bg-[#DE6828] hover:bg-[#C9581B] text-white font-semibold disabled:opacity-50 transition-colors flex justify-center items-center gap-2"
           >
             {status === 'scanning' ? (
-              <span className="animate-pulse">Scanning Biometrics...</span>
+              <span className="animate-pulse">Analyzing...</span>
             ) : (
               <>
                 <Fingerprint className="w-5 h-5" />

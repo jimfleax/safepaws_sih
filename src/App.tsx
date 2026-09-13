@@ -35,6 +35,13 @@ export default function App() {
   const [selectedPetId, setSelectedPetId] = useState<string>('');
   const [alerts, setAlerts] = useState<NeighborhoodAlert[]>([]);
   const [sightings, setSightings] = useState<CommunitySighting[]>([]);
+  const [pipelineMode, setPipelineMode] = useState<string>('PRODUCTION');
+
+  useEffect(() => {
+    ApiClient.getHealth()
+      .then(res => setPipelineMode(res.pipeline_mode))
+      .catch(err => console.error("Could not fetch pipeline mode", err));
+  }, []);
 
   // Modal Visibility States
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -140,10 +147,12 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#241812] selection:bg-[#DE6828]/20 selection:text-[#B54C14]">
       {/* Prototype Indicator */}
-      <div className="fixed bottom-4 right-4 z-[999] bg-[#DE6828] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg opacity-80 pointer-events-none flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-        Prototype Mode
-      </div>
+      {pipelineMode === 'DEMONSTRATOR' && (
+        <div className="fixed bottom-4 right-4 z-[999] bg-[#DE6828] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg opacity-80 pointer-events-none flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+          Prototype Mode
+        </div>
+      )}
 
       {/* Clean Custom Cursor: inner dot follows immediately, outer circle lags smoothly with no blur */}
       <CustomCursor isModalOpen={isAnyModalOpen} />
@@ -277,6 +286,7 @@ export default function App() {
       <IdentifyModal
         isOpen={isIdentifyModalOpen}
         onClose={() => setIsIdentifyModalOpen(false)}
+        pipelineMode={pipelineMode}
         onIdentifySuccess={async (res) => {
           if (res.status === 'MATCH' && res.matches.length > 0) {
              const matchedId = res.matches[0].pet_id;
