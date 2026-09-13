@@ -23,7 +23,25 @@ export class ApiClient {
       body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error(`Registration failed: ${res.statusText}`);
-    return res.json();
+    const data = await res.json();
+    return {
+      id: data.id,
+      name: data.name,
+      species: data.species,
+      breed: data.breed,
+      color: data.color,
+      age: data.age,
+      weight: data.weight,
+      ownerName: data.owner_name,
+      ownerPhone: data.owner_phone,
+      neighborhood: data.neighborhood,
+      medicalNotes: data.medical_notes,
+      distinctiveFeatures: data.distinctive_features,
+      microchipId: data.microchip_id,
+      photoUrl: data.photo_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+      status: data.status,
+      qrTagId: data.qr_tag_id
+    };
   }
 
   static async getPet(petId: string): Promise<Pet> {

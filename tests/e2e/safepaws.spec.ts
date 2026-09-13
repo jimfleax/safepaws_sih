@@ -41,7 +41,13 @@ test.describe.serial('SafePaws Core Flows', () => {
     await dismissSplash(page);
 
     // Open profile/registration modal via "Join the community" CTA
+    page.on('pageerror', (err) => console.log('PAGE ERROR: ' + err.message));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') console.log('CONSOLE ERROR: ' + msg.text());
+    });
+
     await page.click('button:has-text("Join the community")');
+
 
     // The modal opens directly in creation mode when there are no pets
     // Verify the modal header shows registration form
@@ -58,10 +64,15 @@ test.describe.serial('SafePaws Core Flows', () => {
     // Submit the form — button text is "Complete Profile & Generate Tag"
     await page.click('button[type="submit"]');
 
+    // Wait 3 seconds
+    await page.waitForTimeout(3000);
+    await page.screenshot({ path: 'test-results/screenshot.png', fullPage: true });
+
     // After successful API calls, the modal transitions to profile view.
     // The pet name appears as a button tab in the selector.
-    await expect(page.locator('text=Test Doggo').first()).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('text=Test Doggo').first()).toBeVisible({ timeout: 10000 });
   });
+
 
   test('Identify - No Dog', async ({ page }) => {
     await page.goto('http://127.0.0.1:3000');
@@ -73,9 +84,7 @@ test.describe.serial('SafePaws Core Flows', () => {
 
     // Upload no-dog image directly to hidden file input
     await page.setInputFiles('input[type="file"]', noDogImage);
-
-    // Scan button should now be enabled
-    await page.click('button:has-text("Identify")');
+    await page.locator('.fixed button:has-text("Identify")').click();
 
     // Expect error message containing backend error text
     await expect(
@@ -91,9 +100,9 @@ test.describe.serial('SafePaws Core Flows', () => {
     await expect(page.locator('h2:has-text("Identify Pet")')).toBeVisible({ timeout: 10000 });
 
     await page.setInputFiles('input[type="file"]', lowQualityImage);
-    await page.click('button:has-text("Identify")');
+    await page.locator('.fixed button:has-text("Identify")').click();
 
-    // Backend returns LOW_QUALITY_IMAGE → error message contains quality language
+    // Backend returns LOW_QUALITY_IMAGE — error message contains quality language
     await expect(
       page.locator('text=/Identification failed/')
     ).toBeVisible({ timeout: 15000 });
@@ -110,12 +119,12 @@ test.describe.serial('SafePaws Core Flows', () => {
 
     // Upload valid dog image — matches the registered pet's FAISS vector
     await page.setInputFiles('input[type="file"]', validImage);
-    await page.click('button:has-text("Identify")');
+    await page.locator('.fixed button:has-text("Identify")').click();
 
     // DEMONSTRATOR mode returns MATCH with high confidence
     await expect(page.locator('text=Match found')).toBeVisible({ timeout: 30000 });
     // Prototype Mode disclaimer must be visible
-    await expect(page.locator('text=Prototype Mode')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=Prototype Mode').first()).toBeVisible({ timeout: 5000 });
   });
 
 });
