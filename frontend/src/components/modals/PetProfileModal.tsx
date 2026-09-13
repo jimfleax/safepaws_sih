@@ -1,0 +1,434 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import {  Plus, ShieldCheck, QrCode, Phone, MapPin, AlertCircle, CheckCircle2, Heart, Sparkles, Upload, Trash2  } from 'lucide-react';
+import { Dialog, DialogContent, DialogClose, DialogTitle } from '../ui/Dialog';
+import { Pet } from '../../types';
+import confetti from 'canvas-confetti';
+
+interface PetProfileModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  pets: Pet[];
+  selectedPetId: string;
+  onSelectPet: (petId: string) => void;
+  onSavePet: (pet: Pet) => void;
+  onRemovePet?: (petId: string) => void;
+  onOpenQrTag: (pet: Pet) => void;
+  onTriggerLostAlert: (pet: Pet) => void;
+}
+
+export const PetProfileModal: React.FC<PetProfileModalProps> = ({
+  isOpen,
+  onClose,
+  pets,
+  selectedPetId,
+  onSelectPet,
+  onSavePet,
+  onRemovePet,
+  onOpenQrTag,
+  onTriggerLostAlert,
+}) => {
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [petToDelete, setPetToDelete] = useState<Pet | null>(null);
+  const selectedPet = pets.find((p) => p.id === selectedPetId) || pets[0];
+
+  // New Pet Form State
+  const [formData, setFormData] = useState({
+    name: '',
+    species: 'dog' as 'dog' | 'cat' | 'other',
+    breed: '',
+    color: '',
+    age: '',
+    weight: '',
+    microchipId: '',
+    userId: '',
+    medicalNotes: '',
+    distinctiveFeatures: '',
+    photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+  });
+
+  const handleCreateSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.breed) return;
+
+    const newPet: Pet = {
+      id: `pet-${Date.now()}`,
+      name: formData.name,
+      species: formData.species,
+      breed: formData.breed,
+      color: formData.color || 'Standard',
+      age: formData.age || '2 years',
+      weight: formData.weight || '30 lbs',
+      photoUrl: formData.photoUrl,
+      microchipId: formData.microchipId,
+      status: 'safe',
+      userId: formData.userId || 'Verified Owner',
+      medicalNotes: formData.medicalNotes,
+      distinctiveFeatures: formData.distinctiveFeatures ? formData.distinctiveFeatures.split(',').map((s) => s.trim()) : ['Very friendly'],
+      qrTagId: `SP-${Math.floor(100 + Math.random() * 900)}-${formData.name.substring(0, 3).toUpperCase()}`,
+    };
+
+    onSavePet(newPet);
+    onSelectPet(newPet.id);
+    setIsCreatingNew(false);
+
+    confetti({
+      particleCount: 50,
+      spread: 60,
+      origin: { y: 0.6 },
+      colors: ['#DE6828', '#F5E2BE', '#34A853'],
+    });
+  };
+
+  return (
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+          {/* Top Header */}
+          <div className="px-6 py-5 border-b border-[#E8DCce] flex items-center justify-between bg-[#F4EDE2]/70">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#E8DAC8] flex items-center justify-center text-[#DE6828]">
+                <ShieldCheck className="w-5 h-5 text-[#DE6828]" />
+              </div>
+              <div>
+                <DialogTitle>
+                  {isCreatingNew ? 'Register New Companion' : 'Trusted Pet Profile'}
+                </DialogTitle>
+                <p className="text-xs text-[#6F5D52]">
+                  {isCreatingNew
+                    ? 'Join your local neighborhood safety net'
+                    : 'SafePaws cryptographic profile & emergency network'}
+                </p>
+              </div>
+            </div>
+
+            <DialogClose id="close-profile-modal-btn" />
+          </div>
+
+          {/* Modal Body */}
+          <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+            
+            {/* Pet Selector Tabs (when not creating new) */}
+            {!isCreatingNew && (
+              <div className="flex items-center justify-between gap-3 pb-2 border-b border-[#EDE2D5]">
+                <div className="flex items-center gap-2 overflow-x-auto">
+                  {pets.map((p) => (
+                    <button
+                      key={p.id}
+                      id={`select-pet-${p.id}`}
+                      onClick={() => onSelectPet(p.id)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+                        selectedPet?.id === p.id
+                          ? 'bg-[#27170E] text-white shadow-sm'
+                          : 'bg-[#EFE4D6] text-[#4A3B31] hover:bg-[#E5D8C7]'
+                      }`}
+                    >
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.status === 'safe' ? '#34A853' : '#DE6828' }} />
+                      <span>{p.name}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  id="add-new-pet-btn"
+                  onClick={() => setIsCreatingNew(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#DE6828] hover:bg-[#C9581B] text-white text-xs font-semibold shrink-0 cursor-pointer shadow-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Pet</span>
+                </button>
+              </div>
+            )}
+
+            {isCreatingNew ? (
+              /* New Pet Form */
+              <form onSubmit={handleCreateSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
+                      Pet Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Olive, Bailey, Cooper"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#DCCEC0] bg-white text-[#241812] text-sm focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
+                      Species & Breed *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Golden Retriever, Tabby Cat"
+                      value={formData.breed}
+                      onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#DCCEC0] bg-white text-[#241812] text-sm focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
+                      Coat Color & Markings
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Honey gold with white chest patch"
+                      value={formData.color}
+                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#DCCEC0] bg-white text-[#241812] text-sm focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
+                      Age & Weight
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 3 years old · 60 lbs"
+                      value={formData.age}
+                      onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#DCCEC0] bg-white text-[#241812] text-sm focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
+                      Owner Contact Phone *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g. +1 (555) 234-5678"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#DCCEC0] bg-white text-[#241812] text-sm focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
+                      Microchip ID (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 985141004928172"
+                      value={formData.microchipId}
+                      onChange={(e) => setFormData({ ...formData, microchipId: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#DCCEC0] bg-white text-[#241812] text-sm focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
+                    Special Medical or Behavioral Notes
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="e.g. Very friendly, loves treats. Sensitive to loud fireworks."
+                    value={formData.medicalNotes}
+                    onChange={(e) => setFormData({ ...formData, medicalNotes: e.target.value })}
+                    className="w-full px-4 py-2 rounded-xl border border-[#DCCEC0] bg-white text-[#241812] text-sm focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E8DCce]">
+                  <button
+                    type="button"
+                    onClick={() => setIsCreatingNew(false)}
+                    className="px-5 py-2.5 rounded-full text-sm font-medium text-[#5E4C41] hover:bg-[#EAE0D3] cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    id="save-new-pet-btn"
+                    className="px-6 py-2.5 rounded-full bg-[#DE6828] hover:bg-[#C9581B] text-white text-sm font-semibold shadow-md cursor-pointer"
+                  >
+                    Complete Profile & Generate Tag
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* Selected Pet Detail Card */
+              selectedPet && (
+                <div className="space-y-6">
+                  {/* Hero card of selected pet */}
+                  <div className="bg-white rounded-3xl p-6 border border-[#E9DFC] shadow-xs flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+                    <div className="relative">
+                      <img
+                        src={selectedPet.photoUrl}
+                        alt={selectedPet.name}
+                        className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl object-cover border-2 border-[#FAF6F0] shadow-md"
+                        referrerPolicy="no-referrer"
+                      />
+                      <span
+                        className={`absolute -bottom-2 -right-2 px-3 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-white shadow-sm ${
+                          selectedPet.status === 'safe' ? 'bg-[#34A853]' : 'bg-[#DE6828]'
+                        }`}
+                      >
+                        {selectedPet.status === 'safe' ? 'Safe at Home' : 'Lost Alert Active'}
+                      </span>
+                    </div>
+
+                    <div className="flex-1 text-center sm:text-left">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <h3 className="font-serif text-3xl font-semibold text-[#241812]">
+                            {selectedPet.name}
+                          </h3>
+                          <p className="text-sm font-medium text-[#7A6B61] mt-0.5">
+                            {selectedPet.breed} · {selectedPet.age}
+                          </p>
+                        </div>
+
+                        {/* Tag ID Badge & Remove Pet Button */}
+                        <div className="flex items-center gap-2">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF6F0] border border-[#E2D5C5] text-xs font-mono text-[#4E3D32]">
+                            <QrCode className="w-3.5 h-3.5 text-[#DE6828]" />
+                            <span>{selectedPet.qrTagId}</span>
+                          </div>
+
+                          {onRemovePet && (
+                            <button
+                              id={`remove-pet-btn-${selectedPet.id}`}
+                              type="button"
+                              onClick={() => setPetToDelete(selectedPet)}
+                              title={`Remove ${selectedPet.name}'s profile`}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-red-200 bg-red-50/70 hover:bg-red-100 text-red-700 text-xs font-medium transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">Remove</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-[#F2ECE3] text-left">
+                        <div>
+                          <div className="text-[11px] font-bold text-[#8A7A70] uppercase">Owner</div>
+                          <div className="text-sm font-medium text-[#2E2018]">{selectedPet.userId}</div>
+                        </div>
+                        <div>
+                          <div className="text-[11px] font-bold text-[#8A7A70] uppercase">Phone</div>
+                        </div>
+                        <div>
+                          <div className="text-[11px] font-bold text-[#8A7A70] uppercase">Neighborhood</div>
+                          <div className="text-sm font-medium text-[#2E2018] truncate">{selectedPet.neighborhood}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Identification Details */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-[#F6EDE2] rounded-2xl p-4 border border-[#E8DCCE]">
+                      <h4 className="text-xs font-bold text-[#453328] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#DE6828]" />
+                        <span>Distinctive Features</span>
+                      </h4>
+                      <ul className="text-xs text-[#5C4A3F] space-y-1">
+                        {selectedPet.distinctiveFeatures.map((f, i) => (
+                          <li key={i} className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#DE6828]" />
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="bg-[#F6EDE2] rounded-2xl p-4 border border-[#E8DCCE]">
+                      <h4 className="text-xs font-bold text-[#453328] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#34A853]" />
+                        <span>Microchip & Safety Registry</span>
+                      </h4>
+                      <p className="text-xs text-[#5C4A3F] font-mono">
+                        Chip ID: {selectedPet.microchipId || 'ISO 11784 Verified'}
+                      </p>
+                      <p className="text-xs text-[#7B6A60] mt-1">
+                        SafePaws Biometric Hash: SP-998-SECURE
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button
+                      id="view-smart-qr-tag-btn"
+                      onClick={() => onOpenQrTag(selectedPet)}
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-white hover:bg-[#F2EAE0] border border-[#DECFBE] text-[#241812] font-semibold text-sm shadow-xs transition-colors cursor-pointer"
+                    >
+                      <QrCode className="w-4 h-4 text-[#DE6828]" />
+                      <span>View Smart QR Collar Tag</span>
+                    </button>
+
+                    <button
+                      id="trigger-lost-alert-btn"
+                      onClick={() => onTriggerLostAlert(selectedPet)}
+                      className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[#DE6828] hover:bg-[#C9581B] text-white font-semibold text-sm shadow-md transition-all cursor-pointer"
+                    >
+                      <AlertCircle className="w-4 h-4" />
+                      <span>Broadcast Lost Alert to Radar</span>
+                    </button>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+
+          {/* Delete Confirmation Dialog */}
+          <AnimatePresence>
+            {petToDelete && (
+              <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs rounded-3xl">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  className="bg-white rounded-2xl p-6 max-w-sm w-full border border-[#EADBCC] shadow-xl text-center space-y-4"
+                >
+                  <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+                    <Trash2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-serif font-bold text-[#241812]">
+                      Remove {petToDelete.name}?
+                    </h4>
+                    <p className="text-xs text-[#6B5A4E] mt-1.5 leading-relaxed">
+                      Are you sure you want to remove this trusted pet profile? This will delete their connected biometric safety profile and registered Smart QR Collar tag.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      id="cancel-remove-pet-btn"
+                      onClick={() => setPetToDelete(null)}
+                      className="flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold text-[#4A3B31] bg-[#F2EAE0] hover:bg-[#E8DDD0] cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      id="confirm-remove-pet-btn"
+                      onClick={() => {
+                        if (onRemovePet) {
+                          onRemovePet(petToDelete.id);
+                        }
+                        setPetToDelete(null);
+                      }}
+                      className="flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-red-600 hover:bg-red-700 shadow-sm cursor-pointer"
+                    >
+                      Remove Pet
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+      </DialogContent>
+    </Dialog>
+  );
+};
