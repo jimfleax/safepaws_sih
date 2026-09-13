@@ -70,7 +70,8 @@ async def run_test():
         storage = get_image_storage()
         reg = RegistrationService(db, biometric_svc, storage)
 
-        pet_in = PetCreate(
+        # ── D.1 Verify microchip_id constraint ────────────────────────────
+        pet_in_1 = PetCreate(
             name="SmokeMax",
             species="dog",
             breed="Labrador",
@@ -81,10 +82,30 @@ async def run_test():
             owner_phone="0000000001",
             owner_email="smoke@safepaws.local",
             neighborhood="TestNagar",
+            microchip_id="",
             consent_given=True,
         )
-        pet_out = await reg.register_pet(pet_in)
-        pet_id = pet_out.id
+        pet_out_1 = await reg.register_pet(pet_in_1)
+        
+        pet_in_2 = PetCreate(
+            name="SmokeMax2",
+            species="dog",
+            breed="Labrador",
+            color="Black",
+            age="2",
+            weight="25",
+            owner_name="Smoke Owner 2",
+            owner_phone="0000000002",
+            owner_email="smoke2@safepaws.local",
+            neighborhood="TestNagar",
+            microchip_id="",
+            consent_given=True,
+        )
+        pet_out_2 = await reg.register_pet(pet_in_2)
+        print(f"{OK} Two pets registered with empty microchip_id without unique constraint violation")
+        results["microchip_constraint"] = True
+
+        pet_id = pet_out_1.id
         print(f"{OK} Pet registered: {pet_id}")
         results["registration"] = True
 
@@ -202,7 +223,9 @@ async def run_test():
             {"pid": pet_id}
         )
         await db.execute(text("DELETE FROM pets WHERE id=:pid"), {"pid": pet_id})
+        await db.execute(text("DELETE FROM pets WHERE id=:pid2"), {"pid2": pet_out_2.id})
         await db.execute(text("DELETE FROM owners WHERE phone='0000000001'"))
+        await db.execute(text("DELETE FROM owners WHERE phone='0000000002'"))
         await db.commit()
         print(f"{OK} Test records cleaned up")
 

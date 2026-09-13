@@ -142,13 +142,24 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
               </div>
             </div>
 
-            <button
-              id="close-profile-modal-btn"
-              onClick={onClose}
-              className="p-2 rounded-full text-[#6E5A4D] hover:bg-[#E5D7C7] transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex gap-2 items-center">
+              {pets.length > 0 && !isCreatingNew && (
+                <button
+                  onClick={() => setIsCreatingNew(true)}
+                  className="flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-[#DE6828] hover:bg-[#F3E9DD] rounded-full transition-colors cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden sm:inline">Add Pet</span>
+                </button>
+              )}
+              <button
+                id="close-profile-modal-btn"
+                onClick={onClose}
+                className="p-2 rounded-full text-[#6E5A4D] hover:bg-[#E5D7C7] transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Modal Body */}

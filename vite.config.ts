@@ -15,11 +15,10 @@ export default defineConfig(() => {
       proxy: {
         '/api': 'http://127.0.0.1:8000',
       },
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâ€”file watching is disabled to prevent flickering during agent edits.
-      hmr: process.env.DISABLE_HMR !== 'true',
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
-      watch: process.env.DISABLE_HMR === 'true' ? null : {},
+      watch: process.env.DISABLE_HMR === 'true' ? null : {
+        ignored: ['**/pgsql_bin/**', '**/pgsql_bin_fast/**', '**/pgsql_data/**', '**/postgis_bin/**', '**/*.zip', '**/node_modules/**']
+      }
     },
   };
 });

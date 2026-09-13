@@ -38,6 +38,17 @@ async def sqlalchemy_exception_handler(request, exc):
         },
     )
 
+from fastapi.exceptions import RequestValidationError
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    import traceback
+    traceback.print_exc()
+    print("VALIDATION ERROR:", exc)
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors(), "body": exc.body},
+    )
+
 @app.exception_handler(OSError)
 async def os_error_handler(request, exc):
     # Catch socket/connection errors when asyncpg fails to reach postgres entirely

@@ -23,7 +23,8 @@ Write-Host "Initializing DB..."
 & "$pgBin\initdb.exe" -D $pgData -U postgres --auth=trust
 
 Write-Host "Starting DB..."
-& "$pgBin\pg_ctl.exe" -D $pgData -l "$pgData\logfile" start
+$cmd = "`"$pgBin\pg_ctl.exe`" -D `"$pgData`" -l `"$pgData\logfile`" start"
+Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList $cmd | Out-Null
 
 Start-Sleep -Seconds 3
 

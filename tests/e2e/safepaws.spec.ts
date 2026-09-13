@@ -3,16 +3,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
-// Helper: dismiss the splash screen if visible
 async function dismissSplash(page: Page) {
   try {
-    // The EnterScreen takes 2300ms to show the button, then 2800ms to exit after click.
-    // Wait up to 5s for "Press here to enter" to appear, then click it.
-    await page.click('text="Press here to enter"', { timeout: 6000 });
-    // Wait for the full 2800ms exit animation to complete before interacting with the main app.
+    await page.getByText('Press here to enter').click({ timeout: 6000 });
     await page.waitForTimeout(3200);
   } catch (e) {
-    // Splash already dismissed or not shown — wait a bit for any in-progress animation
     await page.waitForTimeout(500);
   }
 }
@@ -28,103 +23,93 @@ test.describe.serial('SafePaws Core Flows', () => {
     noDogImage = path.join(tempDir, 'nodog.jpg');
     lowQualityImage = path.join(tempDir, 'lowquality.jpg');
 
-    // These special byte sequences trigger deterministic mock ML behavior
-    fs.writeFileSync(noDogImage, Buffer.from('mock_no_dog'));
-    fs.writeFileSync(lowQualityImage, Buffer.from('mock_low_quality'));
+    const validBytes = fs.readFileSync(validImage);
+
+    fs.writeFileSync(noDogImage, Buffer.concat([validBytes, Buffer.from('mock_no_dog')]));
+    fs.writeFileSync(lowQualityImage, Buffer.concat([validBytes, Buffer.from('mock_low_confidence')]));
   });
 
-  test('Registration Flow', async ({ page }) => {
-    // Increase timeout for this test since it involves API calls
-    test.setTimeout(90000);
+  test('Happy Path: Register -> Enroll -> Identify -> Sighting', async ({ page }) => {
+    test.setTimeout(120000);
 
     await page.goto('http://127.0.0.1:3000');
     await dismissSplash(page);
 
-    // Open profile/registration modal via "Join the community" CTA
     page.on('pageerror', (err) => console.log('PAGE ERROR: ' + err.message));
     page.on('console', (msg) => {
       if (msg.type() === 'error') console.log('CONSOLE ERROR: ' + msg.text());
     });
 
-    await page.click('button:has-text("Join the community")');
+    await page.getByRole('button', { name: 'Join the community' }).click();
+    await expect(page.getByRole('heading', { name: 'Register New Companion' })).toBeVisible({ timeout: 10000 });
 
+    await page.getByPlaceholder('e.g. Olive, Bailey, Cooper').fill('E2E Fixture Dog');
+    await page.getByPlaceholder('e.g. Golden Retriever, Tabby Cat').fill('Test Breed');
+    await page.getByPlaceholder('e.g. +1 (555) 234-5678').fill('+15555555555');
 
-    // The modal opens directly in creation mode when there are no pets
-    // Verify the modal header shows registration form
-    await expect(page.locator('h2:has-text("Register New Companion")')).toBeVisible({ timeout: 10000 });
+    await page.locator('input[type="file"]').setInputFiles(validImage);
+    
+    await page.getByRole('button', { name: /Complete Profile/i }).click();
 
-    // Fill required fields first (file input is at top but we fill text first)
-    await page.fill('input[placeholder="e.g. Olive, Bailey, Cooper"]', 'Test Doggo');
-    await page.fill('input[placeholder="e.g. Golden Retriever, Tabby Cat"]', 'Pug');
-    await page.fill('input[placeholder="e.g. +1 (555) 234-5678"]', '+15555555555');
+    await expect(page.getByText('E2E Fixture Dog').first()).toBeVisible({ timeout: 15000 });
 
-    // Set file on the file input in the form
-    await page.setInputFiles('input[type="file"]', validImage);
+    await page.locator('#close-profile-modal-btn').click();
+    await expect(page.getByRole('heading', { name: 'Trusted Pet Profile' })).not.toBeVisible();
 
-    // Submit the form — button text is "Complete Profile & Generate Tag"
-    await page.click('button[type="submit"]');
+    await page.locator('#nav-identify-btn').click();
+    await expect(page.getByRole('heading', { name: 'Identify Pet' })).toBeVisible({ timeout: 10000 });
 
-    // Wait 3 seconds
-    await page.waitForTimeout(3000);
-    await page.screenshot({ path: 'test-results/screenshot.png', fullPage: true });
+    await page.locator('input[type="file"]').setInputFiles(validImage);
+    await page.locator('.fixed button', { hasText: /^Identify$/ }).click();
 
-    // After successful API calls, the modal transitions to profile view.
-    // The pet name appears as a button tab in the selector.
-    await expect(page.locator('text=Test Doggo').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Match found')).toBeVisible({ timeout: 30000 });
+    
+    await expect(page.getByText('Prototype Mode').first()).toBeVisible({ timeout: 5000 });
+
+    await expect(page.getByRole('heading', { name: 'Trusted Pet Profile' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('E2E Fixture Dog').first()).toBeVisible({ timeout: 5000 });
+
+    await page.locator('#close-profile-modal-btn').click();
+    await expect(page.getByRole('heading', { name: 'Trusted Pet Profile' })).not.toBeVisible();
+
+    await page.locator('#hero-badge-lost-pet-alert').click();
+    await expect(page.getByText('Live Sighting Reports')).toBeVisible({ timeout: 5000 });
+
+    await page.getByPlaceholder('Your Name (or Neighbor on 4th)').fill('Test E2E Reporter');
+    await page.getByPlaceholder('Exact Location (e.g. Near park bench)').fill('Test E2E Location');
+    await page.getByPlaceholder('Details (e.g. Walking calmly toward garden, seems okay)').fill('Test E2E Note');
+    await page.locator('#submit-sighting-btn').click();
+
+    await expect(page.getByText('Test E2E Location')).toBeVisible({ timeout: 5000 });
   });
 
-
-  test('Identify - No Dog', async ({ page }) => {
+  test('Negative: Identify - No Dog', async ({ page }) => {
     await page.goto('http://127.0.0.1:3000');
     await dismissSplash(page);
 
-    // Open identify modal via the header "Identify" nav button
-    await page.click('button:has-text("Identify")');
-    await expect(page.locator('h2:has-text("Identify Pet")')).toBeVisible({ timeout: 10000 });
+    await page.locator('#nav-identify-btn').click();
+    await expect(page.getByRole('heading', { name: 'Identify Pet' })).toBeVisible({ timeout: 10000 });
 
-    // Upload no-dog image directly to hidden file input
-    await page.setInputFiles('input[type="file"]', noDogImage);
-    await page.locator('.fixed button:has-text("Identify")').click();
+    await page.locator('input[type="file"]').setInputFiles(noDogImage);
+    await page.locator('.fixed button', { hasText: /^Identify$/ }).click();
 
-    // Expect error message containing backend error text
     await expect(
       page.locator('text=/Identification failed.*No dog detected/')
     ).toBeVisible({ timeout: 15000 });
   });
 
-  test('Identify - Low Quality', async ({ page }) => {
+  test('Negative: Identify - Low Quality', async ({ page }) => {
     await page.goto('http://127.0.0.1:3000');
     await dismissSplash(page);
 
-    await page.click('button:has-text("Identify")');
-    await expect(page.locator('h2:has-text("Identify Pet")')).toBeVisible({ timeout: 10000 });
+    await page.locator('#nav-identify-btn').click();
+    await expect(page.getByRole('heading', { name: 'Identify Pet' })).toBeVisible({ timeout: 10000 });
 
-    await page.setInputFiles('input[type="file"]', lowQualityImage);
-    await page.locator('.fixed button:has-text("Identify")').click();
+    await page.locator('input[type="file"]').setInputFiles(lowQualityImage);
+    await page.locator('.fixed button', { hasText: /^Identify$/ }).click();
 
-    // Backend returns LOW_QUALITY_IMAGE — error message contains quality language
     await expect(
       page.locator('text=/Identification failed/')
     ).toBeVisible({ timeout: 15000 });
   });
-
-  test('Identify - Success Match', async ({ page }) => {
-    test.setTimeout(60000);
-
-    await page.goto('http://127.0.0.1:3000');
-    await dismissSplash(page);
-
-    await page.click('button:has-text("Identify")');
-    await expect(page.locator('h2:has-text("Identify Pet")')).toBeVisible({ timeout: 10000 });
-
-    // Upload valid dog image — matches the registered pet's FAISS vector
-    await page.setInputFiles('input[type="file"]', validImage);
-    await page.locator('.fixed button:has-text("Identify")').click();
-
-    // DEMONSTRATOR mode returns MATCH with high confidence
-    await expect(page.locator('text=Match found')).toBeVisible({ timeout: 30000 });
-    // Prototype Mode disclaimer must be visible
-    await expect(page.locator('text=Prototype Mode').first()).toBeVisible({ timeout: 5000 });
-  });
-
 });

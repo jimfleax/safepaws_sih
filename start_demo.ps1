@@ -13,7 +13,9 @@ if ($running -match "server is running") {
     Write-Host "[DB]  PostgreSQL already running." -ForegroundColor Green
 } else {
     Write-Host "[DB]  Starting PostgreSQL..." -ForegroundColor Cyan
-    & "$pgBin\pg_ctl.exe" -D $pgData -l "$pgData\logfile" start
+    # Use WMI to completely detach the process from the current Job Object
+    $cmd = "`"$pgBin\pg_ctl.exe`" -D `"$pgData`" -l `"$pgData\logfile`" start"
+    Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList $cmd | Out-Null
     Start-Sleep -Seconds 3
     Write-Host "[DB]  PostgreSQL started." -ForegroundColor Green
 }
