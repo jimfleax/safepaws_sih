@@ -45,7 +45,7 @@ class RegistrationService:
             color=pet_in.color,
             age=pet_in.age,
             weight=pet_in.weight,
-            microchip_id=pet_in.microchip_id,
+            microchip_id=pet_in.microchip_id or None,
             status="safe",
             medical_notes=pet_in.medical_notes,
             diet_notes=pet_in.diet_notes,
