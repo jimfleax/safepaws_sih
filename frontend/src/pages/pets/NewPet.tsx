@@ -24,7 +24,7 @@ export default function NewPet() {
     color: '',
     age: '',
     weight: '',
-    ownerPhone: user?.phone || '',
+    ownerPhone: '',
     microchipId: '',
     medicalNotes: '',
     distinctiveFeatures: '',
