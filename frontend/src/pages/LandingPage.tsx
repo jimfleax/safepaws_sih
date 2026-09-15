@@ -26,87 +26,24 @@ import { InfoModal } from '../components/modals/InfoModal';
 import { initialPets, sampleAlerts, sampleSightings } from '../data/mockData';
 import { Pet, NeighborhoodAlert, CommunitySighting } from '../types';
 
+import { usePetStore } from '../store/petStore';
+
 export default function LandingPage() {
   // Always show the starting portal animation on every page refresh / load
   const [hasEntered, setHasEntered] = useState<boolean>(false);
 
-  const [pets, setPets] = useState<Pet[]>(() => {
-    try {
-      const saved = localStorage.getItem('safepaws_pets');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      console.error('Failed to parse saved pets from localStorage', e);
-    }
-    return initialPets;
-  });
-
-  const [selectedPetId, setSelectedPetId] = useState<string>(() => {
-    try {
-      const savedId = localStorage.getItem('safepaws_selected_pet_id');
-      if (savedId) return savedId;
-    } catch {}
-    return 'pet-olive';
-  });
-
-  const [alerts, setAlerts] = useState<NeighborhoodAlert[]>(() => {
-    try {
-      const saved = localStorage.getItem('safepaws_alerts');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      console.error('Failed to parse saved alerts from localStorage', e);
-    }
-    return sampleAlerts;
-  });
-
-  const [sightings, setSightings] = useState<CommunitySighting[]>(() => {
-    try {
-      const saved = localStorage.getItem('safepaws_sightings');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch (e) {
-      console.error('Failed to parse saved sightings from localStorage', e);
-    }
-    return sampleSightings;
-  });
-
-  // Keep localStorage in sync with state changes
-  useEffect(() => {
-    try {
-      localStorage.setItem('safepaws_pets', JSON.stringify(pets));
-    } catch (e) {
-      console.error('Failed to save pets to localStorage', e);
-    }
-  }, [pets]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('safepaws_selected_pet_id', selectedPetId);
-    } catch {}
-  }, [selectedPetId]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('safepaws_alerts', JSON.stringify(alerts));
-    } catch (e) {
-      console.error('Failed to save alerts to localStorage', e);
-    }
-  }, [alerts]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('safepaws_sightings', JSON.stringify(sightings));
-    } catch (e) {
-      console.error('Failed to save sightings to localStorage', e);
-    }
-  }, [sightings]);
+  const { 
+    pets, 
+    selectedPetId, 
+    alerts, 
+    sightings,
+    addPet: handleSavePet,
+    removePet: handleRemovePet,
+    setSelectedPetId,
+    triggerLostAlert,
+    addSighting: handleAddSighting,
+    resolveAlert: handleResolveAlert
+  } = usePetStore();
 
   // Modal Visibility States
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -133,21 +70,6 @@ export default function LandingPage() {
     sightingsCount: sightings.length,
   };
 
-  const handleSavePet = (newPet: Pet) => {
-    setPets((prev) => [newPet, ...prev]);
-    setSelectedPetId(newPet.id);
-  };
-
-  const handleRemovePet = (petIdToRemove: string) => {
-    setPets((prev) => {
-      const remaining = prev.filter((p) => p.id !== petIdToRemove);
-      if (remaining.length > 0 && selectedPetId === petIdToRemove) {
-        setSelectedPetId(remaining[0].id);
-      }
-      return remaining;
-    });
-  };
-
   const handleOpenQrForPet = (pet: Pet) => {
     setSelectedPetId(pet.id);
     setIsProfileModalOpen(false);
@@ -155,12 +77,6 @@ export default function LandingPage() {
   };
 
   const handleTriggerLostAlertForPet = (pet: Pet) => {
-    setSelectedPetId(pet.id);
-    // update pet status to lost
-    setPets((prev) =>
-      prev.map((p) => (p.id === pet.id ? { ...p, status: 'lost' } : p))
-    );
-    // add or update alert
     const newAlert: NeighborhoodAlert = {
       id: `alert-${Date.now()}`,
       petId: pet.id,
@@ -175,22 +91,9 @@ export default function LandingPage() {
       description: `${pet.name} was marked missing. Broadcast activated to neighborhood radar.`,
       sightingsCount: 0,
     };
-    setAlerts((prev) => [newAlert, ...prev]);
+    triggerLostAlert(pet, newAlert);
     setIsProfileModalOpen(false);
     setIsLostAlertModalOpen(true);
-  };
-
-  const handleAddSighting = (newSighting: CommunitySighting) => {
-    setSightings((prev) => [newSighting, ...prev]);
-  };
-
-  const handleResolveAlert = (alertId: string) => {
-    setAlerts((prev) =>
-      prev.map((a) => (a.id === alertId ? { ...a, status: 'resolved' } : a))
-    );
-    setPets((prev) =>
-      prev.map((p) => ({ ...p, status: 'safe' }))
-    );
   };
 
   const isAnyModalOpen =
