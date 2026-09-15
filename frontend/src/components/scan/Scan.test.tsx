@@ -32,11 +32,18 @@ describe('Scan Page - States', () => {
     expect(captureBtn).toBeInTheDocument();
   });
 
+  const advanceToCompare = () => {
+    fireEvent.click(screen.getByText('Simulate Align'));
+    fireEvent.click(screen.getByText('Simulate Capture Click'));
+    fireEvent.click(screen.getByText('Backend: Start Analyze'));
+    fireEvent.click(screen.getByText('Backend: Start Compare'));
+  };
+
   it('handles MATCH state correctly', async () => {
     renderWithRouter(<Scan />);
     
-    // We use the mock backend controls to simulate the state transitions 
-    // to test the presentation of the ResultView without relying on timers
+    fireEvent.click(screen.getByText('Simulate Align'));
+    fireEvent.click(screen.getByText('Simulate Capture Click'));
     
     const analyzeBtn = screen.getByText('Backend: Start Analyze');
     fireEvent.click(analyzeBtn);
@@ -55,9 +62,7 @@ describe('Scan Page - States', () => {
 
   it('handles AMBIGUOUS state correctly', async () => {
     renderWithRouter(<Scan />);
-    
-    const compareBtn = screen.getByText('Backend: Start Compare');
-    fireEvent.click(compareBtn);
+    advanceToCompare();
     
     const ambiguousBtn = screen.getByText('AMBIGUOUS');
     fireEvent.click(ambiguousBtn);
@@ -68,9 +73,7 @@ describe('Scan Page - States', () => {
 
   it('handles UNKNOWN state correctly', async () => {
     renderWithRouter(<Scan />);
-    
-    const compareBtn = screen.getByText('Backend: Start Compare');
-    fireEvent.click(compareBtn);
+    advanceToCompare();
     
     const unknownBtn = screen.getByText('UNKNOWN');
     fireEvent.click(unknownBtn);
@@ -82,9 +85,7 @@ describe('Scan Page - States', () => {
 
   it('handles QUALITY_FAILURE state correctly', async () => {
     renderWithRouter(<Scan />);
-    
-    const compareBtn = screen.getByText('Backend: Start Compare');
-    fireEvent.click(compareBtn);
+    advanceToCompare();
     
     const qualityBtn = screen.getByText('QUALITY FAIL');
     fireEvent.click(qualityBtn);
@@ -97,9 +98,7 @@ describe('Scan Page - States', () => {
 
   it('handles SYSTEM_FAILURE state correctly', async () => {
     renderWithRouter(<Scan />);
-    
-    const compareBtn = screen.getByText('Backend: Start Compare');
-    fireEvent.click(compareBtn);
+    advanceToCompare();
     
     const sysBtn = screen.getByText('SYS FAIL');
     fireEvent.click(sysBtn);
@@ -112,11 +111,11 @@ describe('Scan Page - States', () => {
   it('validates reduced motion classes are present for a11y', async () => {
     renderWithRouter(<Scan />);
     
+    fireEvent.click(screen.getByText('Simulate Align'));
+    fireEvent.click(screen.getByText('Simulate Capture Click'));
     const analyzeBtn = screen.getByText('Backend: Start Analyze');
     fireEvent.click(analyzeBtn);
     
-    // Check that ProcessingView applies motion-reduce correctly
-    // Since motion-reduce is a Tailwind media query, it's represented as a class on the element
     const processingContainer = screen.getByText('Reading the nose pattern…').parentElement;
     expect(processingContainer?.innerHTML).toContain('motion-reduce:hidden');
     expect(processingContainer?.innerHTML).toContain('motion-reduce:animate-none');
