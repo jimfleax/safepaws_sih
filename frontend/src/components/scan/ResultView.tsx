@@ -68,7 +68,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
               <div key={candidateId} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-slate-200 overflow-hidden shrink-0">
-                    <img src={pet.imageUrl} alt={pet.name} className="w-full h-full object-cover" />
+                    <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="text-left">
                     <h3 className="font-semibold text-slate-900">{pet.name}</h3>
