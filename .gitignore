@@ -158,3 +158,44 @@ brain/
 .specs/
 .vite
 .vite/
+
+# Python
+__pycache__/
+*.py[cod]
+*.class
+.venv/
+venv/
+env/
+pip-log.txt
+.pytest_cache/
+.coverage
+htmlcov/
+.Python
+
+# FAISS and ML
+*.faiss
+*.index
+faiss_index.bin*
+.meta.json
+faiss_index/
+
+# Database and DB binaries
+*.sqlite3
+*.db
+pgsql_bin/
+pgsql_bin_fast/
+pgsql_data/
+postgis_bin/
+*.zip
+
+# Playwright and End-to-end tests
+playwright-report/
+test-results/
+
+# Temp images and scripts
+*.tmp
+*.temp
+valid_dog.jpg
+lowq.jpg
+nodog.jpg
+

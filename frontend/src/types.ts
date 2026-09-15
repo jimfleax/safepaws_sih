@@ -9,7 +9,11 @@ export interface Pet {
   photoUrl: string;
   microchipId?: string;
   status: 'safe' | 'lost' | 'sightings_reported';
-  userId: string;
+  userId?: string;
+  ownerName?: string;
+  ownerPhone?: string;
+  ownerEmail?: string;
+  neighborhood?: string;
   medicalNotes?: string;
   dietNotes?: string;
   reward?: string;
@@ -46,4 +50,15 @@ export interface CommunitySighting {
   time: string;
   notes: string;
   confirmed: boolean;
+}
+
+export interface SearchResultMatch {
+  pet_id: string;
+  confidence: number;
+}
+
+export interface SearchResponse {
+  status: string;
+  matches: SearchResultMatch[];
+  message: string;
 }

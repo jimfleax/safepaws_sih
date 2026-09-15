@@ -102,9 +102,14 @@ export const BiometricModal: React.FC<BiometricModalProps> = ({
                 </div>
               )}
               {scanStep === 'complete' && (
-                <div className="flex items-center gap-1.5 text-[#34A853] text-xs font-bold">
-                  <Check className="w-4 h-4 stroke-[3]" />
-                  <span>Biometric ID Hash Verified: 99.8% Match Certainty</span>
+                <div className="flex flex-col items-center gap-1.5 text-xs font-bold">
+                  <div className="flex items-center gap-1.5 text-[#34A853]">
+                    <Check className="w-4 h-4 stroke-[3]" />
+                    <span>Biometric Analysis Complete (Prototype Mode)</span>
+                  </div>
+                  <p className="text-[10px] text-orange-300 font-normal mt-1 max-w-[200px] text-center">
+                    Note: Output represents a deterministic scaffold pattern, not a validated biometric match.
+                  </p>
                 </div>
               )}
             </div>

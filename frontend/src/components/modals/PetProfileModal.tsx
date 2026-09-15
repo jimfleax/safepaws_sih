@@ -4,6 +4,7 @@ import {  Plus, ShieldCheck, QrCode, Phone, MapPin, AlertCircle, CheckCircle2, H
 import { Dialog, DialogContent, DialogClose, DialogTitle } from '../ui/Dialog';
 import { Pet } from '../../types';
 import confetti from 'canvas-confetti';
+import { ApiClient } from '../../utils/apiClient';
 
 interface PetProfileModalProps {
   isOpen: boolean;
@@ -28,9 +29,13 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
   onOpenQrTag,
   onTriggerLostAlert,
 }) => {
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [isCreatingNew, setIsCreatingNew] = useState(pets.length === 0);
   const [petToDelete, setPetToDelete] = useState<Pet | null>(null);
   const selectedPet = pets.find((p) => p.id === selectedPetId) || pets[0];
+
+  React.useEffect(() => {
+    if (pets.length === 0) setIsCreatingNew(true);
+  }, [pets.length]);
 
   // New Pet Form State
   const [formData, setFormData] = useState({
@@ -45,39 +50,26 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
     medicalNotes: '',
     distinctiveFeatures: '',
     photoUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+    file: null as File | null,
   });
 
-  const handleCreateSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.breed) return;
-
-    const newPet: Pet = {
-      id: `pet-${Date.now()}`,
-      name: formData.name,
-      species: formData.species,
-      breed: formData.breed,
-      color: formData.color || 'Standard',
-      age: formData.age || '2 years',
-      weight: formData.weight || '30 lbs',
-      photoUrl: formData.photoUrl,
-      microchipId: formData.microchipId,
-      status: 'safe',
-      userId: formData.userId || 'Verified Owner',
-      medicalNotes: formData.medicalNotes,
-      distinctiveFeatures: formData.distinctiveFeatures ? formData.distinctiveFeatures.split(',').map((s) => s.trim()) : ['Very friendly'],
-      qrTagId: `SP-${Math.floor(100 + Math.random() * 900)}-${formData.name.substring(0, 3).toUpperCase()}`,
-    };
-
-    onSavePet(newPet);
-    onSelectPet(newPet.id);
-    setIsCreatingNew(false);
-
-    confetti({
-      particleCount: 50,
-      spread: 60,
-      origin: { y: 0.6 },
-      colors: ['#DE6828', '#F5E2BE', '#34A853'],
-    });
+              <div className="flex gap-2 items-center">
+                {pets.length > 0 && !isCreatingNew && (
+                  <button
+                    onClick={() => setIsCreatingNew(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-[#DE6828] hover:bg-[#F3E9DD] rounded-full transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="hidden sm:inline">Add Pet</span>
+                  </button>
+                )}
+                <DialogClose id="close-profile-modal-btn" />
+              </div>
   };
 
   return (
@@ -101,7 +93,18 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
               </div>
             </div>
 
-            <DialogClose id="close-profile-modal-btn" />
+              <div className="flex gap-2 items-center">
+                {pets.length > 0 && !isCreatingNew && (
+                  <button
+                    onClick={() => setIsCreatingNew(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-[#DE6828] hover:bg-[#F3E9DD] rounded-full transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="hidden sm:inline">Add Pet</span>
+                  </button>
+                )}
+                <DialogClose id="close-profile-modal-btn" />
+              </div>
           </div>
 
           {/* Modal Body */}
@@ -143,6 +146,18 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
               /* New Pet Form */
               <form onSubmit={handleCreateSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
+                      Pet Photo (For Biometric Registration) *
+                    </label>
+                    <input
+                      type="file"
+                      required
+                      accept="image/jpeg, image/png, image/webp"
+                      onChange={(e) => setFormData({ ...formData, file: e.target.files?.[0] || null })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#DCCEC0] bg-white text-[#241812] text-sm focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+                    />
+                  </div>
                   <div>
                     <label className="block text-xs font-bold text-[#453429] uppercase tracking-wider mb-1">
                       Pet Name *
@@ -236,22 +251,32 @@ export const PetProfileModal: React.FC<PetProfileModalProps> = ({
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E8DCce]">
-                  <button
-                    type="button"
-                    onClick={() => setIsCreatingNew(false)}
-                    className="px-5 py-2.5 rounded-full text-sm font-medium text-[#5E4C41] hover:bg-[#EAE0D3] cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    id="save-new-pet-btn"
-                    className="px-6 py-2.5 rounded-full bg-[#DE6828] hover:bg-[#C9581B] text-white text-sm font-semibold shadow-md cursor-pointer"
-                  >
-                    Complete Profile & Generate Tag
-                  </button>
-                </div>
+                  <div className="flex flex-col gap-3 pt-4 border-t border-[#E8DCce]">
+                    {submitError && (
+                      <div className="p-3 bg-red-50 text-red-700 rounded-xl flex gap-2 items-start text-sm">
+                        <AlertCircle className="w-5 h-5 shrink-0" />
+                        <p>{submitError}</p>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsCreatingNew(false)}
+                        disabled={isSubmitting}
+                        className="px-5 py-2.5 rounded-full text-sm font-medium text-[#5E4C41] hover:bg-[#EAE0D3] cursor-pointer disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        id="save-new-pet-btn"
+                        disabled={isSubmitting}
+                        className="px-6 py-2.5 rounded-full bg-[#DE6828] hover:bg-[#C9581B] text-white text-sm font-semibold shadow-md cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {isSubmitting ? 'Creating Profile...' : 'Complete Profile & Generate Tag'}
+                      </button>
+                    </div>
+                  </div>
               </form>
             ) : (
               /* Selected Pet Detail Card */

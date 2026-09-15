@@ -28,17 +28,27 @@ export const googleLogin = catchAsync(async (req: Request, res: Response) => {
   let payload;
 
   if (token === 'mock_token') {
+    if (process.env.NODE_ENV === 'production') {
+      throw AppError.unauthorized('Mock tokens are not allowed in production');
+    }
     payload = { email: 'mockuser@example.com', sub: 'mock_google_id_123', name: 'Mock User' };
   } else {
-    try {
-      // First try as an ID token (JWT)
-      const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: getRequiredEnv('GOOGLE_CLIENT_ID'),
-      });
-      payload = ticket.getPayload();
-    } catch (verifyError: any) {
-      // If it fails, it might be an access token from useGoogleLogin
+    // Distinguish between ID token (JWT) and Access Token
+    // A JWT has 3 parts separated by dots
+    const isJwt = token.split('.').length === 3;
+
+    if (isJwt) {
+      try {
+        const ticket = await client.verifyIdToken({
+          idToken: token,
+          audience: getRequiredEnv('GOOGLE_CLIENT_ID'),
+        });
+        payload = ticket.getPayload();
+      } catch (verifyError: any) {
+        throw AppError.unauthorized('Invalid or expired Google ID token');
+      }
+    } else {
+      // Treat as an access token from useGoogleLogin
       try {
         const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${token}` }
@@ -48,8 +58,7 @@ export const googleLogin = catchAsync(async (req: Request, res: Response) => {
         }
         payload = await userInfoResponse.json();
       } catch (accessError: any) {
-        console.warn('Token verification failed as both ID token and Access token.');
-        throw AppError.unauthorized('Invalid or expired Google token');
+        throw AppError.unauthorized('Invalid or expired Google Access token');
       }
     }
   }

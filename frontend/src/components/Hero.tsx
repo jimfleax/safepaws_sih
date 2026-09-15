@@ -7,6 +7,7 @@ interface HeroProps {
   onJoinClick: () => void;
   onOpenOliveProfile: () => void;
   onOpenLostAlert: () => void;
+  onIdentifyClick: () => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({
