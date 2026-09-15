@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import Dashboard from './pages/Dashboard';
-import { SetupProfile } from './pages/SetupProfile';
-import { CustomCursor } from './components/CustomCursor';
 import { useAuthStore } from './store/authStore';
+import { CustomCursor } from './components/CustomCursor';
+
+// Lazy loaded routes for chunk splitting
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const SetupProfile = lazy(() => import('./pages/SetupProfile').then(module => ({ default: module.SetupProfile })));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const NewPet = lazy(() => import('./pages/pets/NewPet'));
+const PetDetail = lazy(() => import('./pages/pets/PetDetail'));
+const PublicPetProfile = lazy(() => import('./pages/pets/PublicPetProfile'));
+const Scan = lazy(() => import('./pages/Scan'));
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -39,16 +45,38 @@ const DashboardRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// A fallback loader for Suspense boundaries
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-[#FAF6F0]">
+    <div className="w-8 h-8 border-4 border-[#DE6828] border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
+
 export default function App() {
   return (
     <BrowserRouter>
       <CustomCursor />
-      <Routes>
-        <Route path="/" element={<AuthRoute><LandingPage /></AuthRoute>} />
-        <Route path="/setup-profile" element={<SetupProfileRoute><SetupProfile /></SetupProfileRoute>} />
-        <Route path="/dashboard" element={<DashboardRoute><Dashboard /></DashboardRoute>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* Public / Marketing */}
+          <Route path="/" element={<AuthRoute><LandingPage /></AuthRoute>} />
+          
+          {/* Public Finders / Tools */}
+          <Route path="/public/pets/:petId" element={<PublicPetProfile />} />
+          <Route path="/scan" element={<Scan />} />
+
+          {/* Onboarding */}
+          <Route path="/setup-profile" element={<SetupProfileRoute><SetupProfile /></SetupProfileRoute>} />
+          
+          {/* Authenticated App Shell */}
+          <Route path="/dashboard" element={<DashboardRoute><Dashboard /></DashboardRoute>} />
+          <Route path="/pets/new" element={<DashboardRoute><NewPet /></DashboardRoute>} />
+          <Route path="/pets/:petId" element={<DashboardRoute><PetDetail /></DashboardRoute>} />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
