@@ -8,8 +8,9 @@ import { AnimatePresence } from 'motion/react';
 import { EnterScreen } from '../components/EnterScreen';
 import { Header } from '../components/Header';
 import { Hero } from '../components/Hero';
-import { FeaturesSection } from '../components/FeaturesSection';
-import { StepsDarkSection } from '../components/StepsDarkSection';
+import { HowItWorksSection } from '../components/HowItWorksSection';
+import { TrustSection } from '../components/TrustSection';
+import { CommunitySection } from '../components/CommunitySection';
 import { CtaSection } from '../components/CtaSection';
 import { Footer } from '../components/Footer';
 
@@ -128,43 +129,41 @@ export default function LandingPage() {
 
       {/* 1. Header Navigation */}
       <Header
-        onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
-        onOpenCommunity={() => setIsCommunityModalOpen(true)}
+        onOpenHowItWorks={() => {
+          const el = document.getElementById('how-it-works');
+          el?.scrollIntoView({ behavior: 'smooth' });
+        }}
+        onOpenCommunity={() => {
+          const el = document.getElementById('community-section');
+          el?.scrollIntoView({ behavior: 'smooth' });
+        }}
         onOpenFeatures={() => {
-          const el = document.getElementById('feature-card-biometric');
+          const el = document.getElementById('how-it-works');
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
         onOpenProfile={() => setIsProfileModalOpen(true)}
         onOpenAlerts={() => setIsLostAlertModalOpen(true)}
+        onOpenIdentify={() => setIsBiometricModalOpen(true)}
         activeAlertCount={alerts.filter((a) => a.status === 'active').length}
       />
 
-      {/* 2. Hero Section matching screenshot */}
+      {/* 2. Hero Section */}
       <main className="relative z-10 flex-1">
         <Hero
           onJoinClick={() => setIsProfileModalOpen(true)}
-          onOpenOliveProfile={() => {
-            setSelectedPetId('pet-olive');
-            setIsProfileModalOpen(true);
-          }}
-          onOpenLostAlert={() => setIsLostAlertModalOpen(true)}
+          onIdentifyClick={() => setIsBiometricModalOpen(true)}
         />
 
-        {/* 3. Feature Bento Cards: "ONE PLACE TO KEEP THEM SAFE" */}
-        <FeaturesSection
-          onOpenBiometric={() => setIsBiometricModalOpen(true)}
-          onOpenNetwork={() => setIsCommunityModalOpen(true)}
-          onOpenQrTags={() => setIsQrModalOpen(true)}
-        />
+        {/* 3. How It Works */}
+        <HowItWorksSection />
 
-        {/* 4. Espresso Dark Section: "SIMPLE FROM DAY ONE" */}
-        <StepsDarkSection
-          onStep1Click={() => setIsProfileModalOpen(true)}
-          onStep2Click={() => setIsCommunityModalOpen(true)}
-          onStep3Click={() => setIsLostAlertModalOpen(true)}
-        />
+        {/* 4. Trust + Nose Print */}
+        <TrustSection />
 
-        {/* 5. Bottom Call to Action: "YOUR NEIGHBORHOOD, CONNECTED" */}
+        {/* 5. Community + Recovery */}
+        <CommunitySection />
+
+        {/* 6. Bottom Call to Action */}
         <CtaSection onStartClick={() => setIsProfileModalOpen(true)} />
       </main>
 
