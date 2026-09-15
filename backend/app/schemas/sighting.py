@@ -1,0 +1,18 @@
+from typing import Optional
+from pydantic import BaseModel, ConfigDict
+
+class SightingBase(BaseModel):
+    reporter_name: str
+    location: str
+    notes: Optional[str] = None
+
+class SightingCreate(SightingBase):
+    pass
+
+class SightingResponse(SightingBase):
+    id: str
+    alert_id: Optional[str] = None
+    time: str
+    confirmed: bool
+    
+    model_config = ConfigDict(from_attributes=True)

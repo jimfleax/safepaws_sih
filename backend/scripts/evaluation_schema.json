@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Biometric Evaluation Output",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "dataset_version": {"type": "string"},
+        "identity_count": {"type": "integer"},
+        "image_count": {"type": "integer"},
+        "split": {"type": "string"},
+        "model_id": {"type": "string"},
+        "embedding_dimension": {"type": "integer"},
+        "similarity_metric": {"type": "string"},
+        "protocol": {"type": "string"},
+        "date": {"type": "string"},
+        "seed": {"type": "integer"}
+      },
+      "required": ["dataset_version", "identity_count", "image_count", "split", "model_id", "embedding_dimension", "similarity_metric", "protocol", "date"]
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "verification": {
+          "type": "object",
+          "properties": {
+            "AUC": {"type": "number"},
+            "EER": {"type": "number"},
+            "EER_Threshold": {"type": "number"},
+            "Operating_Points": {
+              "type": "object",
+              "properties": {
+                "TAR@FAR=0.1": {"type": "number"},
+                "TAR@FAR=0.01": {"type": "number"},
+                "TAR@FAR=0.001": {"type": "number"}
+              }
+            }
+          }
+        },
+        "open_set": {
+          "type": "object",
+          "properties": {
+            "Unknown_Rejection_Rate": {"type": "number"},
+            "Ambiguity_Rate": {"type": "number"}
+          }
+        }
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "properties": {
+        "match_threshold": {"type": "number"},
+        "ambiguity_threshold": {"type": "number"}
+      }
+    },
+    "limitations": {"type": "string"},
+    "_WARNING": {"type": "string"}
+  },
+  "required": ["metadata", "metrics", "limitations"]
+}

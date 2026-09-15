@@ -27,6 +27,7 @@ import { initialPets, sampleAlerts, sampleSightings } from '../data/mockData';
 import { Pet, NeighborhoodAlert, CommunitySighting } from '../types';
 
 import { usePetStore } from '../store/petStore';
+import { ApiClient } from '../utils/apiClient';
 
 export default function LandingPage() {
   // Always show the starting portal animation on every page refresh / load
@@ -41,9 +42,18 @@ export default function LandingPage() {
     removePet: handleRemovePet,
     setSelectedPetId,
     triggerLostAlert,
-    addSighting: handleAddSighting,
+    addSighting: storeAddSighting,
     resolveAlert: handleResolveAlert
   } = usePetStore();
+
+  const handleAddSighting = async (newSighting: CommunitySighting) => {
+    try {
+      await ApiClient.reportSighting(newSighting);
+    } catch (e) {
+      console.error('Failed to report sighting to API', e);
+    }
+    storeAddSighting(newSighting);
+  };
 
   // Modal Visibility States
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);

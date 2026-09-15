@@ -12,6 +12,7 @@ interface HeaderProps {
   onOpenFeatures: () => void;
   onOpenProfile: () => void;
   onOpenAlerts: () => void;
+  onOpenIdentify: () => void;
   activeAlertCount?: number;
 }
 
@@ -38,6 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenFeatures,
   onOpenProfile,
   onOpenAlerts,
+  onOpenIdentify,
   activeAlertCount = 1,
 }) => {
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
@@ -74,6 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'how-it-works', label: 'How it works', action: onOpenHowItWorks },
     { id: 'community', label: 'Community', action: onOpenCommunity, hasBadge: true },
     { id: 'features', label: 'Features', action: onOpenFeatures },
+    { id: 'identify', label: 'Identify', action: onOpenIdentify },
   ];
 
   return (
