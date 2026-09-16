@@ -11,6 +11,9 @@ const NewPet = lazy(() => import('./pages/pets/NewPet'));
 const PetDetail = lazy(() => import('./pages/pets/PetDetail'));
 const PublicPetProfile = lazy(() => import('./pages/pets/PublicPetProfile'));
 const Scan = lazy(() => import('./pages/Scan'));
+const Alerts = lazy(() => import('./pages/Alerts'));
+const Community = lazy(() => import('./pages/Community'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -72,9 +75,11 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardRoute><Dashboard /></DashboardRoute>} />
           <Route path="/pets/new" element={<DashboardRoute><NewPet /></DashboardRoute>} />
           <Route path="/pets/:petId" element={<DashboardRoute><PetDetail /></DashboardRoute>} />
+          <Route path="/alerts" element={<DashboardRoute><Alerts /></DashboardRoute>} />
+          <Route path="/community" element={<DashboardRoute><Community /></DashboardRoute>} />
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
