@@ -54,13 +54,13 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
   };
 
   return (
-    <div className="relative w-full h-full bg-slate-50 flex flex-col items-center justify-center overflow-hidden">
+    <div className="relative w-full h-full bg-[#0d0a08] flex flex-col items-center justify-center overflow-hidden touch-none">
       {error ? (
-        <div className="text-slate-900 text-center p-4">
-          <p className="mb-4 font-medium">{error}</p>
-          <div className="w-full max-w-sm mx-auto border-2 border-dashed border-slate-300 rounded-lg p-8 flex flex-col items-center justify-center bg-white shadow-sm">
-             <Camera className="w-12 h-12 text-slate-400 mb-2" />
-             <span className="text-slate-500 text-sm font-medium">Upload Photo (Fallback)</span>
+        <div className="text-white text-center p-4">
+          <p className="mb-4 font-medium text-[#E8DCce]">{error}</p>
+          <div className="w-full max-w-sm mx-auto border border-dashed border-[#DE6828]/50 rounded-[2rem] p-8 flex flex-col items-center justify-center bg-[#1a1310] shadow-sm">
+             <Camera className="w-12 h-12 text-[#DE6828]/60 mb-3" />
+             <span className="text-[#DECFBD] text-sm font-medium">Tap to select photo fallback</span>
              <input 
                type="file" 
                accept="image/*" 
@@ -74,6 +74,7 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
         </div>
       ) : (
         <>
+          {/* Video Feed */}
           <video 
             ref={videoRef} 
             autoPlay 
@@ -83,29 +84,57 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
           />
           <canvas ref={canvasRef} className="hidden" />
 
-          {/* Single organic nose-derived scan frame overlay */}
-          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
-             <svg width="280" height="280" viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-70">
-                <path d="M140 40C80 40 40 90 40 150C40 210 90 240 140 240C190 240 240 210 240 150C240 90 200 40 140 40Z" stroke="white" strokeWidth="3" strokeDasharray="8 8" />
-                <path d="M140 160C120 160 100 180 110 210C120 220 160 220 170 210C180 180 160 160 140 160Z" stroke="white" strokeWidth="2" strokeOpacity="0.5" />
+          {/* Mask Overlay (dims the outside of the frame) */}
+          <div className="absolute inset-0 pointer-events-none">
+             <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0">
+               <defs>
+                 <mask id="scan-mask">
+                   <rect width="100" height="100" fill="white" />
+                   {/* Organic nose shape cutout (center) */}
+                   <path d="M50 25 C20 25, 20 60, 35 75 C45 85, 55 85, 65 75 C80 60, 80 25, 50 25 Z" fill="black" />
+                 </mask>
+               </defs>
+               <rect width="100" height="100" fill="#0d0a08" fillOpacity="0.85" mask="url(#scan-mask)" />
              </svg>
           </div>
 
-          {/* One instruction */}
-          <div className="absolute top-16 left-0 right-0 text-center px-4">
-             <p className="text-white text-lg font-medium drop-shadow-md bg-black/30 inline-block px-4 py-2 rounded-full backdrop-blur-sm">
-               Position nose within the frame
+          {/* Organic frame guide (glows on ALIGN phase) */}
+          <div 
+            className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer pointer-events-auto"
+            onClick={onAlign}
+            aria-label="Tap to focus and align"
+          >
+             <svg viewBox="0 0 100 100" className="w-[85%] max-w-[340px] drop-shadow-[0_0_12px_rgba(222,104,40,0.3)] motion-reduce:transition-none transition-all duration-500">
+                <path 
+                  d="M50 25 C20 25, 20 60, 35 75 C45 85, 55 85, 65 75 C80 60, 80 25, 50 25 Z" 
+                  fill="none" 
+                  stroke={phase === 'ALIGN' ? '#DE6828' : 'rgba(255, 255, 255, 0.4)'} 
+                  strokeWidth="0.8" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="motion-reduce:transition-none transition-colors duration-300"
+                />
+                {/* Focusing corners/reticles */}
+                <path d="M45 23.5 L55 23.5 M45 76.5 L55 76.5 M24.5 45 L24.5 55 M75.5 45 L75.5 55" stroke="rgba(255, 255, 255, 0.8)" strokeWidth="1" strokeLinecap="round" className={phase === 'ALIGN' ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'} />
+             </svg>
+          </div>
+
+          {/* One Instruction */}
+          <div className="absolute top-16 left-0 right-0 text-center px-4 pointer-events-none">
+             <p className="text-white text-base font-semibold tracking-wide bg-[#1C120C]/60 backdrop-blur-md inline-block px-6 py-2.5 rounded-full border border-white/10 shadow-lg">
+               {phase === 'ALIGN' ? 'Hold still...' : 'Align nose in frame'}
              </p>
           </div>
 
-          {/* One capture control */}
-          <div className="absolute bottom-12 left-0 right-0 flex justify-center">
+          {/* Capture Control */}
+          <div className="absolute bottom-12 left-0 right-0 flex justify-center pb-safe">
              <button 
                onClick={handleCaptureClick}
-               className="w-20 h-20 rounded-full border-4 border-white bg-white/30 flex items-center justify-center active:bg-white/60 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500"
+               className="group relative w-20 h-20 rounded-full bg-transparent flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-[#DE6828]/50"
                aria-label="Capture photo"
              >
-                <div className="w-16 h-16 rounded-full bg-white"></div>
+                <div className="absolute inset-0 rounded-full border-[3px] border-white/80 group-active:scale-95 transition-transform motion-reduce:transition-none" />
+                <div className="w-[60px] h-[60px] rounded-full bg-white group-active:bg-[#DE6828] transition-colors duration-200 motion-reduce:transition-none" />
              </button>
           </div>
         </>
