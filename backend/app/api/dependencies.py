@@ -13,7 +13,7 @@ from app.storage.interfaces import ImageStorage
 # ------------------------------------------------------------------
 # Import real Panel implementations
 # ------------------------------------------------------------------
-from app.services.detector import MockNoseDetector
+from app.services.yolo_detector import YoloNoseDetector
 from app.services.quality_gate import ClassicalQualityGate
 from app.ml.embedding.inference import BiometricEmbeddingModel
 from app.ml.embedding.config import EmbeddingModelConfig
@@ -31,9 +31,15 @@ class MockImageStorage:
 # ------------------------------------------------------------------
 # Global Singletons
 # ------------------------------------------------------------------
-_detector = MockNoseDetector()
+_detector = YoloNoseDetector()
 _quality_gate = ClassicalQualityGate()
-_embedder = BiometricEmbeddingModel(config=EmbeddingModelConfig(scaffold_mode=True))
+from app.core.config import settings
+
+_embedder = BiometricEmbeddingModel(config=EmbeddingModelConfig(
+    scaffold_mode=False,
+    embedding_dimension=settings.EMBEDDING_DIMENSION,
+    backbone_architecture="mobilenet_v2"
+))
 _vector_store = FAISSVectorStore()
 _image_storage = MockImageStorage()
 
