@@ -38,7 +38,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
           <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-full"></div>
           <CheckCircle2 className="w-20 h-20 text-emerald-400 relative z-10 drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]" />
         </div>
-        <h2 className="text-3xl font-bold text-white mb-2 tracking-wide">Match Found</h2>
+        <h2 className="text-3xl font-bold text-white mb-2 tracking-wide">Match Found!</h2>
         <p className="text-lg text-gray-400 mb-8 max-w-md font-light">
           We found a decisive match for <strong className="text-white font-medium">{pet.name}</strong>.
         </p>
@@ -71,7 +71,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
           <AlertCircle className="w-16 h-16 text-amber-400 relative z-10" />
         </div>
         
-        <h2 className="text-2xl font-bold text-white mb-2">Multiple Profiles</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">Multiple Similar Profiles</h2>
         <p className="text-gray-400 mb-8 text-center max-w-md font-light">
           This scan closely resembles multiple pets. Please carefully review the candidates below.
         </p>
@@ -119,7 +119,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
           <div className="absolute inset-0 bg-[#DE6828]/20 blur-xl rounded-full"></div>
           <HelpCircle className="w-20 h-20 text-[#DE6828] relative z-10" />
         </div>
-        <h2 className="text-3xl font-bold text-white mb-2 tracking-wide">No Match</h2>
+        <h2 className="text-3xl font-bold text-white mb-2 tracking-wide">No Match Found</h2>
         <p className="text-lg text-gray-400 mb-8 max-w-md font-light">
           This nose isn't registered with SafePaws yet. If this is your pet, add them to our community.
         </p>
@@ -178,7 +178,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
           <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-full"></div>
           <ServerCrash className="w-20 h-20 text-orange-400 relative z-10" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2 tracking-wide">Service Error</h2>
+        <h2 className="text-2xl font-bold text-white mb-2 tracking-wide">Service Unavailable</h2>
         <p className="text-gray-400 mb-8 max-w-md font-light">
           Our identification servers are currently unreachable. This is a system issue, not a problem with your scan.
           {result.errorDetails && <span className="block mt-4 text-xs text-orange-300/70 font-mono bg-[#1a1a1a] border border-white/5 p-3 rounded-xl">{result.errorDetails}</span>}
