@@ -38,13 +38,13 @@ export default function ProcessingView({ phase }: ProcessingViewProps) {
   }, [scanDir]);
 
   return (
-    <div className="w-full h-full bg-[#111111] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div className="w-full h-full bg-ink flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {/* Soft spotlight from top (light/depth) */}
       <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none"></div>
 
       <div className="relative mb-12 flex flex-col items-center justify-center">
         {/* Dark physical material surface / plinth */}
-        <div className="relative w-48 h-48 rounded-[2rem] bg-[#1a1a1a] shadow-[inset_0_2px_1px_rgba(255,255,255,0.05),0_20px_40px_rgba(0,0,0,0.4)] border border-[#2a2a2a] flex items-center justify-center overflow-hidden">
+        <div className="relative w-48 h-48 rounded-[2rem] bg-surface/5 shadow-[inset_0_2px_1px_rgba(255,255,255,0.05),0_20px_40px_rgba(0,0,0,0.4)] border border-white/5 flex items-center justify-center overflow-hidden">
           
           {/* Rendered Nose-print proxy - using an organic SVG path instead of lucide Fingerprint for authenticity */}
           <svg viewBox="0 0 100 100" className="w-24 h-24 opacity-40">
@@ -60,26 +60,26 @@ export default function ProcessingView({ phase }: ProcessingViewProps) {
 
           {/* Controlled premium motion: soft sweeping scanner line */}
           <div 
-            className="absolute left-0 right-0 h-16 bg-gradient-to-b from-transparent via-white/[0.15] to-transparent pointer-events-none motion-reduce:hidden"
+            className="absolute left-0 right-0 h-16 bg-gradient-to-b from-transparent via-marigold/[0.15] to-transparent pointer-events-none motion-reduce:hidden"
             style={{ top: `${scanPos}%`, transform: 'translateY(-50%)' }}
           >
-             <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-white/30 shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
+             <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-marigold/30 shadow-[0_0_8px_var(--color-marigold)]" />
           </div>
         </div>
       </div>
       
-      <h2 className="text-xl font-medium tracking-wide text-gray-200 text-center mb-2">
+      <h2 className="text-xl font-medium tracking-wide text-bone text-center mb-2">
         {message}
       </h2>
       
-      <p className="text-gray-500 text-sm mb-10 font-light">
+      <p className="text-bone/50 text-sm mb-10 font-light">
         Biometric verification
       </p>
       
       {/* Subtle Material Progress Bar */}
-      <div className="w-48 h-1 bg-[#222] rounded-full overflow-hidden shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
+      <div className="w-48 h-1 bg-surface/10 rounded-full overflow-hidden shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
         <div 
-          className="h-full bg-gray-400 rounded-full transition-all duration-1000 ease-out"
+          className="h-full bg-bone/80 rounded-full transition-all duration-1000 ease-out"
           style={{ width: phase === 'ANALYZE' ? '50%' : phase === 'COMPARE' ? '100%' : '0%' }}
         />
       </div>
