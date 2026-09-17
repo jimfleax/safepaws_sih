@@ -71,7 +71,8 @@ async def get_pet_by_tag(
     """
     Get a public-safe pet profile by QR tag ID.
     """
-    stmt = select(Pet).where(Pet.qr_tag_id == qr_tag_id)
+    from sqlalchemy.orm import selectinload
+    stmt = select(Pet).options(selectinload(Pet.owner), selectinload(Pet.photos)).where(Pet.qr_tag_id == qr_tag_id)
     result = await db.execute(stmt)
     pet = result.scalars().first()
     
