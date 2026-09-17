@@ -30,23 +30,28 @@ export default function PublicTagProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF6F0] flex items-center justify-center">
-        <div className="text-[#6F5D52]">Loading pet profile...</div>
+      <div className="min-h-screen bg-[#FAF6F0] flex flex-col items-center justify-center p-6">
+        <div className="w-12 h-12 border-4 border-[#E2811F] border-t-transparent rounded-full animate-spin mb-4" />
+        <h2 className="font-serif text-xl font-bold text-[#1C1A17]">Locating Pet Profile...</h2>
+        <p className="text-[#63684B] mt-2 text-center">Securely retrieving biometric and contact data.</p>
       </div>
     );
   }
 
   if (!pet) {
     return (
-      <div className="min-h-screen bg-[#FAF6F0] flex items-center justify-center p-6 text-center">
-        <div>
-          <h2 className="text-2xl font-bold text-[#241812]">{error || 'Pet not found'}</h2>
-          <p className="mt-2 text-[#6F5D52]">This tag might be invalid or unregistered.</p>
+      <div className="min-h-screen bg-[#FAF6F0] flex flex-col items-center justify-center p-6 text-center">
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-[#E5E0D8] max-w-md w-full">
+          <AlertCircle className="w-12 h-12 text-[#B3452F] mx-auto mb-4" />
+          <h2 className="font-serif text-2xl font-bold text-[#1C1A17]">{error || 'Unknown Tag'}</h2>
+          <p className="mt-3 text-[#63684B] leading-relaxed">
+            This SafePaws tag does not exist or has been unregistered. If you found a pet, please contact your local shelter.
+          </p>
           <button 
             onClick={() => navigate('/')}
-            className="mt-6 text-[#DE6828] hover:underline"
+            className="mt-8 w-full py-3 px-4 rounded-xl bg-[#F6F1E7] hover:bg-[#E5E0D8] text-[#1C1A17] font-semibold text-sm transition-colors cursor-pointer"
           >
-            Return Home
+            Return to SafePaws Home
           </button>
         </div>
       </div>
@@ -137,7 +142,7 @@ export default function PublicTagProfile() {
               <div className="flex flex-col gap-3 mt-6">
                 <a
                   href={`tel:${pet.ownerPhone}`}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#241812] hover:bg-[#1A110D] text-white font-bold text-sm shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-4 px-4 rounded-xl bg-[#E2811F] hover:bg-[#C9721B] text-white font-bold text-sm shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Phone className="w-5 h-5" />
                   Call Owner
@@ -168,7 +173,7 @@ export default function PublicTagProfile() {
                       }
                     );
                   }}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#DE6828] hover:bg-[#C9581B] text-white font-bold text-sm shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-4 px-4 rounded-xl bg-[#63684B] hover:bg-[#4C503A] text-white font-bold text-sm shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <MapPin className="w-5 h-5" />
                   Send My Location

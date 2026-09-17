@@ -320,13 +320,13 @@ export default function NewPet() {
                           </div>
                         )}
 
-                        {/* Verified Geometric Vector Points when complete */}
+                        {/* Honest Structural Indicator (No fake geometric vectors) */}
                         {scanComplete && (
-                          <div className="absolute inset-0 bg-[#34A853]/15 flex items-center justify-center pointer-events-none">
-                            <div className="absolute top-[35%] left-[38%] w-2 h-2 rounded-full bg-[#34A853] shadow-[0_0_8px_#34A853]" />
-                            <div className="absolute top-[35%] right-[38%] w-2 h-2 rounded-full bg-[#34A853] shadow-[0_0_8px_#34A853]" />
-                            <div className="absolute top-[52%] left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#DE6828] shadow-[0_0_10px_#DE6828]" />
-                            <div className="absolute bottom-[30%] left-1/2 -translate-x-1/2 w-8 h-8 rounded-full border border-dashed border-[#34A853]" />
+                          <div className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
+                            <div className="absolute inset-4 border-2 border-dashed border-[#E2811F]/50 rounded-xl" />
+                            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/40 flex items-center justify-center">
+                              <CheckCircle2 className="w-6 h-6 text-white drop-shadow-md" />
+                            </div>
                           </div>
                         )}
                       </>
@@ -355,20 +355,20 @@ export default function NewPet() {
                         {isScanning ? (
                           <>
                             <RefreshCw className="w-5 h-5 animate-spin" />
-                            Mapping biometrics...
+                            Capturing nose-print features...
                           </>
                         ) : (
                           <>
                             <Sparkles className="w-5 h-5" />
-                            Capture Nose-Print Identity
+                            Enroll Nose-Print
                           </>
                         )}
                       </button>
                     )}
 
                     {scanComplete && (
-                      <div className="p-3 bg-green-50 text-green-800 rounded-xl text-xs font-medium text-center border border-green-200">
-                        Biometric vectors securely captured.
+                      <div className="p-3 bg-[#E8E0D5] text-[#1C1A17] rounded-xl text-xs font-medium text-center border border-[#DCCEC0]">
+                        Nose-print enrolled successfully.
                       </div>
                     )}
                   </div>
