@@ -1,6 +1,5 @@
 import os
 import uuid
-import aiofiles
 from app.storage.interfaces import ImageStorage
 from app.core.exceptions import DomainException
 
@@ -14,8 +13,8 @@ class LocalFileSystemStorage(ImageStorage):
             unique_name = f"{uuid.uuid4().hex}_{file_name}"
             file_path = os.path.join(self.base_dir, unique_name)
             
-            async with aiofiles.open(file_path, "wb") as out_file:
-                await out_file.write(file_bytes)
+            with open(file_path, "wb") as out_file:
+                out_file.write(file_bytes)
                 
             # Return a URL that matches the static mount we'll configure
             return f"/static/images/{unique_name}"
