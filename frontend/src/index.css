@@ -90,6 +90,15 @@
     background-color: var(--color-background);
     color: var(--color-ink);
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Hide native cursor on pointer devices so custom cursor is used instead */
+  @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    *, *::before, *::after {
+      cursor: none !important;
+    }
   }
 
   h1, h2, h3, .font-serif, .font-editorial {
