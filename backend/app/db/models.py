@@ -95,14 +95,29 @@ class PetBiometricEnrollment(Base):
     pet = relationship("Pet", back_populates="biometric_enrollments")
     photo = relationship("PetPhoto", back_populates="enrollment")
 
+class Alert(Base):
+    __tablename__ = 'alerts'
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    pet_id = Column(String, ForeignKey("pets.id"), nullable=False)
+    status = Column(String, default="active", nullable=False)
+    last_seen_address = Column(String, nullable=True)
+    description = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    pet = relationship("Pet", backref="alerts")
+    sightings = relationship("Sighting", back_populates="alert")
+
 class Sighting(Base):
     __tablename__ = 'sightings'
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    alert_id = Column(String, nullable=True, index=True)
+    alert_id = Column(String, ForeignKey("alerts.id"), nullable=True, index=True)
     reporter_name = Column(String, nullable=False)
     location = Column(String, nullable=False)
     location_geom = Column(Geography(geometry_type='POINT', srid=4326), nullable=True)
     notes = Column(String, nullable=True)
     time = Column(DateTime, default=datetime.utcnow)
     confirmed = Column(Boolean, default=False)
+
+    alert = relationship("Alert", back_populates="sightings")

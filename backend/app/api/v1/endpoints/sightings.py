@@ -17,6 +17,7 @@ async def report_sighting(
     Report a new community sighting and persist to PostgreSQL.
     """
     new_sighting = Sighting(
+        alert_id=sighting_in.alert_id,
         reporter_name=sighting_in.reporter_name,
         location=sighting_in.location,
         notes=sighting_in.notes,
