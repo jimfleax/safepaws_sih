@@ -84,39 +84,38 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
           />
           <canvas ref={canvasRef} className="hidden" />
 
-          {/* Mask Overlay (dims the outside of the frame) */}
-          <div className="absolute inset-0 pointer-events-none">
-             <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0">
-               <defs>
-                 <mask id="scan-mask">
-                   <rect width="100" height="100" fill="white" />
-                   {/* Organic nose shape cutout (center) */}
-                   <path d="M50 25 C20 25, 20 60, 35 75 C45 85, 55 85, 65 75 C80 60, 80 25, 50 25 Z" fill="black" />
-                 </mask>
-               </defs>
-               <rect width="100" height="100" fill="#0d0a08" fillOpacity="0.85" mask="url(#scan-mask)" />
-             </svg>
-          </div>
-
-          {/* Organic frame guide (glows on ALIGN phase) */}
+          {/* Unified Mask & Guide Overlay */}
           <div 
             className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer pointer-events-auto"
             onClick={onAlign}
             aria-label="Tap to focus and align"
           >
-             <svg viewBox="0 0 100 100" className="w-[85%] max-w-[340px] drop-shadow-[0_0_12px_rgba(222,104,40,0.3)] motion-reduce:transition-none transition-all duration-500">
-                <path 
-                  d="M50 25 C20 25, 20 60, 35 75 C45 85, 55 85, 65 75 C80 60, 80 25, 50 25 Z" 
-                  fill="none" 
-                  stroke={phase === 'ALIGN' ? '#DE6828' : 'rgba(255, 255, 255, 0.4)'} 
-                  strokeWidth="0.8" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  className="motion-reduce:transition-none transition-colors duration-300"
-                />
-                {/* Focusing corners/reticles */}
-                <path d="M45 23.5 L55 23.5 M45 76.5 L55 76.5 M24.5 45 L24.5 55 M75.5 45 L75.5 55" stroke="rgba(255, 255, 255, 0.8)" strokeWidth="1" strokeLinecap="round" className={phase === 'ALIGN' ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'} />
-             </svg>
+             <div className="relative w-[85%] max-w-[340px] aspect-square">
+               <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible drop-shadow-[0_0_12px_rgba(222,104,40,0.3)] motion-reduce:transition-none transition-all duration-500">
+                  <defs>
+                    <mask id="scan-mask">
+                      <rect x="-500%" y="-500%" width="1100%" height="1100%" fill="white" />
+                      <path d="M50 25 C20 25, 20 60, 35 75 C45 85, 55 85, 65 75 C80 60, 80 25, 50 25 Z" fill="black" />
+                    </mask>
+                  </defs>
+                  
+                  {/* Full-screen dimming overlay */}
+                  <rect x="-500%" y="-500%" width="1100%" height="1100%" fill="#0d0a08" fillOpacity="0.85" mask="url(#scan-mask)" pointerEvents="none" />
+                  
+                  {/* Outline guide */}
+                  <path 
+                    d="M50 25 C20 25, 20 60, 35 75 C45 85, 55 85, 65 75 C80 60, 80 25, 50 25 Z" 
+                    fill="none" 
+                    stroke={phase === 'ALIGN' ? '#DE6828' : 'rgba(255, 255, 255, 0.4)'} 
+                    strokeWidth="0.8" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className="motion-reduce:transition-none transition-colors duration-300"
+                  />
+                  {/* Focusing corners */}
+                  <path d="M45 23.5 L55 23.5 M45 76.5 L55 76.5 M24.5 45 L24.5 55 M75.5 45 L75.5 55" stroke="rgba(255, 255, 255, 0.8)" strokeWidth="1" strokeLinecap="round" className={phase === 'ALIGN' ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'} />
+               </svg>
+             </div>
           </div>
 
           {/* One Instruction */}
