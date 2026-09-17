@@ -8,8 +8,6 @@
   --color-trail: #63684B;
   --color-alert-clay: #B3452F;
   --color-ink-soft: #8A8175;
-  --color-safe-green: #4C7A52;
-  --color-danger-red: #b91c1c;
 
   /* SEMANTIC COLORS */
   --color-background: var(--color-bone);
@@ -21,8 +19,8 @@
   --color-accent-hover: #C9721B;
   --color-accent-active: #B06317;
   --color-alert: var(--color-alert-clay);
-  --color-success: var(--color-safe-green);
-  --color-danger: var(--color-danger-red);
+  --color-success: #4C7A52;
+  --color-danger: var(--color-alert-clay);
   --color-focus: var(--color-marigold);
 
   /* TYPOGRAPHY */

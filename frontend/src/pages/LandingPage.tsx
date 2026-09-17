@@ -36,7 +36,7 @@ export default function LandingPage() {
     let lenis: any;
     let requestAnimationFrameId: number;
 
-    import('@studio-freight/lenis').then((LenisModule) => {
+    import('lenis').then((LenisModule) => {
       const Lenis = LenisModule.default;
       lenis = new Lenis({
         duration: 1.2,

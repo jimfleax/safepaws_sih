@@ -62,7 +62,7 @@ describe('Scan Page - States', () => {
     renderWithRouter(<Scan />);
     await capturePhoto();
     
-    expect(screen.getByText('Reading the nose pattern…')).toBeInTheDocument();
+    expect(screen.getByText('Reading the nose pattern...')).toBeInTheDocument();
     
     await waitFor(() => {
       expect(screen.getByText('Match Found!')).toBeInTheDocument();
@@ -142,10 +142,10 @@ describe('Scan Page - States', () => {
     await capturePhoto();
     
     await waitFor(() => {
-      expect(screen.getByText('Reading the nose pattern…')).toBeInTheDocument();
+      expect(screen.getByText('Reading the nose pattern...')).toBeInTheDocument();
     });
     
-    const processingContainer = screen.getByText('Reading the nose pattern…').parentElement;
+    const processingContainer = screen.getByText('Reading the nose pattern...').parentElement;
     expect(processingContainer?.innerHTML).toContain('motion-reduce:hidden');
     act(() => {
       resolveApi({ matches: [] });
