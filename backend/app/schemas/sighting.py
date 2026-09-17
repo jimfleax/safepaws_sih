@@ -7,7 +7,7 @@ class SightingBase(BaseModel):
     notes: Optional[str] = None
 
 class SightingCreate(SightingBase):
-    pass
+    alert_id: Optional[str] = None
 
 class SightingResponse(SightingBase):
     id: str
