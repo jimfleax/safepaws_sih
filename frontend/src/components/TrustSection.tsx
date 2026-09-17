@@ -1,42 +1,71 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useRef, useEffect } from 'react';
 import { ShieldCheck } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export const TrustSection: React.FC = () => {
+  const containerRef = useRef<HTMLElement>(null);
+  const imgRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    let ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        }
+      });
+      
+      tl.fromTo(imgRef.current, { scale: 0.8 }, { scale: 1.1, ease: 'none' }, 0);
+      tl.fromTo(textRef.current, { y: 50 }, { y: -50, ease: 'none' }, 0);
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="w-full bg-[#FAF3EA] text-[#241812] py-16 sm:py-20 lg:py-24" id="trust-section">
+    <section ref={containerRef} className="relative w-full bg-[#FAF3EA] text-[#241812] py-20 sm:py-24 lg:py-32 overflow-hidden" id="trust-section">
       <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
         
-        {/* Left Column: Visual Material */}
+        {/* Left Column: Structural Nose-Print Material */}
         <div className="w-full lg:w-1/2 flex justify-center">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-gradient-to-br from-[#DE6828]/10 to-[#F59E0B]/5 flex items-center justify-center relative overflow-hidden"
+          <div 
+            ref={imgRef}
+            className="w-72 h-72 sm:w-96 sm:h-96 rounded-full flex items-center justify-center relative overflow-hidden shadow-2xl"
           >
-            {/* Exactly ONE nose-print treatment */}
-            <div className="text-[#DE6828] opacity-80 mix-blend-multiply">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-32 h-32" aria-hidden="true">
-                <path d="M12 2C8 2 4 5 4 10c0 3 2 5 3.5 6.5C8.5 17.5 10 20 12 21c2-1 3.5-3.5 4.5-4.5C18 15 20 13 20 10c0-5-4-8-8-8zm0 15c-1.5-1.5-2-2.5-2.5-3.5C9 12.5 10 11 12 11s3 1.5 2.5 2.5C14 14.5 13.5 15.5 12 17z" />
-              </svg>
-            </div>
-          </motion.div>
+            {/* Structural Material representation of Nose Print (Image textured) */}
+            <img 
+              src="https://images.unsplash.com/photo-1544568100-847a948585b9?q=80&w=1000&auto=format&fit=crop" 
+              alt="Structural nose print material" 
+              className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-90 filter contrast-125 sepia-[.3]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#DE6828]/20 to-[#241812]/40 mix-blend-overlay"></div>
+          </div>
         </div>
 
         {/* Right Column: Copy */}
-        <div className="w-full lg:w-1/2 flex flex-col items-start">
+        <div 
+          ref={textRef}
+          className="w-full lg:w-1/2 flex flex-col items-start relative z-10"
+        >
           <div className="flex items-center gap-2 mb-4">
-            <ShieldCheck className="w-5 h-5 text-[#DE6828]" />
-            <span className="text-[13px] font-bold tracking-widest text-[#DE6828] uppercase">
+            <ShieldCheck className="w-6 h-6 text-[#DE6828]" />
+            <span className="text-[14px] font-bold tracking-widest text-[#DE6828] uppercase">
               Verifiable Identity
             </span>
           </div>
-          <h2 className="font-serif text-[32px] sm:text-[42px] leading-tight text-[#241812] tracking-tight mb-6">
+          <h2 className="font-serif text-[36px] sm:text-[48px] lg:text-[56px] leading-[1.1] text-[#241812] tracking-tight mb-6">
             Their nose print is as unique as a fingerprint.
           </h2>
-          <p className="text-[16px] sm:text-[18px] leading-relaxed text-[#55463D] mb-8">
+          <p className="text-[18px] sm:text-[20px] leading-relaxed text-[#55463D] mb-8">
             Collar tags get lost. Microchips require special scanners. But every dog's nose print is a unique, unalterable identifier. We use it as the foundational material for their security, ensuring you can always prove they belong with you.
           </p>
         </div>

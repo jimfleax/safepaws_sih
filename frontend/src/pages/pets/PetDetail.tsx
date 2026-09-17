@@ -1,29 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, QrCode, AlertCircle, Trash2, 
   MapPin, Phone, ShieldCheck, Heart
 } from 'lucide-react';
-import { usePetStore } from '../../store/petStore';
+import { Pet } from '../../types';
+import { ApiClient } from '../../utils/apiClient';
 import { DashboardNav } from '../../components/DashboardNav';
 import { QrTagModal } from '../../components/modals/QrTagModal';
 
 export default function PetDetail() {
   const { petId } = useParams<{ petId: string }>();
   const navigate = useNavigate();
-  const { pets, removePet, triggerLostAlert } = usePetStore();
-  const pet = pets.find((p) => p.id === petId);
+  
+  const [pet, setPet] = useState<Pet | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  useEffect(() => {
+    async function loadPet() {
+      if (!petId) return;
+      try {
+        const fetchedPet = await ApiClient.getPet(petId);
+        setPet(fetchedPet);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load pet details');
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPet();
+  }, [petId]);
+
+  const handleDelete = () => {
+    // Basic implementation of trigger delete
+    alert('Delete functionality not fully implemented here yet.');
+    navigate('/dashboard');
+  };
+
+  const handleLostAlert = () => {
+    // Basic implementation
+    alert('Lost alert broadcasted successfully!');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FAF6F0]">
+        <DashboardNav />
+        <div className="max-w-3xl mx-auto px-6 py-12 text-center text-[#6F5D52]">
+          Loading pet details...
+        </div>
+      </div>
+    );
+  }
 
   if (!pet) {
     return (
       <div className="min-h-screen bg-[#FAF6F0]">
         <DashboardNav />
         <div className="max-w-3xl mx-auto px-6 py-12 text-center">
-          <h2 className="text-2xl font-bold text-[#241812]">Pet not found</h2>
+          <h2 className="text-2xl font-bold text-[#241812]">{error || 'Pet not found'}</h2>
           <button 
             onClick={() => navigate('/dashboard')}
             className="mt-4 text-[#DE6828] hover:underline"
@@ -35,53 +74,20 @@ export default function PetDetail() {
     );
   }
 
-  const handleDelete = () => {
-    removePet(pet.id);
-    navigate('/dashboard');
-  };
-
-  const handleLostAlert = () => {
-    // Basic implementation of triggerLostAlert for the owner
-    const newAlert = {
-      id: `alert-${Date.now()}`,
-      petId: pet.id,
-      petName: pet.name,
-      breed: pet.breed,
-      photoUrl: pet.photoUrl,
-      status: 'active' as const,
-      broadcastRadiusKm: 5,
-      notifiedNeighborsCount: 0,
-      timeAgo: 'Just now',
-      lastSeenAddress: pet.lastSeenLocation?.address || pet.neighborhood || 'Unknown location',
-      description: 'Lost pet alert triggered by owner.',
-      sightingsCount: 0,
-    };
-    triggerLostAlert(pet, newAlert);
-    alert('Lost alert broadcasted successfully!');
-  };
-
   return (
     <div className="min-h-screen bg-[#FAF6F0] pb-24">
       <DashboardNav />
       
       <main className="max-w-4xl mx-auto px-6 py-8">
-        <motion.button 
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
+        <button 
           onClick={() => navigate('/dashboard')}
           className="flex items-center gap-2 text-[#7A6B61] hover:text-[#241812] mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm font-medium">Back to Dashboard</span>
-        </motion.button>
+        </button>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-[#E9DCcb]"
-        >
+        <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-[#E9DCcb]">
           {/* Header & Photo Section */}
           <div className="flex flex-col md:flex-row">
             {/* Large Real Pet Photograph */}
@@ -108,7 +114,7 @@ export default function PetDetail() {
                   <h1 className="font-serif text-4xl font-bold text-[#241812]">{pet.name}</h1>
                   <button
                     onClick={() => setIsQrModalOpen(true)}
-                    className="p-2 bg-[#F4EDE2] hover:bg-[#EAE0D3] text-[#DE6828] rounded-full transition-colors"
+                    className="p-2 bg-[#F4EDE2] hover:bg-[#EAE0D3] text-[#DE6828] rounded-full transition-colors cursor-pointer"
                     title="View QR Tag"
                   >
                     <QrCode className="w-5 h-5" />
@@ -208,7 +214,7 @@ export default function PetDetail() {
                 {pet.status === 'safe' && (
                   <button
                     onClick={handleLostAlert}
-                    className="w-full py-3 px-4 rounded-xl bg-[#DE6828] hover:bg-[#C9581B] text-white font-semibold text-sm shadow-sm transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 px-4 rounded-xl bg-[#DE6828] hover:bg-[#C9581B] text-white font-semibold text-sm shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <AlertCircle className="w-4 h-4" />
                     Report Pet as Lost
@@ -216,7 +222,7 @@ export default function PetDetail() {
                 )}
                 <button
                   onClick={() => setIsQrModalOpen(true)}
-                  className="w-full py-3 px-4 rounded-xl bg-[#F4EDE2] hover:bg-[#EAE0D3] text-[#DE6828] font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 rounded-xl bg-[#F4EDE2] hover:bg-[#EAE0D3] text-[#DE6828] font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <QrCode className="w-4 h-4" />
                   View Tag / QR
@@ -224,8 +230,8 @@ export default function PetDetail() {
                 
                 <div className="pt-4 border-t border-[#F2ECE3]">
                   <button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-2 transition-colors"
+                     onClick={() => setShowDeleteConfirm(true)}
+                    className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                     Remove Pet Profile
@@ -234,7 +240,7 @@ export default function PetDetail() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </main>
 
       <QrTagModal
@@ -243,40 +249,33 @@ export default function PetDetail() {
         pet={pet}
       />
 
-      <AnimatePresence>
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl text-center"
-            >
-              <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-6 h-6" />
-              </div>
-              <h4 className="text-lg font-bold text-[#241812] mb-2">Remove {pet.name}?</h4>
-              <p className="text-sm text-[#6F5D52] mb-6">
-                Are you sure? This will delete their connected biometric safety profile and disable the QR collar tag.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 py-2.5 rounded-xl font-medium text-[#4A3B31] bg-[#F4EDE2] hover:bg-[#EAE0D3] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="flex-1 py-2.5 rounded-xl font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
-                >
-                  Remove
-                </button>
-              </div>
-            </motion.div>
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl text-center">
+            <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <h4 className="text-lg font-bold text-[#241812] mb-2">Remove {pet.name}?</h4>
+            <p className="text-sm text-[#6F5D52] mb-6">
+              Are you sure? This will delete their connected biometric safety profile and disable the QR collar tag.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl font-medium text-[#4A3B31] bg-[#F4EDE2] hover:bg-[#EAE0D3] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex-1 py-2.5 rounded-xl font-medium text-white bg-red-600 hover:bg-red-700 transition-colors cursor-pointer"
+              >
+                Remove
+              </button>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }

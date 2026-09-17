@@ -1,6 +1,9 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useRef, useEffect } from 'react';
 import { Camera, Plus } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface HeroProps {
   onJoinClick: () => void;
@@ -13,20 +16,55 @@ export const Hero: React.FC<HeroProps> = ({
   onJoinClick,
   onIdentifyClick,
 }) => {
+  const containerRef = useRef<HTMLElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    let ctx = gsap.context(() => {
+      // Entrance Animations
+      gsap.from(imageRef.current, {
+        y: 40,
+        opacity: 0,
+        duration: 1.2,
+        ease: 'power3.out'
+      });
+
+      gsap.from(textRef.current?.children || [], {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.15,
+        ease: 'power3.out'
+      });
+
+      // Scroll Parallax (exactly as specified: desktop parallax)
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        }
+      });
+      tl.to(imageRef.current, { y: 150, ease: 'none' }, 0);
+      tl.to(textRef.current, { y: 80, opacity: 0, ease: 'none' }, 0);
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-8 pb-16 lg:pt-14 lg:pb-24">
-      {/* 
-        Mobile: Photo first, then text (flex-col-reverse with the image physically first in DOM but visually ordered by flex-col)
-        Desktop: Asymmetric composition (image right, text left)
-      */}
+    <section ref={containerRef} className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-8 pb-16 lg:pt-14 lg:pb-24 overflow-hidden">
       <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-14">
         
-        {/* Image Column - Visual First on Mobile */}
+        {/* Image Column */}
         <div className="w-full lg:w-5/12 order-1 lg:order-2">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          <div
+            ref={imageRef}
             className="relative w-full aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-[#E8D5BF]"
           >
             <img 
@@ -34,35 +72,23 @@ export const Hero: React.FC<HeroProps> = ({
               alt="Close up of a dog's nose"
               className="absolute inset-0 w-full h-full object-cover"
             />
-          </motion.div>
+          </div>
         </div>
 
         {/* Text and Actions Column */}
-        <div className="w-full lg:w-7/12 order-2 lg:order-1 flex flex-col items-start text-left">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif text-[42px] sm:text-[56px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] text-[#241812] font-normal"
-          >
+        <div 
+          ref={textRef}
+          className="w-full lg:w-7/12 order-2 lg:order-1 flex flex-col items-start text-left"
+        >
+          <h1 className="font-serif text-[42px] sm:text-[56px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] text-[#241812] font-normal">
             A community safety net for your pet.
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 sm:mt-7 text-[16px] sm:text-[18px] leading-[1.65] text-[#55463D] max-w-[480px]"
-          >
+          <p className="mt-6 sm:mt-7 text-[16px] sm:text-[18px] leading-[1.65] text-[#55463D] max-w-[480px]">
             Every dog’s nose print is unique. Use it to protect them. Join our neighborhood-powered recovery network to ensure every lost companion finds their way home.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
-          >
+          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             <button
               onClick={onIdentifyClick}
               className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-[#DE6828] hover:bg-[#CA581B] active:bg-[#B54C14] text-white font-medium text-[15px] shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
@@ -77,7 +103,7 @@ export const Hero: React.FC<HeroProps> = ({
               <Plus className="w-5 h-5" />
               <span>REGISTER YOUR PET</span>
             </button>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

@@ -19,7 +19,7 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
   const [copiedLink, setCopiedLink] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
-  const tagUrl = `https://safepaws.app/public/pets/${pet.qrTagId}`;
+  const tagUrl = `https://safepaws.app/p/${pet.qrTagId}`;
 
   useEffect(() => {
     let isMounted = true;
@@ -138,7 +138,7 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
               </button>
 
               <a
-                href={`/public/pets/${pet.qrTagId}`}
+                href={`/p/${pet.qrTagId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-2.5 rounded-full bg-[#DE6828] hover:bg-[#C9581B] text-white text-sm font-semibold inline-flex items-center gap-2 cursor-pointer shadow-md"

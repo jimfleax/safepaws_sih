@@ -1,15 +1,43 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { motion } from 'motion/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface CtaSectionProps {
   onStartClick: () => void;
 }
 
 export const CtaSection: React.FC<CtaSectionProps> = ({ onStartClick }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    let ctx = gsap.context(() => {
+      gsap.from(containerRef.current, {
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top 85%',
+        },
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.out'
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-14 pb-20 sm:pt-20 sm:pb-28">
-      <div className="max-w-4xl">
+      <div 
+        ref={containerRef}
+        className="max-w-4xl"
+      >
         {/* Section Eyebrow */}
         <div className="flex items-center gap-2 mb-6 sm:mb-8">
           <span className="w-2.5 h-2.5 rounded-full bg-[#DE6828] inline-block" />

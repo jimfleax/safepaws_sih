@@ -54,13 +54,13 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
   };
 
   return (
-    <div className="relative w-full h-full bg-black flex flex-col items-center justify-center overflow-hidden">
+    <div className="relative w-full h-full bg-slate-50 flex flex-col items-center justify-center overflow-hidden">
       {error ? (
-        <div className="text-white text-center p-4">
-          <p className="mb-4">{error}</p>
-          <div className="w-full max-w-sm mx-auto border-2 border-dashed border-gray-500 rounded-lg p-8 flex flex-col items-center justify-center bg-gray-900">
-             <Camera className="w-12 h-12 text-gray-400 mb-2" />
-             <span className="text-gray-400 text-sm">Upload Photo (Fallback)</span>
+        <div className="text-slate-900 text-center p-4">
+          <p className="mb-4 font-medium">{error}</p>
+          <div className="w-full max-w-sm mx-auto border-2 border-dashed border-slate-300 rounded-lg p-8 flex flex-col items-center justify-center bg-white shadow-sm">
+             <Camera className="w-12 h-12 text-slate-400 mb-2" />
+             <span className="text-slate-500 text-sm font-medium">Upload Photo (Fallback)</span>
              <input 
                type="file" 
                accept="image/*" 

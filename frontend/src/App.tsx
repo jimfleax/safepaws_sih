@@ -9,10 +9,13 @@ const SetupProfile = lazy(() => import('./pages/SetupProfile').then(module => ({
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const NewPet = lazy(() => import('./pages/pets/NewPet'));
 const PetDetail = lazy(() => import('./pages/pets/PetDetail'));
-const PublicPetProfile = lazy(() => import('./pages/pets/PublicPetProfile'));
+const PublicTagProfile = lazy(() => import('./pages/PublicTagProfile'));
 const Scan = lazy(() => import('./pages/Scan'));
-const Alerts = lazy(() => import('./pages/Alerts'));
+const LostDogs = lazy(() => import('./pages/LostDogs'));
+const ReportLost = lazy(() => import('./pages/ReportLost'));
+const AlertDetail = lazy(() => import('./pages/AlertDetail'));
 const Community = lazy(() => import('./pages/Community'));
+const ReportSighting = lazy(() => import('./pages/ReportSighting'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
@@ -65,7 +68,7 @@ export default function App() {
           <Route path="/" element={<AuthRoute><LandingPage /></AuthRoute>} />
           
           {/* Public Finders / Tools */}
-          <Route path="/public/pets/:petId" element={<PublicPetProfile />} />
+          <Route path="/p/:tagId" element={<PublicTagProfile />} />
           <Route path="/scan" element={<Scan />} />
 
           {/* Onboarding */}
@@ -75,8 +78,11 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardRoute><Dashboard /></DashboardRoute>} />
           <Route path="/pets/new" element={<DashboardRoute><NewPet /></DashboardRoute>} />
           <Route path="/pets/:petId" element={<DashboardRoute><PetDetail /></DashboardRoute>} />
-          <Route path="/alerts" element={<DashboardRoute><Alerts /></DashboardRoute>} />
+          <Route path="/lost" element={<DashboardRoute><LostDogs /></DashboardRoute>} />
+          <Route path="/lost/new" element={<DashboardRoute><ReportLost /></DashboardRoute>} />
+          <Route path="/alerts/:alertId" element={<DashboardRoute><AlertDetail /></DashboardRoute>} />
           <Route path="/community" element={<DashboardRoute><Community /></DashboardRoute>} />
+          <Route path="/sightings/new" element={<DashboardRoute><ReportSighting /></DashboardRoute>} />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />

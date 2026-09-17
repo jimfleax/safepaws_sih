@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Camera, Sparkles, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
-import { usePetStore } from '../../store/petStore';
-import { Pet } from '../../types';
 import { DashboardNav } from '../../components/DashboardNav';
 import { useAuthStore } from '../../store/authStore';
+import { ApiClient } from '../../utils/apiClient';
 
 export default function NewPet() {
   const navigate = useNavigate();
-  const { addPet } = usePetStore();
   const { user } = useAuthStore();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isScanning, setIsScanning] = useState(false);
   const [scanComplete, setScanComplete] = useState(false);
   const [error, setError] = useState('');
+  
+  const [petId, setPetId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -31,42 +30,55 @@ export default function NewPet() {
   });
 
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
-  const handleNextStep1 = (e: React.FormEvent) => {
+  const handleNextStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.breed || !formData.ownerPhone) {
       setError('Please fill out all required fields.');
       return;
     }
     setError('');
-    setStep(2);
+    
+    // Attempt registration
+    try {
+      const pet = await ApiClient.registerPet(formData);
+      setPetId(pet.id);
+      setStep(2);
+    } catch (err: any) {
+      setError(err.message || 'Registration failed');
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      setPhotoFile(file);
       setPhotoPreview(URL.createObjectURL(file));
       setScanComplete(false);
       setIsScanning(false);
     }
   };
 
-  const startNoseCapture = () => {
-    if (!photoPreview) {
+  const startNoseCapture = async () => {
+    if (!photoFile || !petId) {
       setError('Please upload a photo first.');
       return;
     }
     setError('');
     setIsScanning(true);
-    // Simulate biometric scan process
-    setTimeout(() => {
-      setIsScanning(false);
+    try {
+      await ApiClient.enrollImage(petId, photoFile);
       setScanComplete(true);
-    }, 2400);
+    } catch (err: any) {
+      setError(err.message || 'Failed to enroll image');
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   const handleNextStep2 = () => {
-    if (!photoPreview || !scanComplete) {
+    if (!photoFile || !scanComplete) {
       setError('Please capture the nose-print biometrics before proceeding.');
       return;
     }
@@ -75,38 +87,11 @@ export default function NewPet() {
   };
 
   const handleComplete = () => {
-    const featuresArray = formData.distinctiveFeatures
-      .split(',')
-      .map(f => f.trim())
-      .filter(f => f.length > 0);
-
-    const newPet: Pet = {
-      id: `pet-${Date.now()}`,
-      name: formData.name,
-      species: formData.species,
-      breed: formData.breed,
-      color: formData.color,
-      age: formData.age,
-      weight: formData.weight,
-      photoUrl: photoPreview || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
-      microchipId: formData.microchipId,
-      status: 'safe',
-      userId: user?.id || 'user-1',
-      ownerPhone: formData.ownerPhone,
-      medicalNotes: formData.medicalNotes,
-      distinctiveFeatures: featuresArray,
-      qrTagId: `SP-${Math.floor(Math.random() * 900) + 100}-${formData.name.substring(0, 3).toUpperCase()}`,
-    };
-
-    addPet(newPet);
-    navigate(`/pets/${newPet.id}`);
-  };
-
-  // Motion variants for small step transitions
-  const stepVariants = {
-    initial: { opacity: 0, x: 10 },
-    in: { opacity: 1, x: 0 },
-    out: { opacity: 0, x: -10 }
+    if (petId) {
+      navigate(`/pets/${petId}`);
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -135,19 +120,10 @@ export default function NewPet() {
         </div>
 
         <div className="bg-white rounded-3xl shadow-sm border border-[#E9DCcb] p-6 sm:p-10 flex-1">
-          <AnimatePresence mode="wait">
-            
+          
             {/* STAGE A: Details */}
             {step === 1 && (
-              <motion.div
-                key="step1"
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={stepVariants}
-                transition={{ duration: 0.2 }}
-                className="space-y-6"
-              >
+              <div className="space-y-6">
                 <div>
                   <h1 className="font-serif text-3xl font-bold text-[#241812] mb-2">Pet Details</h1>
                   <p className="text-[#6F5D52] text-sm">Let's start with the basics to build their safety profile.</p>
@@ -281,20 +257,12 @@ export default function NewPet() {
                     Continue to Photo
                   </button>
                 </form>
-              </motion.div>
+              </div>
             )}
 
             {/* STAGE B: Photo + Nose Capture */}
             {step === 2 && (
-              <motion.div
-                key="step2"
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={stepVariants}
-                transition={{ duration: 0.2 }}
-                className="space-y-6 flex flex-col h-full"
-              >
+              <div className="space-y-6 flex flex-col h-full">
                 <div>
                   <h1 className="font-serif text-3xl font-bold text-[#241812] mb-2">Biometric Profile</h1>
                   <p className="text-[#6F5D52] text-sm">Upload a clear photo of your pet's face to map their unique snout print.</p>
@@ -389,20 +357,12 @@ export default function NewPet() {
                 >
                   Continue to Confirmation
                 </button>
-              </motion.div>
+              </div>
             )}
 
             {/* STAGE C: Confirmation */}
             {step === 3 && (
-              <motion.div
-                key="step3"
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={stepVariants}
-                transition={{ duration: 0.2 }}
-                className="space-y-8 flex flex-col items-center text-center py-6"
-              >
+              <div className="space-y-8 flex flex-col items-center text-center py-6">
                 <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
@@ -429,10 +389,9 @@ export default function NewPet() {
                 >
                   Save & Generate Tag
                 </button>
-              </motion.div>
+              </div>
             )}
 
-          </AnimatePresence>
         </div>
       </main>
     </div>

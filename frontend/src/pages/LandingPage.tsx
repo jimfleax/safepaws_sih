@@ -27,6 +27,44 @@ export default function LandingPage() {
 
   const { alerts } = usePetStore();
 
+  useEffect(() => {
+    // Only initialize smooth scrolling and parallax if user hasn't requested reduced motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    // Dynamic import to avoid SSR/build issues with Lenis
+    let lenis: any;
+    let requestAnimationFrameId: number;
+
+    import('@studio-freight/lenis').then((LenisModule) => {
+      const Lenis = LenisModule.default;
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 2,
+      });
+
+      function raf(time: number) {
+        lenis.raf(time);
+        requestAnimationFrameId = requestAnimationFrame(raf);
+      }
+      requestAnimationFrameId = requestAnimationFrame(raf);
+    });
+
+    return () => {
+      if (lenis) {
+        lenis.destroy();
+      }
+      if (requestAnimationFrameId) {
+        cancelAnimationFrame(requestAnimationFrameId);
+      }
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#241812] selection:bg-[#DE6828]/20 selection:text-[#B54C14]">
       {/* Entry Screen Overlay */}
