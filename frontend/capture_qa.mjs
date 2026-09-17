@@ -13,22 +13,43 @@ const routes = [
 ];
 
 async function run() {
-  if (!fs.existsSync('./screenshots')) {
-    fs.mkdirSync('./screenshots');
-  }
-
   const browser = await chromium.launch();
   
+  const authState = JSON.stringify({
+    state: {
+      user: {
+        id: "test",
+        email: "test@example.com",
+        name: "Test",
+        picture: "",
+        profileCompleted: true
+      },
+      isAuthenticated: true
+    },
+    version: 0
+  });
+
   // Desktop
   const desktopContext = await browser.newContext({
     viewport: { width: 1280, height: 800 }
   });
+  
+  // Inject auth
+  await desktopContext.addInitScript(state => {
+    window.localStorage.setItem('safepaws-auth', state);
+  }, authState);
+  
   const desktopPage = await desktopContext.newPage();
 
   // Mobile
   const mobileContext = await browser.newContext({
     ...devices['iPhone 12']
   });
+  
+  await mobileContext.addInitScript(state => {
+    window.localStorage.setItem('safepaws-auth', state);
+  }, authState);
+  
   const mobilePage = await mobileContext.newPage();
 
   for (const route of routes) {
