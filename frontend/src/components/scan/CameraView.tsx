@@ -122,7 +122,7 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
           {/* One Instruction */}
           <div className="absolute top-16 left-0 right-0 text-center px-4 pointer-events-none">
              <p className="text-white text-base font-semibold tracking-wide bg-[#1C120C]/60 backdrop-blur-md inline-block px-6 py-2.5 rounded-full border border-white/10 shadow-lg">
-               {phase === 'ALIGN' ? 'Hold still...' : 'Align nose in frame'}
+               {phase === 'ALIGN' ? 'Hold still...' : 'Position nose within the frame'}
              </p>
           </div>
 
