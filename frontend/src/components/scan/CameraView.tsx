@@ -54,13 +54,13 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
   };
 
   return (
-    <div className="relative w-full h-full bg-[#0d0a08] flex flex-col items-center justify-center overflow-hidden touch-none">
+    <div className="relative w-full h-full bg-background-crisis flex flex-col items-center justify-center overflow-hidden touch-none">
       {error ? (
         <div className="text-white text-center p-4">
-          <p className="mb-4 font-medium text-[#E8DCce]">{error}</p>
-          <div className="w-full max-w-sm mx-auto border border-dashed border-[#DE6828]/50 rounded-[2rem] p-8 flex flex-col items-center justify-center bg-[#1a1310] shadow-sm">
-             <Camera className="w-12 h-12 text-[#DE6828]/60 mb-3" />
-             <span className="text-[#DECFBD] text-sm font-medium">Tap to select photo fallback</span>
+          <p className="mb-4 font-medium text-bone">{error}</p>
+          <div className="w-full max-w-sm mx-auto border border-dashed border-accent/50 rounded-[2rem] p-8 flex flex-col items-center justify-center bg-ink shadow-sm">
+             <Camera className="w-12 h-12 text-accent/60 mb-3" />
+             <span className="text-bone/90 text-sm font-medium">Tap to select photo fallback</span>
              <input 
                type="file" 
                accept="image/*" 
@@ -91,7 +91,7 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
             aria-label="Tap to focus and align"
           >
              <div className="relative w-[85%] max-w-[340px] aspect-square">
-               <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible drop-shadow-[0_0_12px_rgba(222,104,40,0.3)] motion-reduce:transition-none transition-all duration-500">
+               <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible drop-shadow-[0_0_12px_var(--color-marigold)] motion-reduce:transition-none transition-all duration-500">
                   <defs>
                     <mask id="scan-mask">
                       <rect x="-500%" y="-500%" width="1100%" height="1100%" fill="white" />
@@ -100,13 +100,13 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
                   </defs>
                   
                   {/* Full-screen dimming overlay */}
-                  <rect x="-500%" y="-500%" width="1100%" height="1100%" fill="#0d0a08" fillOpacity="0.85" mask="url(#scan-mask)" pointerEvents="none" />
+                  <rect x="-500%" y="-500%" width="1100%" height="1100%" fill="var(--color-background-crisis)" fillOpacity="0.85" mask="url(#scan-mask)" pointerEvents="none" />
                   
                   {/* Outline guide */}
                   <path 
                     d="M50 25 C20 25, 20 60, 35 75 C45 85, 55 85, 65 75 C80 60, 80 25, 50 25 Z" 
                     fill="none" 
-                    stroke={phase === 'ALIGN' ? '#DE6828' : 'rgba(255, 255, 255, 0.4)'} 
+                    stroke={phase === 'ALIGN' ? 'var(--color-marigold)' : 'rgba(255, 255, 255, 0.4)'} 
                     strokeWidth="0.8" 
                     strokeLinecap="round" 
                     strokeLinejoin="round" 
@@ -120,7 +120,7 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
 
           {/* One Instruction */}
           <div className="absolute top-16 left-0 right-0 text-center px-4 pointer-events-none">
-             <p className="text-white text-base font-semibold tracking-wide bg-[#1C120C]/60 backdrop-blur-md inline-block px-6 py-2.5 rounded-full border border-white/10 shadow-lg">
+             <p className="text-white text-base font-semibold tracking-wide bg-ink/60 backdrop-blur-md inline-block px-6 py-2.5 rounded-full border border-white/10 shadow-lg">
                {phase === 'ALIGN' ? 'Hold still...' : 'Position nose within the frame'}
              </p>
           </div>
@@ -129,11 +129,11 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
           <div className="absolute bottom-12 left-0 right-0 flex justify-center pb-safe">
              <button 
                onClick={handleCaptureClick}
-               className="group relative w-20 h-20 rounded-full bg-transparent flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-[#DE6828]/50"
+               className="group relative w-20 h-20 rounded-full bg-transparent flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-accent/50"
                aria-label="Capture photo"
              >
                 <div className="absolute inset-0 rounded-full border-[3px] border-white/80 group-active:scale-95 transition-transform motion-reduce:transition-none" />
-                <div className="w-[60px] h-[60px] rounded-full bg-white group-active:bg-[#DE6828] transition-colors duration-200 motion-reduce:transition-none" />
+                <div className="w-[60px] h-[60px] rounded-full bg-white group-active:bg-accent transition-colors duration-200 motion-reduce:transition-none" />
              </button>
           </div>
         </>
