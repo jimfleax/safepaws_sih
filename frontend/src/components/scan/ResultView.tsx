@@ -23,23 +23,8 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
     navigate('/setup');
   };
 
-export default function ResultView({ result, onRetry, onConfirmCandidate }: ResultViewProps) {
-  const navigate = useNavigate();
-  const pets = usePetStore(state => state.pets);
-  
-  const handleViewProfile = (petId: string) => {
-    usePetStore.getState().setSelectedPetId(petId);
-    navigate('/dashboard');
-  };
-
-  const handleRegister = () => {
-    navigate('/setup');
-  };
-
-  // Base wrapper for all states to maintain the dark premium look
   const ViewWrapper = ({ children }: { children: React.ReactNode }) => (
     <div className="w-full h-full bg-[#111111] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
-      {/* Soft spotlight from top */}
       <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none"></div>
       {children}
     </div>
