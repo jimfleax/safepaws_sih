@@ -17,7 +17,7 @@ export default function PublicTagProfile() {
       if (!tagId) return;
       try {
         // We assume tagId corresponds to a pet ID or the backend handles resolving it via this route
-        const fetchedPet = await ApiClient.getPet(tagId);
+        const fetchedPet = await ApiClient.getPetByTag(tagId);
         setPet(fetchedPet);
       } catch (err: any) {
         setError(err.message || 'Failed to load pet tag');
