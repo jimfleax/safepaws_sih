@@ -5,6 +5,24 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const features = [
+  {
+    icon: BellRing,
+    title: 'Instant Local Alerts',
+    body: 'Notify the network immediately. Alerts reach active community members in your immediate area to expand your search.',
+  },
+  {
+    icon: MapPin,
+    title: 'Verified Sightings',
+    body: 'Track reported sightings with precise location data. All updates are logged so you can focus your search where they were last seen.',
+  },
+  {
+    icon: Users,
+    title: 'Community Support',
+    body: 'Neighbors and local volunteers who are genuinely invested in bringing every lost companion home safely.',
+  },
+];
+
 export const CommunitySection: React.FC = () => {
   const containerRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -14,30 +32,29 @@ export const CommunitySection: React.FC = () => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    let ctx = gsap.context(() => {
-      // Header Animation
-      gsap.from(headerRef.current, {
+    const ctx = gsap.context(() => {
+      gsap.from(headerRef.current?.children || [], {
         scrollTrigger: {
           trigger: headerRef.current,
-          start: 'top 80%',
+          start: 'top 82%',
         },
-        y: 20,
+        y: 24,
         opacity: 0,
-        duration: 0.7,
-        ease: 'power3.out'
+        duration: 0.75,
+        stagger: 0.12,
+        ease: 'power3.out',
       });
 
-      // Cards Stagger
       gsap.from(cardsRef.current?.children || [], {
         scrollTrigger: {
           trigger: cardsRef.current,
-          start: 'top 80%',
+          start: 'top 82%',
         },
-        y: 30,
+        y: 36,
         opacity: 0,
-        duration: 0.6,
-        stagger: 0.15,
-        ease: 'power3.out'
+        duration: 0.7,
+        stagger: 0.16,
+        ease: 'power3.out',
       });
     }, containerRef);
 
@@ -45,58 +62,46 @@ export const CommunitySection: React.FC = () => {
   }, []);
 
   return (
-    <section ref={containerRef} className="w-full bg-[#27170E] text-[#FAF6F0] py-20 sm:py-24 lg:py-32 my-8" id="community-section">
+    <section
+      ref={containerRef}
+      className="w-full bg-[#1C1A17] text-[#F6F1E7] py-20 sm:py-24 lg:py-32"
+      id="community-section"
+    >
       <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
-        <div 
-          ref={headerRef}
-          className="flex items-center justify-between mb-16 flex-col md:flex-row gap-6"
-        >
-          <div className="flex flex-col max-w-xl">
-            <span className="text-[12px] font-bold tracking-[0.12em] text-[#D8C7B8] uppercase mb-4 block">
-              COMMUNITY & RECOVERY
-            </span>
-            <h2 className="font-serif text-[36px] sm:text-[48px] leading-tight text-white mb-4">
-              A neighborhood that looks out for each other.
-            </h2>
-            <p className="text-[18px] text-[#B8A498] leading-relaxed">
-              When a pet goes missing, a fast response is everything. SafePaws connects you instantly to people nearby who can help. No exaggerated claims—just real people working together.
-            </p>
-          </div>
+        {/* Header */}
+        <div ref={headerRef} className="mb-14 sm:mb-16 max-w-2xl">
+          <span className="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.14em] text-[#8A8175] uppercase mb-5">
+            <span className="w-5 h-px bg-[#8A8175] inline-block" />
+            Community &amp; Recovery
+          </span>
+          <h2 className="font-serif text-[34px] sm:text-[46px] leading-tight text-white mb-4">
+            A neighborhood that looks out for each other.
+          </h2>
+          <p className="text-[17px] text-[#8A8175] leading-relaxed">
+            When a pet goes missing, a fast response is everything. SafePaws
+            connects you to people nearby who can help — no exaggerated claims,
+            just real people working together.
+          </p>
         </div>
 
-        <div 
-          ref={cardsRef}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8"
-        >
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col items-start transition-transform hover:bg-white/10 hover:-translate-y-1">
-            <div className="w-14 h-14 rounded-full bg-[#DE6828]/20 flex items-center justify-center mb-6">
-              <BellRing className="w-6 h-6 text-[#DE6828]" />
+        {/* Feature cards */}
+        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+          {features.map(({ icon: Icon, title, body }) => (
+            <div
+              key={title}
+              className="group flex flex-col bg-white/[0.04] border border-white/[0.08] rounded-3xl p-7 sm:p-8 transition-all duration-200 hover:bg-white/[0.07] hover:-translate-y-1 hover:border-white/[0.14]"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-[#E2811F]/15 flex items-center justify-center mb-6 transition-colors group-hover:bg-[#E2811F]/22">
+                <Icon className="w-6 h-6 text-[#E2811F]" />
+              </div>
+              <h3 className="text-[19px] font-semibold text-white mb-3 leading-snug">
+                {title}
+              </h3>
+              <p className="text-[#8A8175] text-[15px] leading-relaxed flex-1">
+                {body}
+              </p>
             </div>
-            <h3 className="text-[22px] font-semibold text-white mb-4">Instant Local Alerts</h3>
-            <p className="text-[#B8A498] text-[16px] leading-relaxed">
-              Notify the network immediately. Alerts reach active community members in your immediate area to expand your search instantly.
-            </p>
-          </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col items-start transition-transform hover:bg-white/10 hover:-translate-y-1">
-            <div className="w-14 h-14 rounded-full bg-[#DE6828]/20 flex items-center justify-center mb-6">
-              <MapPin className="w-6 h-6 text-[#DE6828]" />
-            </div>
-            <h3 className="text-[22px] font-semibold text-white mb-4">Verified Sightings</h3>
-            <p className="text-[#B8A498] text-[16px] leading-relaxed">
-              Track reported sightings on a live map. All updates are logged so you can focus your search exactly where they were last seen.
-            </p>
-          </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col items-start transition-transform hover:bg-white/10 hover:-translate-y-1">
-            <div className="w-14 h-14 rounded-full bg-[#DE6828]/20 flex items-center justify-center mb-6">
-              <Users className="w-6 h-6 text-[#DE6828]" />
-            </div>
-            <h3 className="text-[22px] font-semibold text-white mb-4">Community Support</h3>
-            <p className="text-[#B8A498] text-[16px] leading-relaxed">
-              Work alongside neighbors and local volunteers who are genuinely invested in bringing every lost companion home safely.
-            </p>
-          </div>
+          ))}
         </div>
       </div>
     </section>

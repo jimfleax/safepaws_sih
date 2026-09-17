@@ -10,22 +10,24 @@ interface CtaSectionProps {
 }
 
 export const CtaSection: React.FC<CtaSectionProps> = ({ onStartClick }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    let ctx = gsap.context(() => {
-      gsap.from(containerRef.current, {
+    const ctx = gsap.context(() => {
+      gsap.from(contentRef.current?.children || [], {
         scrollTrigger: {
           trigger: containerRef.current,
           start: 'top 85%',
         },
-        y: 40,
+        y: 32,
         opacity: 0,
         duration: 0.8,
-        ease: 'power3.out'
+        stagger: 0.12,
+        ease: 'power3.out',
       });
     }, containerRef);
 
@@ -33,35 +35,33 @@ export const CtaSection: React.FC<CtaSectionProps> = ({ onStartClick }) => {
   }, []);
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-14 pb-20 sm:pt-20 sm:pb-28">
-      <div 
-        ref={containerRef}
-        className="max-w-4xl"
-      >
-        {/* Section Eyebrow */}
-        <div className="flex items-center gap-2 mb-6 sm:mb-8">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#DE6828] inline-block" />
-          <span className="text-[12px] sm:text-[13px] font-bold tracking-[0.12em] text-[#3F3127] uppercase">
-            YOUR NEIGHBORHOOD, CONNECTED
-          </span>
-        </div>
+    <section
+      ref={containerRef}
+      className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-14 pb-20 sm:pt-20 sm:pb-28"
+    >
+      <div ref={contentRef} className="max-w-3xl">
+        {/* Eyebrow */}
+        <span className="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.14em] text-[#63684B] uppercase mb-7">
+          <span className="w-5 h-px bg-[#63684B] inline-block" />
+          Your neighborhood, connected
+        </span>
 
-        {/* Big Serif Heading */}
-        <h2 className="font-serif text-[38px] sm:text-[54px] lg:text-[64px] leading-[1.1] tracking-[-0.02em] text-[#241812] font-normal mb-8 sm:mb-10">
-          Because the best search party is the one that’s already there.
+        {/* Big serif heading — NO encoding corruption */}
+        <h2 className="font-serif text-[36px] sm:text-[52px] lg:text-[60px] leading-[1.08] tracking-[-0.02em] text-[#1C1A17] font-normal mb-10">
+          Because the best search party is the one{' '}
+          <em className="not-italic text-[#E2811F]">that's already there.</em>
         </h2>
 
-        {/* Action Button */}
-        <div>
-          <button
-            id="cta-start-safepaws-btn"
-            onClick={onStartClick}
-            className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-[#DE6828] hover:bg-[#CA581B] active:bg-[#B54C14] text-white font-medium text-[15px] sm:text-[16px] shadow-[0_4px_18px_rgba(222,104,40,0.28)] transition-all transform hover:-translate-y-0.5 cursor-pointer"
-          >
-            <span>Start with SafePaws</span>
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </button>
-        </div>
+        {/* CTA Button */}
+        <button
+          id="cta-start-safepaws-btn"
+          onClick={onStartClick}
+          className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#E2811F] hover:bg-[#CA721A] active:bg-[#B06317] text-white font-semibold text-[16px] shadow-[0_6px_22px_rgba(226,129,31,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(226,129,31,0.38)] active:translate-y-0 cursor-none"
+          aria-label="Get started with SafePaws"
+        >
+          <span>Start with SafePaws</span>
+          <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
+        </button>
       </div>
     </section>
   );
