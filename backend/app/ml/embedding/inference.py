@@ -1,4 +1,4 @@
-﻿import io
+import io
 import json
 import logging
 import os
@@ -139,13 +139,21 @@ class BiometricEmbeddingModel:
             )
             
         if not os.path.exists(metadata_path):
-            logger.warning("Checkpoint metadata not found. Using default dimensions.")
-        else:
-            try:
-                with open(metadata_path, "r") as f:
-                    self._checkpoint_metadata = json.load(f)
-            except Exception as exc:
-                logger.warning(f"Failed to read checkpoint metadata: {exc}")
+            raise DomainException(
+                message=f"Checkpoint metadata not found at '{metadata_path}'.",
+                error_code="CHECKPOINT_METADATA_MISSING",
+                status_code=503,
+            )
+
+        try:
+            with open(metadata_path, "r") as f:
+                self._checkpoint_metadata = json.load(f)
+        except Exception as exc:
+            raise DomainException(
+                message=f"Failed to read checkpoint metadata: {exc}",
+                error_code="CHECKPOINT_METADATA_CORRUPT",
+                status_code=503,
+            ) from exc
 
         self._validate_checkpoint_metadata()
 
@@ -183,8 +191,24 @@ class BiometricEmbeddingModel:
 
     def _validate_checkpoint_metadata(self) -> None:
         saved_dim = self._checkpoint_metadata.get("embedding_dimension")
-        if saved_dim is not None and saved_dim != self.config.embedding_dimension:
-            logger.warning(f"Checkpoint dimension {saved_dim} differs from config {self.config.embedding_dimension}")
+        if saved_dim is None:
+            raise DomainException("Metadata missing embedding_dimension.", "CHECKPOINT_METADATA_CORRUPT", 503)
+        if saved_dim != self.config.embedding_dimension:
+            raise DomainException(
+                message=f"Checkpoint dimension {saved_dim} differs from config {self.config.embedding_dimension}",
+                error_code="CHECKPOINT_DIM_MISMATCH",
+                status_code=503,
+            )
+            
+        saved_arch = self._checkpoint_metadata.get("backbone_architecture")
+        if saved_arch is None:
+            raise DomainException("Metadata missing backbone_architecture.", "CHECKPOINT_METADATA_CORRUPT", 503)
+        if saved_arch != self.config.backbone_architecture:
+            raise DomainException(
+                message=f"Checkpoint backbone {saved_arch} differs from config {self.config.backbone_architecture}",
+                error_code="CHECKPOINT_BACKBONE_MISMATCH",
+                status_code=503,
+            )
 
     def preprocess(self, image_bytes: bytes, bounding_box: dict) -> np.ndarray:
         return _preprocess_crop(image_bytes, bounding_box, self.config.preprocessing)

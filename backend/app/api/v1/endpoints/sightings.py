@@ -1,24 +1,58 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from app.schemas.sighting import SightingCreate, SightingResponse
+from app.db.models import Sighting
+from app.api.dependencies import get_db
 from datetime import datetime
-import uuid
 
 router = APIRouter()
 
-
 @router.post("/", response_model=SightingResponse, status_code=status.HTTP_201_CREATED)
-async def report_sighting(sighting_in: SightingCreate):
+async def report_sighting(
+    sighting_in: SightingCreate,
+    db: AsyncSession = Depends(get_db)
+):
     """
-    Report a new community sighting.
-
-    SCAFFOLD: Persistence via Panel 5 DB session not yet wired.
-    Returns a generated sighting ID and timestamp but does NOT persist to PostgreSQL.
-    Panel 1 must wire AsyncSession + Sighting ORM model to activate real persistence.
+    Report a new community sighting and persist to PostgreSQL.
     """
+    new_sighting = Sighting(
+        reporter_name=sighting_in.reporter_name,
+        location=sighting_in.location,
+        notes=sighting_in.notes,
+        time=datetime.utcnow(),
+        confirmed=False
+    )
+    db.add(new_sighting)
+    await db.commit()
+    await db.refresh(new_sighting)
+    
     return SightingResponse(
-        id=f"sighting-{uuid.uuid4().hex[:8]}",
-        time=datetime.utcnow().isoformat(),
-        confirmed=False,
-        alert_id=None,
-        **sighting_in.model_dump(),
+        id=new_sighting.id,
+        reporter_name=new_sighting.reporter_name,
+        location=new_sighting.location,
+        notes=new_sighting.notes,
+        time=new_sighting.time.isoformat(),
+        confirmed=new_sighting.confirmed,
+        alert_id=new_sighting.alert_id
+    )
+
+@router.get("/{sighting_id}", response_model=SightingResponse)
+async def get_sighting(sighting_id: str, db: AsyncSession = Depends(get_db)):
+    """
+    Retrieve a persisted sighting by ID.
+    """
+    result = await db.execute(select(Sighting).where(Sighting.id == sighting_id))
+    sighting = result.scalars().first()
+    if not sighting:
+        raise HTTPException(status_code=404, detail="Sighting not found")
+        
+    return SightingResponse(
+        id=sighting.id,
+        reporter_name=sighting.reporter_name,
+        location=sighting.location,
+        notes=sighting.notes,
+        time=sighting.time.isoformat(),
+        confirmed=sighting.confirmed,
+        alert_id=sighting.alert_id
     )

@@ -33,7 +33,13 @@ class MockImageStorage:
 # ------------------------------------------------------------------
 _detector = YoloNoseDetector()
 _quality_gate = ClassicalQualityGate()
-_embedder = BiometricEmbeddingModel(config=EmbeddingModelConfig(scaffold_mode=False))
+from app.core.config import settings
+
+_embedder = BiometricEmbeddingModel(config=EmbeddingModelConfig(
+    scaffold_mode=False,
+    embedding_dimension=settings.EMBEDDING_DIMENSION,
+    backbone_architecture="mobilenet_v2"
+))
 _vector_store = FAISSVectorStore()
 _image_storage = MockImageStorage()
 
