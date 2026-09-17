@@ -6,6 +6,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 import { EnterScreen } from '../components/EnterScreen';
 import { Header } from '../components/Header';
 import { Hero } from '../components/Hero';
@@ -48,20 +52,22 @@ export default function LandingPage() {
         touchMultiplier: 2,
       });
 
-      function raf(time: number) {
-        lenis.raf(time);
-        requestAnimationFrameId = requestAnimationFrame(raf);
-      }
-      requestAnimationFrameId = requestAnimationFrame(raf);
+      // Synchronize Lenis with GSAP ScrollTrigger
+      lenis.on('scroll', ScrollTrigger.update);
+
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
     });
 
     return () => {
       if (lenis) {
         lenis.destroy();
       }
-      if (requestAnimationFrameId) {
-        cancelAnimationFrame(requestAnimationFrameId);
-      }
+      gsap.ticker.remove((time) => {
+        lenis.raf(time * 1000);
+      });
     };
   }, []);
 
