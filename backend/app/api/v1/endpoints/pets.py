@@ -63,6 +63,41 @@ async def enroll_image(
     )
 
 
+@router.get("/tag/{qr_tag_id}", response_model=PetResponse)
+async def get_pet_by_tag(
+    qr_tag_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get a public-safe pet profile by QR tag ID.
+    """
+    stmt = select(Pet).where(Pet.qr_tag_id == qr_tag_id)
+    result = await db.execute(stmt)
+    pet = result.scalars().first()
+    
+    if not pet:
+        raise HTTPException(status_code=404, detail="Pet not found")
+        
+    return PetResponse(
+        id=pet.id,
+        name=pet.name,
+        species=pet.species,
+        breed=pet.breed,
+        color=pet.color,
+        age=pet.age,
+        weight=pet.weight,
+        owner_name=pet.owner_name,
+        owner_phone=pet.owner_phone,
+        neighborhood=pet.neighborhood,
+        medical_notes=pet.medical_notes,
+        distinctive_features=pet.distinctive_features,
+        microchip_id=pet.microchip_id,
+        consent_given=True,
+        photo_url=pet.photo_url,
+        status=pet.status,
+        qr_tag_id=pet.qr_tag_id or ""
+    )
+
 @router.get("/{pet_id}", response_model=PetResponse)
 async def get_pet(
     pet_id: str,

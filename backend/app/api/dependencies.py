@@ -19,10 +19,7 @@ from app.ml.embedding.inference import BiometricEmbeddingModel
 from app.ml.embedding.config import EmbeddingModelConfig
 from app.vector_store.faiss_store import FAISSVectorStore
 
-class MockImageStorage:
-    """Mock image storage for M0 tests."""
-    async def upload_image(self, file_name: str, file_bytes: bytes, content_type: str) -> str:
-        return f"https://mock-storage.com/{file_name}"
+from app.storage.local_storage import LocalFileSystemStorage
 
 # ------------------------------------------------------------------
 # Provider functions — wired via FastAPI Depends
@@ -41,7 +38,7 @@ _embedder = BiometricEmbeddingModel(config=EmbeddingModelConfig(
     backbone_architecture="mobilenet_v2"
 ))
 _vector_store = FAISSVectorStore()
-_image_storage = MockImageStorage()
+_image_storage = LocalFileSystemStorage()
 
 # Try to load existing FAISS index on startup
 import asyncio

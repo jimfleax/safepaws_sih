@@ -68,6 +68,30 @@ export class ApiClient {
     };
   }
 
+  static async getPetByTag(tagId: string): Promise<Pet> {
+    const res = await fetch(`/api/v1/pets/tag/${tagId}`);
+    if (!res.ok) throw new Error(`Failed to fetch pet by tag: ${res.statusText}`);
+    const data = await res.json();
+    return {
+      id: data.id,
+      name: data.name,
+      species: data.species,
+      breed: data.breed,
+      color: data.color,
+      age: data.age,
+      weight: data.weight,
+      ownerName: data.owner_name,
+      ownerPhone: data.owner_phone,
+      neighborhood: data.neighborhood,
+      medicalNotes: data.medical_notes,
+      distinctiveFeatures: data.distinctive_features,
+      microchipId: data.microchip_id,
+      photoUrl: data.photo_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+      status: data.status,
+      qrTagId: data.qr_tag_id
+    };
+  }
+
   static async enrollImage(petId: string, file: File): Promise<{status: string, message: string}> {
     const formData = new FormData();
     formData.append('file', file);
@@ -102,6 +126,7 @@ export class ApiClient {
       reporter_name: sighting.reporterName,
       location: sighting.location,
       notes: sighting.notes,
+      alert_id: sighting.alertId,
     };
     const res = await fetch('/api/v1/sightings/', {
       method: 'POST',
@@ -109,6 +134,29 @@ export class ApiClient {
       body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error(`Sighting failed: ${res.statusText}`);
+    return res.json();
+  }
+
+  static async createAlert(alertData: any): Promise<any> {
+    const payload = {
+      pet_id: alertData.petId,
+      last_seen_address: alertData.lastSeenAddress,
+      description: alertData.description
+    };
+    const res = await fetch('/api/v1/alerts/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Alert creation failed: ${res.statusText}`);
+    return res.json();
+  }
+
+  static async resolveAlert(alertId: string): Promise<any> {
+    const res = await fetch(`/api/v1/alerts/${alertId}/resolve`, {
+      method: 'PUT',
+    });
+    if (!res.ok) throw new Error(`Alert resolution failed: ${res.statusText}`);
     return res.json();
   }
 
