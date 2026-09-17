@@ -86,31 +86,31 @@ export const SetupProfile: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FAF6F0] text-[#241812]">
-      <div className="p-8 bg-white rounded-2xl shadow-xl max-w-md w-full relative z-10">
+    <div className="min-h-screen flex items-center justify-center bg-[#F6F1E7] text-[#1C1A17] p-4 sm:p-6">
+      <div className="p-8 sm:p-10 bg-white rounded-3xl shadow-sm border border-[#E5E0D8] max-w-md w-full relative z-10">
         <button 
           onClick={handleLogout} 
-          className="absolute top-4 right-4 text-sm font-medium text-red-600 hover:text-red-700 cursor-pointer"
+          className="absolute top-6 right-6 text-sm font-semibold text-[#8A8175] hover:text-[#1C1A17] transition-colors cursor-pointer"
         >
           Logout
         </button>
         {step === 1 ? (
-          <div className="text-center">
-            <div className="w-16 h-16 bg-[#FDF8F5] rounded-full flex items-center justify-center mx-auto mb-6">
-              <MapPin className="w-8 h-8 text-[#DE6828]" />
+          <div className="text-center pt-4">
+            <div className="w-20 h-20 bg-[#F6F1E7] rounded-full flex items-center justify-center mx-auto mb-6">
+              <MapPin className="w-10 h-10 text-[#E2811F]" />
             </div>
-            <h1 className="text-2xl font-bold mb-4">Set Your Location</h1>
-            <p className="mb-8 text-[#6B5E55]">
-              We need your location to show you pets missing and found in your neighborhood.
+            <h1 className="font-serif text-3xl font-bold mb-3 text-[#1C1A17]">Set Your Location</h1>
+            <p className="mb-10 text-[#63684B] leading-relaxed">
+              We need your location to accurately map missing pets and sightings in your local neighborhood network.
             </p>
             
             <button 
               onClick={requestLocation}
               disabled={locationLoading}
-              className="w-full flex items-center justify-center gap-2 py-3 mb-3 bg-[#DE6828] text-white rounded-xl font-medium hover:bg-[#C95A20] transition-colors disabled:opacity-50 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-4 mb-3 bg-[#E2811F] text-white rounded-xl font-bold text-sm hover:bg-[#C9721B] transition-colors disabled:opacity-50 shadow-md cursor-pointer"
             >
               {locationLoading ? (
-                'Getting Location...'
+                'Locating...'
               ) : (
                 <>
                   <Navigation className="w-5 h-5" />
@@ -121,36 +121,38 @@ export const SetupProfile: React.FC = () => {
             <button 
               onClick={() => setStep(2)}
               disabled={locationLoading}
-              className="w-full py-3 text-[#6B5E55] hover:text-[#241812] transition-colors font-medium disabled:opacity-50 cursor-pointer"
+              className="w-full py-3 text-[#8A8175] hover:text-[#1C1A17] transition-colors font-medium text-sm disabled:opacity-50 cursor-pointer"
             >
               Skip for now
             </button>
           </div>
         ) : (
-          <div>
-            <h1 className="text-2xl font-bold mb-4">Setup Your Profile</h1>
-            <p className="mb-6 text-[#6B5E55]">Please provide your contact details to help coordinate pet rescues in your neighborhood.</p>
+          <div className="pt-4">
+            <h1 className="font-serif text-3xl font-bold mb-3 text-[#1C1A17]">Profile Details</h1>
+            <p className="mb-8 text-[#63684B] leading-relaxed">
+              Provide your emergency contact details so finders can reach you instantly.
+            </p>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium mb-1">Phone Number *</label>
+                <label className="block text-xs font-bold text-[#8A8175] uppercase tracking-wider mb-2">Phone Number *</label>
                 <input 
                   type="tel" 
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-2 border border-[#E8DEC8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DE6828]" 
+                  className="w-full px-4 py-3.5 border border-[#E5E0D8] bg-[#F6F1E7] text-[#1C1A17] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#E2811F] transition-all" 
                   placeholder="+1 (555) 000-0000"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Neighborhood *</label>
+                <label className="block text-xs font-bold text-[#8A8175] uppercase tracking-wider mb-2">Neighborhood *</label>
                 <input 
                   type="text" 
                   required
                   value={neighborhood}
                   onChange={(e) => setNeighborhood(e.target.value)}
-                  className="w-full px-4 py-2 border border-[#E8DEC8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DE6828]" 
+                  className="w-full px-4 py-3.5 border border-[#E5E0D8] bg-[#F6F1E7] text-[#1C1A17] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#E2811F] transition-all" 
                   placeholder="e.g. Oakridge Park"
                 />
               </div>
@@ -158,9 +160,9 @@ export const SetupProfile: React.FC = () => {
               <button 
                 type="submit" 
                 disabled={loading}
-                className="w-full py-3 mt-4 bg-[#DE6828] text-white rounded-xl font-medium hover:bg-[#C95A20] transition-colors disabled:opacity-50 cursor-pointer"
+                className="w-full py-4 mt-8 bg-[#1C1A17] hover:bg-[#2A2723] text-white rounded-xl font-bold text-sm shadow-md transition-colors disabled:opacity-50 cursor-pointer"
               >
-                {loading ? 'Saving...' : 'Complete Profile'}
+                {loading ? 'Saving Profile...' : 'Complete Profile Setup'}
               </button>
             </form>
           </div>

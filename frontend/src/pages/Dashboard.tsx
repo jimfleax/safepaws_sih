@@ -6,11 +6,10 @@ import { Link } from 'react-router-dom';
 import { Plus, ShieldAlert, ArrowRight } from 'lucide-react';
 
 export default function Dashboard() {
-  const { pets, alerts } = usePetStore();
+  const { pets } = usePetStore();
 
   const lostPets = useMemo(() => pets.filter(p => p.status === 'lost'), [pets]);
   const safePets = useMemo(() => pets.filter(p => p.status !== 'lost'), [pets]);
-  const activeAlerts = useMemo(() => alerts.filter(a => a.status === 'active'), [alerts]);
 
   return (
     <div className="min-h-screen bg-[#F6F1E7] flex flex-col md:flex-row">
@@ -35,7 +34,7 @@ export default function Dashboard() {
         </div>
 
         {/* Active Alerts Banner */}
-        {activeAlerts.length > 0 && (
+        {lostPets.length > 0 && (
           <div 
             className="mb-12 p-6 sm:p-8 rounded-[1.5rem] bg-[#B3452F]/10 border border-[#B3452F]/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
             role="alert" 
@@ -46,9 +45,9 @@ export default function Dashboard() {
                 <ShieldAlert className="text-[#B3452F]" size={24} />
               </div>
               <div>
-                <h2 className="text-[18px] font-bold text-[#B3452F] mb-1">Active Lost Pet Alerts</h2>
+                <h2 className="text-[18px] font-bold text-[#B3452F] mb-1">Active Missing Alert</h2>
                 <p className="text-[#1C1A17] text-[15px] max-w-md">
-                  You have active alerts. The local SafePaws community is actively looking for your pet.
+                  Your pet is currently reported as lost. The local SafePaws network has been notified.
                 </p>
               </div>
             </div>
@@ -56,7 +55,7 @@ export default function Dashboard() {
               to="/lost" 
               className="group flex-shrink-0 inline-flex items-center gap-2 px-5 py-3 bg-[#B3452F] hover:bg-[#9A3926] text-white font-semibold text-[14px] rounded-full transition-colors"
             >
-              View Alerts
+              Manage Alert
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
