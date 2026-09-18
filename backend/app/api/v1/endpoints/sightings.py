@@ -57,3 +57,18 @@ async def get_sighting(sighting_id: str, db: AsyncSession = Depends(get_db)):
         confirmed=sighting.confirmed,
         alert_id=sighting.alert_id
     )
+@router.get("/", response_model=list[SightingResponse])
+async def get_all_sightings(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Sighting))
+    sightings = result.scalars().all()
+    return [
+        SightingResponse(
+            id=s.id,
+            reporter_name=s.reporter_name,
+            location=s.location,
+            notes=s.notes,
+            time=s.time.isoformat(),
+            confirmed=s.confirmed,
+            alert_id=s.alert_id
+        ) for s in sightings
+    ]

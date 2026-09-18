@@ -2,16 +2,32 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 import io
+import jwt
+from datetime import datetime, timedelta
+import os
+
+from app.api.dependencies import get_current_owner
+from app.db.models import Owner
 
 @pytest.fixture(scope="module")
 def client() -> TestClient:
+    def override_get_current_owner():
+        return Owner(id="qa-test-user", name="QA User", email="qa@test.com", phone="000")
+    
+    app.dependency_overrides[get_current_owner] = override_get_current_owner
     with TestClient(app) as c:
         yield c
+    app.dependency_overrides.pop(get_current_owner, None)
 
 # 1. Health
 def test_health(client: TestClient):
     response = client.get("/api/v1/health/")
     assert response.status_code == 200
+
+def get_auth_cookies():
+    SECRET_KEY = os.getenv('JWT_SECRET', 'supersecret')
+    token = jwt.encode({'userId': 'qa-test-user', 'exp': datetime.utcnow() + timedelta(hours=1)}, SECRET_KEY, algorithm='HS256')
+    return {'jwt': token}
 
 # 2. Valid registration
 def test_valid_registration(client: TestClient):
@@ -26,7 +42,7 @@ def test_valid_registration(client: TestClient):
         "neighborhood": "Uptown",
         "consent_given": True,
     }
-    response = client.post("/api/v1/pets/register", json=pet_data)
+    response = client.post("/api/v1/pets/register", json=pet_data, cookies=get_auth_cookies())
     assert response.status_code == 201
 
 # 16. Invalid consent — now maps to 400 (not 403).
@@ -44,7 +60,7 @@ def test_invalid_consent(client: TestClient):
         "neighborhood": "Uptown",
         "consent_given": False,
     }
-    response = client.post("/api/v1/pets/register", json=pet_data)
+    response = client.post("/api/v1/pets/register", json=pet_data, cookies=get_auth_cookies())
     assert response.status_code == 400
     assert "consent" in response.json()["detail"].lower()
 

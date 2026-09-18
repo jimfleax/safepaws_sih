@@ -12,13 +12,9 @@ export const SetupProfile: React.FC = () => {
   const [neighborhood, setNeighborhood] = useState('');
   const [loading, setLoading] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-    } catch (e) {
-      console.error('Logout failed:', e);
-    }
+  const handleLogout = () => {
     logout();
   };
 
@@ -36,26 +32,20 @@ export const SetupProfile: React.FC = () => {
         try {
           const { latitude, longitude } = position.coords;
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-          const data = await res.json();
-          
-          if (data && data.address) {
-            const addr = data.address;
-            const placeName = addr.neighbourhood || addr.suburb || addr.city_district || addr.city || addr.town || addr.village || '';
-            if (placeName) {
-              setNeighborhood(placeName);
-            }
+          if (res.ok) {
+            const data = await res.json();
+            setNeighborhood(data.address?.suburb || data.address?.neighbourhood || data.address?.city || '');
           }
-        } catch (error) {
-          console.error("Failed to fetch address:", error);
+        } catch (e) {
+          console.error('Failed to reverse geocode', e);
         } finally {
-          setLocationLoading(false);
           setStep(2);
+          setLocationLoading(false);
         }
       },
-      (error) => {
-        console.error("Location error:", error);
-        setLocationLoading(false);
+      () => {
         setStep(2);
+        setLocationLoading(false);
       }
     );
   };
@@ -64,21 +54,30 @@ export const SetupProfile: React.FC = () => {
     e.preventDefault();
     if (!phone || !neighborhood) return;
     setLoading(true);
+    setError(null);
 
     try {
-      const res = await apiFetch('/users/profile', {
+      const response = await fetch('/api/users/profile', {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, neighborhood }),
+        credentials: 'include'
       });
-
-      if (res.ok) {
-        setProfileCompleted(true);
-        navigate('/');
-      } else {
-        console.error('Failed to update profile');
+      
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
       }
+      
+      const updatedUser = await response.json();
+      
+      useAuthStore.getState().updateProfile({ 
+        phone: updatedUser.phone, 
+        neighborhood: updatedUser.neighborhood 
+      });
+      navigate('/pets/new');
     } catch (err) {
       console.error(err);
+      setError('Failed to save profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -142,9 +141,15 @@ export const SetupProfile: React.FC = () => {
           ) : (
             <div className="animate-in fade-in slide-in-from-right-8 duration-500 text-left">
               <h1 className="font-serif text-[36px] leading-tight text-[#1C1A17] mb-3 text-center">Contact Info</h1>
-              <p className="text-[#63684B] text-[15px] leading-relaxed mb-8 text-center">
+              <p className="text-[#63684B] text-[15px] mb-8 leading-relaxed">
                 Provide your emergency contact details so the community can reach you instantly.
               </p>
+
+              {error && (
+                <div className="mb-6 p-4 rounded-[1rem] bg-[var(--color-danger-light)] text-[var(--color-danger)] text-sm font-medium">
+                  {error}
+                </div>
+              )}
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>

@@ -21,6 +21,7 @@ export class ApiClient {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      credentials: 'include'
     });
     if (!res.ok) throw new Error(`Registration failed: ${res.statusText}`);
     const data = await res.json();
@@ -38,14 +39,14 @@ export class ApiClient {
       medicalNotes: data.medical_notes,
       distinctiveFeatures: data.distinctive_features,
       microchipId: data.microchip_id,
-      photoUrl: data.photo_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+      photoUrl: data.photo_url || "",
       status: data.status,
       qrTagId: data.qr_tag_id
     };
   }
 
   static async getPet(petId: string): Promise<Pet> {
-    const res = await fetch(`/api/v1/pets/${petId}`);
+    const res = await fetch(`/api/v1/pets/${petId}`, { credentials: 'include' });
     if (!res.ok) throw new Error(`Failed to fetch pet: ${res.statusText}`);
     const data = await res.json();
     return {
@@ -62,14 +63,14 @@ export class ApiClient {
       medicalNotes: data.medical_notes,
       distinctiveFeatures: data.distinctive_features,
       microchipId: data.microchip_id,
-      photoUrl: data.photo_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+      photoUrl: data.photo_url || "",
       status: data.status,
       qrTagId: data.qr_tag_id
     };
   }
 
   static async getPetByTag(tagId: string): Promise<Pet> {
-    const res = await fetch(`/api/v1/pets/tag/${tagId}`);
+    const res = await fetch(`/api/v1/pets/tag/${tagId}`, { credentials: 'include' });
     if (!res.ok) throw new Error(`Failed to fetch pet by tag: ${res.statusText}`);
     const data = await res.json();
     return {
@@ -86,7 +87,7 @@ export class ApiClient {
       medicalNotes: data.medical_notes,
       distinctiveFeatures: data.distinctive_features,
       microchipId: data.microchip_id,
-      photoUrl: data.photo_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+      photoUrl: data.photo_url || "",
       status: data.status,
       qrTagId: data.qr_tag_id
     };
@@ -98,6 +99,7 @@ export class ApiClient {
     const res = await fetch(`/api/v1/pets/${petId}/enroll-image`, {
       method: 'POST',
       body: formData,
+      credentials: 'include'
     });
     if (!res.ok) throw new Error(`Enrollment failed: ${res.statusText}`);
     return res.json();
@@ -109,6 +111,7 @@ export class ApiClient {
     const res = await fetch('/api/v1/pets/identify', {
       method: 'POST',
       body: formData,
+      credentials: 'include'
     });
     if (!res.ok) {
       let msg = res.statusText;
@@ -132,6 +135,7 @@ export class ApiClient {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      credentials: 'include'
     });
     if (!res.ok) throw new Error(`Sighting failed: ${res.statusText}`);
     return res.json();
@@ -147,6 +151,7 @@ export class ApiClient {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      credentials: 'include'
     });
     if (!res.ok) throw new Error(`Alert creation failed: ${res.statusText}`);
     return res.json();
@@ -155,9 +160,55 @@ export class ApiClient {
   static async resolveAlert(alertId: string): Promise<any> {
     const res = await fetch(`/api/v1/alerts/${alertId}/resolve`, {
       method: 'PUT',
+      credentials: 'include'
     });
     if (!res.ok) throw new Error(`Alert resolution failed: ${res.statusText}`);
     return res.json();
+  }
+
+  
+  static async getAllPets(): Promise<Pet[]> {
+    const res = await fetch('/api/v1/pets/', { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to fetch pets');
+    const data = await res.json();
+    return data.map((d: any) => ({
+      id: d.id,
+      name: d.name,
+      species: d.species,
+      breed: d.breed,
+      color: d.color,
+      age: d.age,
+      weight: d.weight,
+      ownerName: d.owner_name,
+      ownerPhone: d.owner_phone,
+      neighborhood: d.neighborhood,
+      medicalNotes: d.medical_notes,
+      distinctiveFeatures: d.distinctive_features,
+      microchipId: d.microchip_id,
+      photoUrl: d.photo_url || "",
+      status: d.status,
+      qrTagId: d.qr_tag_id
+    }));
+  }
+
+  static async getAllAlerts(): Promise<any[]> {
+    const res = await fetch('/api/v1/alerts/', { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to fetch alerts');
+    return res.json();
+  }
+
+  static async getAllSightings(): Promise<any[]> {
+    const res = await fetch('/api/v1/sightings/', { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to fetch sightings');
+    return res.json();
+  }
+
+  static async deletePet(petId: string): Promise<void> {
+    const res = await fetch(`/api/v1/pets/${petId}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error(`Failed to delete pet: ${res.statusText}`);
   }
 
   static async getHealth(): Promise<{status: string, pipeline_mode: string}> {

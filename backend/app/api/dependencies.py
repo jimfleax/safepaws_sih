@@ -76,3 +76,43 @@ def get_registration_service(
     storage: ImageStorage = Depends(get_image_storage)
 ) -> RegistrationService:
     return RegistrationService(db, biometric_service, storage)
+from fastapi import Request, HTTPException
+import jwt
+import os
+from sqlalchemy import select
+from app.db.models import Owner
+
+SECRET_KEY = os.getenv('JWT_SECRET', 'supersecret')
+
+async def get_current_owner(request: Request, db: AsyncSession = Depends(get_db)) -> Owner:
+    token = request.cookies.get('jwt')
+    if not token:
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+            
+    if not token:
+        raise HTTPException(status_code=401, detail='Not authenticated')
+        
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        owner_id = payload.get('userId')
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail='Invalid token')
+        
+    if not owner_id:
+        raise HTTPException(status_code=401, detail='Invalid token payload')
+        
+    stmt = select(Owner).where(Owner.id == owner_id)
+    result = await db.execute(stmt)
+    owner = result.scalars().first()
+    
+    if not owner:
+        raise HTTPException(status_code=404, detail='Owner not found')
+        
+    return owner
+async def get_optional_current_owner(request: Request, db: AsyncSession = Depends(get_db)):
+    try:
+        return await get_current_owner(request, db)
+    except HTTPException:
+        return None

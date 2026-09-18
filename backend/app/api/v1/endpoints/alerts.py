@@ -54,3 +54,8 @@ async def resolve_alert(alert_id: str, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(alert)
     return alert
+@router.get("/", response_model=list[AlertResponse])
+async def get_all_alerts(db: AsyncSession = Depends(get_db)):
+    stmt = select(Alert).options(selectinload(Alert.sightings))
+    alerts = (await db.execute(stmt)).scalars().all()
+    return alerts

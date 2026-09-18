@@ -23,32 +23,34 @@ export const EnterScreen: React.FC<EnterScreenProps> = ({ onEnter }) => {
     const hasEntered = sessionStorage.getItem('hasEntered');
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (hasEntered) {
+    if (hasEntered || prefersReducedMotion) {
       onEnter();
       return;
     }
 
     const timer = setTimeout(() => {
       finishEntry();
-    }, prefersReducedMotion ? 0 : 2500);
+    }, 2500);
 
     const handleInteraction = () => finishEntry();
     window.addEventListener('keydown', handleInteraction);
     window.addEventListener('click', handleInteraction);
     window.addEventListener('scroll', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
 
     return () => {
       clearTimeout(timer);
       window.removeEventListener('keydown', handleInteraction);
       window.removeEventListener('click', handleInteraction);
       window.removeEventListener('scroll', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
     };
   }, []);
 
   const finishEntry = () => {
     setVisible(false);
     sessionStorage.setItem('hasEntered', 'true');
-    setTimeout(() => onEnter(), 400);
+    setTimeout(() => onEnter(), 400); // Wait for exit animation
   };
 
   return (
@@ -57,24 +59,36 @@ export const EnterScreen: React.FC<EnterScreenProps> = ({ onEnter }) => {
         <motion.div
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.4 } }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#FAF3EA]"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#FAF3EA] overflow-hidden"
         >
+          {/* AURA */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="flex flex-col items-center justify-center text-[#DE6828]"
-          >
-            <NoseIcon className="w-16 h-16 drop-shadow-md" />
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: [0, 0.5, 0.8], scale: [0.5, 1.2, 1.5] }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="absolute w-[300px] h-[300px] bg-[#DE6828] rounded-full blur-[100px] opacity-20 pointer-events-none"
+          />
+
+          <div className="relative z-10 flex flex-col items-center justify-center text-[#DE6828]">
+            {/* NOSE PRINT */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
+            >
+              <NoseIcon className="w-20 h-20 drop-shadow-lg" />
+            </motion.div>
+            
+            {/* WORDMARK */}
             <motion.h2 
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="mt-4 font-serif text-2xl font-bold tracking-tight text-[#2E2018]"
+              transition={{ delay: 0.9, duration: 0.6, ease: 'easeOut' }}
+              className="mt-6 font-serif text-4xl font-bold tracking-tight text-[#2E2018]"
             >
               SafePaws
             </motion.h2>
-          </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

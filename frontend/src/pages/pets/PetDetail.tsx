@@ -35,13 +35,31 @@ export default function PetDetail() {
     loadPet();
   }, [petId]);
 
-  const handleDelete = () => {
-    alert('Delete functionality not fully implemented here yet.');
-    navigate('/dashboard');
+  const handleDelete = async () => {
+    if (!petId) return;
+    try {
+      await ApiClient.deletePet(petId);
+      navigate('/dashboard');
+    } catch (e: any) {
+      alert(e.message || 'Failed to delete pet');
+    }
   };
 
-  const handleLostAlert = () => {
-    alert('Lost alert broadcasted successfully!');
+  const handleLostAlert = async () => {
+    if (!petId) return;
+    try {
+      await ApiClient.createAlert({
+        petId: petId,
+        lastSeenAddress: pet?.neighborhood || 'Unknown location',
+        description: `Lost pet: ${pet?.name}`,
+      });
+      alert('Lost alert broadcasted successfully!');
+      // reload pet to reflect status change
+      const fetchedPet = await ApiClient.getPet(petId);
+      setPet(fetchedPet);
+    } catch (e: any) {
+      alert(e.message || 'Failed to create alert');
+    }
   };
 
   if (loading) {

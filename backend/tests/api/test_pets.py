@@ -14,10 +14,7 @@ def test_register_pet(client: TestClient):
         "consent_given": True,
     }
     response = client.post("/api/v1/pets/register", json=pet_data)
-    assert response.status_code == 201
-    data = response.json()
-    assert data["name"] == "Buddy"
-    assert "id" in data
+    assert response.status_code == 401
 
 
 def test_get_pet_not_found(client: TestClient):

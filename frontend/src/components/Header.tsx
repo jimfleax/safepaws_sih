@@ -46,29 +46,50 @@ export const Header: React.FC<HeaderProps> = ({
   const { isAuthenticated, user, setAuth, logout } = useAuthStore();
   const navigate = useNavigate();
   const googleLogin = useGoogleLogin({
-    onSuccess: async (res) => {
+    onSuccess: async (tokenResponse) => {
       try {
         const response = await fetch('/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: res.access_token }),
+          body: JSON.stringify({ token: tokenResponse.access_token }),
+          credentials: 'include'
         });
+        
         if (response.ok) {
           const data = await response.json();
-          setAuth(data.user);
-          if (!data.user.profileCompleted) navigate('/setup-profile');
+          setAuth({
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            picture: data.user.picture,
+            profileCompleted: data.user.profileCompleted
+          });
+          
+          if (!data.user.profileCompleted) {
+            navigate('/setup-profile');
+          } else {
+            navigate('/dashboard');
+          }
         }
-      } catch (e) { console.error(e); }
-    }
+      } catch (err) {
+        console.error('Failed to authenticate with backend', err);
+      }
+    },
+    onError: (error) => console.error('Login Failed', error),
   });
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-    } catch (e) {
-      console.error('Logout failed:', e);
+      await fetch('/api/auth/logout', { 
+        method: 'POST', 
+        credentials: 'include' 
+      });
+    } catch (err) {
+      console.error('Logout API failed', err);
+    } finally {
+      logout();
+      navigate('/');
     }
-    logout();
   };
 
 

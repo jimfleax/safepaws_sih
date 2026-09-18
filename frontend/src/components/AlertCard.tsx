@@ -11,11 +11,17 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
   return (
     <div className="group bg-white rounded-[1.5rem] p-4 border border-[#B3452F]/40 shadow-[0_4px_16px_rgba(179,69,47,0.08)] ring-1 ring-[#B3452F]/20 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(179,69,47,0.12)] flex flex-col gap-4">
       <div className="relative h-56 w-full rounded-[1rem] overflow-hidden bg-[#F6F1E7]">
-        <img
-          src={alert.photoUrl}
-          alt={alert.petName}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        {alert.photoUrl ? (
+          <img
+            src={alert.photoUrl}
+            alt={alert.petName}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-[#63684B]/50">
+            No Photo
+          </div>
+        )}
         <div className="absolute top-4 right-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.08em] shadow-sm backdrop-blur-md bg-[#B3452F]/90 text-white">
             <span className="w-1.5 h-1.5 rounded-full bg-[#FFB4A3]" />

@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
+import { usePetStore } from './store/petStore';
 import { CustomCursor } from './components/CustomCursor';
 
 // Lazy loaded routes for chunk splitting
@@ -15,17 +16,7 @@ const Alerts = lazy(() => import('./pages/Alerts'));
 const Community = lazy(() => import('./pages/Community'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
-const AuthRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, user } = useAuthStore();
-  
-  if (isAuthenticated && user?.profileCompleted) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  if (isAuthenticated && !user?.profileCompleted) {
-    return <Navigate to="/setup-profile" replace />;
-  }
-  return <>{children}</>;
-};
+
 
 const SetupProfileRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -56,13 +47,28 @@ const PageLoader = () => (
 );
 
 export default function App() {
+  const hydrate = usePetStore(state => state.hydrate);
+  const { isInitializing, checkSession } = useAuthStore();
+  
+  React.useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
+  React.useEffect(() => {
+    checkSession();
+  }, [checkSession]);
+
+  if (isInitializing) {
+    return <PageLoader />;
+  }
+
   return (
     <BrowserRouter>
       <CustomCursor />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public / Marketing */}
-          <Route path="/" element={<AuthRoute><LandingPage /></AuthRoute>} />
+          <Route path="/" element={<LandingPage />} />
           
           {/* Public Finders / Tools */}
           <Route path="/public/pets/:petId" element={<PublicPetProfile />} />
