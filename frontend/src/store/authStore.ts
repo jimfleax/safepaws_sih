@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 interface User {
   id: string;
@@ -7,30 +6,50 @@ interface User {
   name: string;
   picture: string;
   profileCompleted: boolean;
+  phone?: string;
+  neighborhood?: string;
 }
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  isInitializing: boolean;
   setAuth: (user: User) => void;
   logout: () => void;
   setProfileCompleted: (status: boolean) => void;
+  updateProfile: (data: { phone: string; neighborhood: string }) => void;
+  checkSession: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      isAuthenticated: false,
-      setAuth: (user) => set({ user, isAuthenticated: true }),
-      logout: () => set({ user: null, isAuthenticated: false }),
-      setProfileCompleted: (status) => 
-        set((state) => ({
-          user: state.user ? { ...state.user, profileCompleted: status } : null
-        })),
-    }),
-    {
-      name: 'safepaws-auth',
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  isAuthenticated: false,
+  isInitializing: true,
+  setAuth: (user) => set({ user, isAuthenticated: true, isInitializing: false }),
+  logout: () => set({ user: null, isAuthenticated: false, isInitializing: false }),
+  setProfileCompleted: (status) => 
+    set((state) => ({
+      user: state.user ? { ...state.user, profileCompleted: status } : null
+    })),
+  updateProfile: (data) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, ...data, profileCompleted: true } : null
+    })),
+  checkSession: async () => {
+    try {
+      const response = await fetch('/api/auth/me', { credentials: 'include' });
+      if (response.ok) {
+        const data = await response.json();
+        // Assuming backend returns the user object directly or { user: ... }
+        const user = data.user || data;
+        set({ user, isAuthenticated: true, isInitializing: false });
+      } else {
+        set({ user: null, isAuthenticated: false, isInitializing: false });
+      }
+    } catch (err) {
+      console.error('Failed to check session', err);
+      set({ user: null, isAuthenticated: false, isInitializing: false });
     }
-  )
-);
+  },
+}));
+

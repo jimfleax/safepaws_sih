@@ -1,14 +1,16 @@
 import { create } from 'zustand';
-import { initialPets, sampleAlerts, sampleSightings } from '../data/mockData';
 import { Pet, NeighborhoodAlert, CommunitySighting } from '../types';
+import { ApiClient } from '../utils/apiClient';
 
 interface PetState {
   pets: Pet[];
   selectedPetId: string;
   alerts: NeighborhoodAlert[];
   sightings: CommunitySighting[];
+  hydrated: boolean;
   
   // Actions
+  hydrate: () => Promise<void>;
   addPet: (pet: Pet) => void;
   removePet: (petId: string) => void;
   setSelectedPetId: (petId: string) => void;
@@ -17,58 +19,60 @@ interface PetState {
   resolveAlert: (alertId: string) => void;
 }
 
-const getInitialPets = () => {
-  try {
-    const saved = localStorage.getItem('safepaws_pets');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch (e) {
-    console.error('Failed to parse saved pets from localStorage', e);
-  }
-  return initialPets;
-};
-
 const getInitialSelectedPetId = () => {
   try {
     const savedId = localStorage.getItem('safepaws_selected_pet_id');
     if (savedId) return savedId;
   } catch {}
-  return 'pet-olive';
-};
-
-const getInitialAlerts = () => {
-  try {
-    const saved = localStorage.getItem('safepaws_alerts');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch (e) {
-    console.error('Failed to parse saved alerts from localStorage', e);
-  }
-  return sampleAlerts;
-};
-
-const getInitialSightings = () => {
-  try {
-    const saved = localStorage.getItem('safepaws_sightings');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch (e) {
-    console.error('Failed to parse saved sightings from localStorage', e);
-  }
-  return sampleSightings;
+  return '';
 };
 
 export const usePetStore = create<PetState>((set) => ({
-  pets: getInitialPets(),
+  pets: [],
   selectedPetId: getInitialSelectedPetId(),
-  alerts: getInitialAlerts(),
-  sightings: getInitialSightings(),
+  alerts: [],
+  sightings: [],
+  hydrated: false,
+
+  hydrate: async () => {
+    try {
+      const [pets, alerts, sightings] = await Promise.all([
+        ApiClient.getAllPets(),
+        ApiClient.getAllAlerts(),
+        ApiClient.getAllSightings()
+      ]);
+      set({ 
+        pets, 
+        alerts: alerts.map(a => ({
+          id: a.id,
+          petId: a.pet_id,
+          petName: pets.find(p => p.id === a.pet_id)?.name || 'Unknown',
+          breed: pets.find(p => p.id === a.pet_id)?.breed || 'Unknown',
+          photoUrl: pets.find(p => p.id === a.pet_id)?.photoUrl || '',
+          status: a.status as 'active' | 'resolved',
+          broadcastRadiusKm: 5,
+          notifiedNeighborsCount: 0,
+          timeAgo: a.created_at || 'Recently',
+          lastSeenAddress: a.last_seen_address || '',
+          description: a.description || '',
+          sightingsCount: 0
+        })), 
+        sightings: sightings.map(s => ({
+          id: s.id,
+          reporterName: s.reporter_name,
+          location: s.location,
+          notes: s.notes,
+          time: s.time || 'Recently',
+          alertId: s.alert_id,
+          confirmed: false
+        })),
+        hydrated: true
+      });
+    } catch (e) {
+      console.error('Failed to hydrate store from API', e);
+      set({ hydrated: true });
+    }
+  },
 
   addPet: (pet) => {
     set((state) => ({ 
@@ -114,30 +118,9 @@ export const usePetStore = create<PetState>((set) => ({
 }));
 
 usePetStore.subscribe((state, prevState) => {
-  if (state.pets !== prevState.pets) {
-    try {
-      localStorage.setItem('safepaws_pets', JSON.stringify(state.pets));
-    } catch (e) {
-      console.error('Failed to save pets to localStorage', e);
-    }
-  }
   if (state.selectedPetId !== prevState.selectedPetId) {
     try {
       localStorage.setItem('safepaws_selected_pet_id', state.selectedPetId);
     } catch {}
-  }
-  if (state.alerts !== prevState.alerts) {
-    try {
-      localStorage.setItem('safepaws_alerts', JSON.stringify(state.alerts));
-    } catch (e) {
-      console.error('Failed to save alerts to localStorage', e);
-    }
-  }
-  if (state.sightings !== prevState.sightings) {
-    try {
-      localStorage.setItem('safepaws_sightings', JSON.stringify(state.sightings));
-    } catch (e) {
-      console.error('Failed to save sightings to localStorage', e);
-    }
   }
 });

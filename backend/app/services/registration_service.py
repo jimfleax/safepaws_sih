@@ -17,25 +17,16 @@ class RegistrationService:
         self.pipeline = biometric_pipeline
         self.storage = storage
 
-    async def register_pet(self, pet_in: PetCreate) -> PetResponse:
-        from app.db.models import Owner, Pet
+    async def register_pet(self, pet_in: PetCreate, current_owner: 'Owner') -> PetResponse:
+        from app.db.models import Pet
         import uuid
         
         pet_id = f"pet-{uuid.uuid4().hex[:8]}"
         qr_tag_id = f"qr-{pet_id}"
-        owner_id = f"owner-{uuid.uuid4().hex[:8]}"
         
-        # 1. Create Owner
-        db_owner = Owner(
-            id=owner_id,
-            name=pet_in.owner_name,
-            phone=pet_in.owner_phone,
-            email=pet_in.owner_email,
-            neighborhood=pet_in.neighborhood
-        )
-        self.db.add(db_owner)
+        owner_id = current_owner.id
         
-        # 2. Create Pet
+        # 1. Create Pet
         db_pet = Pet(
             id=pet_id,
             owner_id=owner_id,

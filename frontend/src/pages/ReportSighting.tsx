@@ -31,21 +31,12 @@ export default function ReportSighting() {
       await ApiClient.reportSighting({
         reporterName,
         location: sightingLocation,
-        notes
+        notes,
+        alertId: alertId || undefined
       });
       
       // Also update local store
-      const newSighting = {
-        id: `sighting-${Date.now()}`,
-        alertId: alertId || `unassigned-${Date.now()}`,
-        reporterName,
-        location: sightingLocation,
-        time: 'Just now',
-        notes,
-        confirmed: false
-      };
-      
-      addSighting(newSighting);
+      await usePetStore.getState().hydrate();
       
       if (alertId) {
         navigate(`/alerts/${alertId}`);

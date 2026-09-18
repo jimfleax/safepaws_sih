@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePetStore } from '../../store/petStore';
 import { Camera, ArrowRight, AlertCircle, RefreshCw, CheckCircle2, Sparkles, ChevronLeft, ShieldCheck } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
 import { Pet } from '../../types';
 
 export default function NewPet() {
@@ -24,8 +25,10 @@ export default function NewPet() {
   });
 
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [scanComplete, setScanComplete] = useState(false);
+  const [createdPetId, setCreatedPetId] = useState<string | null>(null);
 
   const handleNextStep1 = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +43,7 @@ export default function NewPet() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setPhotoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result as string);
@@ -49,17 +53,53 @@ export default function NewPet() {
     }
   };
 
-  const startNoseCapture = () => {
+  const startNoseCapture = async () => {
+    if (!photoFile) return;
     setIsScanning(true);
-    // Simulating ML processing delay for enrollment
-    setTimeout(() => {
+    setError('');
+    
+    try {
+      // First register the pet so we have an ID
+      const features = formData.distinctiveFeatures 
+        ? formData.distinctiveFeatures.split(',').map(s => s.trim()).filter(Boolean)
+        : [];
+        
+      const { ApiClient } = await import('../../utils/apiClient');
+      const { user } = useAuthStore.getState();
+      
+      if (!user || !user.name || !user.phone || !user.neighborhood) {
+        throw new Error("Missing owner profile information. Please complete your profile first.");
+      }
+
+      const newPet = await ApiClient.registerPet({
+        name: formData.name,
+        species: formData.species as any,
+        breed: formData.breed,
+        color: formData.color,
+        age: formData.age,
+        weight: formData.weight,
+        distinctiveFeatures: features,
+        medicalNotes: formData.medicalNotes,
+        ownerName: user.name,
+        ownerPhone: user.phone,
+        neighborhood: user.neighborhood,
+      });
+      
+      setCreatedPetId(newPet.id);
+      
+      // Then enroll the image
+      await ApiClient.enrollImage(newPet.id, photoFile);
+      
       setIsScanning(false);
       setScanComplete(true);
-    }, 2000);
+    } catch (err: any) {
+      setIsScanning(false);
+      setError(err.message || 'Failed to enroll biometric record.');
+    }
   };
 
   const handleNextStep2 = () => {
-    if (!photoPreview || !scanComplete) {
+    if (!photoPreview || !scanComplete || !createdPetId) {
       setError('Please complete the biometric enrollment.');
       return;
     }
@@ -69,28 +109,14 @@ export default function NewPet() {
 
   const handleComplete = async () => {
     setLoading(true);
-    // Build distinctive features array
-    const features = formData.distinctiveFeatures 
-      ? formData.distinctiveFeatures.split(',').map(s => s.trim()).filter(Boolean)
-      : [];
-
-    const newPet: Pet = {
-      id: `pet-${Date.now()}`,
-      name: formData.name,
-      species: formData.species as any,
-      breed: formData.breed,
-      color: formData.color,
-      age: formData.age,
-      weight: formData.weight,
-      distinctiveFeatures: features,
-      medicalNotes: formData.medicalNotes,
-      photoUrl: photoPreview || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop',
-      status: 'safe',
-      qrTagId: `TAG-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
-    };
-
-    addPet(newPet);
-    navigate(`/pets/${newPet.id}`);
+    try {
+      // Re-hydrate the pet store to fetch this newly created pet
+      await usePetStore.getState().hydrate();
+      navigate(`/pets/${createdPetId}`);
+    } catch (e) {
+      console.error(e);
+      navigate(`/pets/${createdPetId}`); // Navigate anyway
+    }
   };
 
   return (

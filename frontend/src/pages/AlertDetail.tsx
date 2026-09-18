@@ -26,9 +26,15 @@ export default function AlertDetail() {
     );
   }
 
-  const handleResolve = () => {
-    resolveAlert(alert.id);
-    navigate('/dashboard');
+  const handleResolve = async () => {
+    try {
+      const { ApiClient } = await import('../utils/apiClient');
+      await ApiClient.resolveAlert(alert.id);
+      await usePetStore.getState().hydrate();
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Failed to resolve alert', err);
+    }
   };
 
   return (

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { AlertCard } from '../components/AlertCard';
 
 export default function Community() {
-  const { alerts, sightings } = usePetStore();
+  const { alerts, sightings, pets } = usePetStore();
   const activeAlerts = alerts.filter(a => a.status === 'active');
   const [activeTab, setActiveTab] = useState<'alerts' | 'sightings'>('alerts');
 
@@ -30,8 +30,8 @@ export default function Community() {
               <Users className="text-[#E2811F]" size={22} />
             </div>
             <div>
-              <p className="font-serif text-[32px] text-[#1C1A17] leading-none mb-1">1,248</p>
-              <p className="text-[13px] font-bold tracking-[0.08em] uppercase text-[#63684B]">Local Members</p>
+              <p className="font-serif text-[32px] text-[#1C1A17] leading-none mb-1">{pets.length}</p>
+              <p className="text-[13px] font-bold tracking-[0.08em] uppercase text-[#63684B]">Enrolled Pets</p>
             </div>
           </div>
           
@@ -40,7 +40,7 @@ export default function Community() {
               <Heart className="text-[#4C7A52]" size={22} />
             </div>
             <div>
-              <p className="font-serif text-[32px] text-[#1C1A17] leading-none mb-1">142</p>
+              <p className="font-serif text-[32px] text-[#1C1A17] leading-none mb-1">{alerts.filter(a => a.status === 'resolved').length}</p>
               <p className="text-[13px] font-bold tracking-[0.08em] uppercase text-[#63684B]">Pets Reunited</p>
             </div>
           </div>

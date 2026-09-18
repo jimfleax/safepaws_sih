@@ -3,7 +3,7 @@ from app.schemas.pet import PetCreate, PetResponse
 from typing import Dict, Any
 
 from app.services.registration_service import RegistrationService
-from app.api.dependencies import get_registration_service, get_db
+from app.api.dependencies import get_registration_service, get_db, get_current_owner
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.models import Pet, Owner
@@ -30,6 +30,7 @@ def validate_image(file: UploadFile):
 async def register_pet(
     pet_in: PetCreate,
     service: RegistrationService = Depends(get_registration_service),
+    current_owner: Owner = Depends(get_current_owner),
 ):
     """
     Register a new pet profile.
@@ -41,7 +42,7 @@ async def register_pet(
             detail="Owner consent (consent_given=true) is required to register a pet profile."
         )
 
-    return await service.register_pet(pet_in)
+    return await service.register_pet(pet_in, current_owner=current_owner)
 
 
 @router.post("/{pet_id}/enroll-image", status_code=status.HTTP_200_OK)

@@ -13,30 +13,26 @@ export default function ReportLost() {
   const [lastSeen, setLastSeen] = useState('');
   const [description, setDescription] = useState('');
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPet) return;
     
     const pet = pets.find(p => p.id === selectedPet);
     if (!pet) return;
     
-    const newAlert = {
-      id: `alert-${Date.now()}`,
-      petId: pet.id,
-      petName: pet.name,
-      breed: pet.breed,
-      photoUrl: pet.photoUrl,
-      status: 'active' as const,
-      broadcastRadiusKm: 5,
-      notifiedNeighborsCount: 15, // Mock value
-      timeAgo: 'Just now',
-      lastSeenAddress: lastSeen,
-      description: description,
-      sightingsCount: 0
-    };
-    
-    triggerLostAlert(pet, newAlert);
-    navigate(`/alerts/${newAlert.id}`);
+    try {
+      const { ApiClient } = await import('../utils/apiClient');
+      const res = await ApiClient.createAlert({
+        petId: pet.id,
+        lastSeenAddress: lastSeen,
+        description: description
+      });
+      
+      await usePetStore.getState().hydrate();
+      navigate(`/alerts/${res.id}`);
+    } catch (err) {
+      console.error('Failed to create alert:', err);
+    }
   };
 
   return (

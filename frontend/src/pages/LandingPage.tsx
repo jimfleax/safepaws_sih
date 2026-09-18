@@ -21,6 +21,8 @@ import { Footer } from '../components/Footer';
 
 import { InfoModal } from '../components/modals/InfoModal';
 
+import { useAuthStore } from '../store/authStore';
+import { useGoogleLogin } from '@react-oauth/google';
 import { usePetStore } from '../store/petStore';
 
 export default function LandingPage() {
@@ -30,6 +32,52 @@ export default function LandingPage() {
   const [infoModalType, setInfoModalType] = useState<'privacy' | 'guidelines' | 'contact' | null>(null);
 
   const { alerts } = usePetStore();
+  const { isAuthenticated, user, setAuth } = useAuthStore();
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const response = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: tokenResponse.access_token }),
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setAuth({
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            picture: data.user.picture,
+            profileCompleted: data.user.profileCompleted
+          });
+          
+          if (!data.user.profileCompleted) {
+            navigate('/setup-profile');
+          } else {
+            navigate('/pets/new');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to authenticate with backend', err);
+      }
+    },
+    onError: (error) => console.error('Login Failed', error),
+  });
+
+  const handleJoinClick = () => {
+    if (isAuthenticated) {
+      if (user?.profileCompleted) {
+        navigate('/pets/new');
+      } else {
+        navigate('/setup-profile');
+      }
+    } else {
+      googleLogin();
+    }
+  };
 
   useEffect(() => {
     // Only initialize smooth scrolling and parallax if user hasn't requested reduced motion
@@ -86,10 +134,7 @@ export default function LandingPage() {
           const el = document.getElementById('how-it-works');
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
-        onOpenCommunity={() => {
-          const el = document.getElementById('community-section');
-          el?.scrollIntoView({ behavior: 'smooth' });
-        }}
+        onOpenCommunity={() => navigate('/community')}
         onOpenFeatures={() => {
           const el = document.getElementById('how-it-works');
           el?.scrollIntoView({ behavior: 'smooth' });
@@ -103,7 +148,7 @@ export default function LandingPage() {
       {/* 2. Hero Section */}
       <main className="relative z-10 flex-1">
         <Hero
-          onJoinClick={() => navigate('/setup-profile')}
+          onJoinClick={handleJoinClick}
           onIdentifyClick={() => navigate('/scan')}
         />
 
@@ -117,7 +162,7 @@ export default function LandingPage() {
         <CommunitySection />
 
         {/* 6. Bottom Call to Action */}
-        <CtaSection onStartClick={() => navigate('/setup-profile')} />
+        <CtaSection onStartClick={handleJoinClick} />
       </main>
 
       {/* 6. Footer */}
