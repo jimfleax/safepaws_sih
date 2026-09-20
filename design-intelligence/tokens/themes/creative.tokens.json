@@ -1,0 +1,7 @@
+{
+  "theme": "creative", "description": "Richness as demonstrated range. Modeled on Lusion's explicit rejection of a 'safe' minimal default (research/awwwards/08-lusion.md).",
+  "color": {"background": "#000000", "surface": "#0A0A0A", "text-primary": "#FFFFFF", "text-secondary": "#A0A0A0", "border": "#1F1F1F", "accent-primary": "#FFFFFF", "notes": "achromatic UI chrome; real-time 3D/video content carries all color, per principles/06-color.md"},
+  "typography": {"font-family-display": "distinctive/characterful display face", "font-family-body": "neutral grotesk for legibility against rich visuals", "scale-ratio": 1.414},
+  "spacing-base": "8px, asymmetric/bespoke per-section rather than uniform", "radius": {"sm": "0px", "md": "0px", "lg": "0px"}, "shadow": "none — content itself provides depth via 3D/lighting",
+  "motion": {"voice": "fluid, scroll-driven, choreographed (motion/choreography.md)", "duration-base": "300-600ms depending on scene"}
+}

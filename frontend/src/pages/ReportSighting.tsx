@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { DashboardNav } from '../components/DashboardNav';
 import { usePetStore } from '../store/petStore';
 import { ApiClient } from '../utils/apiClient';
-import { Eye, MapPin } from 'lucide-react';
+import { Eye, MapPin, ArrowLeft, AlertTriangle } from 'lucide-react';
 
 export default function ReportSighting() {
   const navigate = useNavigate();
@@ -27,7 +27,6 @@ export default function ReportSighting() {
     setError('');
     
     try {
-      // Connect to API Client
       await ApiClient.reportSighting({
         reporterName,
         location: sightingLocation,
@@ -35,8 +34,17 @@ export default function ReportSighting() {
         alertId: alertId || undefined
       });
       
-      // Also update local store
-      await usePetStore.getState().hydrate();
+      const newSighting = {
+        id: `sighting-${Date.now()}`,
+        alertId: alertId || `unassigned-${Date.now()}`,
+        reporterName,
+        location: sightingLocation,
+        time: 'Just now',
+        notes,
+        confirmed: false
+      };
+      
+      addSighting(newSighting);
       
       if (alertId) {
         navigate(`/alerts/${alertId}`);
@@ -50,86 +58,110 @@ export default function ReportSighting() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
       <DashboardNav />
-      <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-8 md:pb-8 pb-28">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#0A0A0A]">Report a Sighting</h1>
-          <p className="text-[#8A8175] mt-2">Have you seen a lost pet? Let the community know immediately.</p>
-        </div>
+      <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-12 md:py-20 md:pb-12 pb-28">
+        <Link to={defaultAlertId ? `/alerts/${defaultAlertId}` : "/community"} className="group inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors mb-12">
+          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          Back
+        </Link>
+
+        <header className="mb-12 border-b border-[var(--color-ink)]/10 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4 text-[var(--color-ink)]">
+            Report a Sighting
+          </h1>
+          <p className="text-xl text-[var(--color-ink-soft)] leading-relaxed max-w-2xl">
+            Your observation could be the missing piece in a family's search. Please provide clear, actionable details.
+          </p>
+        </header>
         
         {error && (
-          <div className="mb-6 p-4 rounded-xl text-white font-medium" style={{ backgroundColor: 'var(--color-alert-clay)' }}>
-            {error}
+          <div className="mb-8 p-6 bg-[var(--color-alert-clay)]/10 border-l-4 border-[var(--color-alert-clay)] text-[var(--color-ink)] flex gap-4 animate-in fade-in">
+            <AlertTriangle size={24} className="text-[var(--color-alert-clay)] shrink-0" />
+            <p className="font-medium">{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#E5E0D8] p-6 space-y-6">
-          <div>
-            <label htmlFor="alertId" className="block text-sm font-semibold text-[#0A0A0A] mb-2">Related Alert (Optional)</label>
-            <select
-              id="alertId"
-              value={alertId}
-              onChange={(e) => setAlertId(e.target.value)}
-              className="w-full px-4 py-3 bg-[#FAF6F0] border border-[#E5E0D8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
-            >
-              <option value="">-- No specific alert / I'm not sure --</option>
-              {activeAlerts.map(alert => (
-                <option key={alert.id} value={alert.id}>{alert.petName} ({alert.breed})</option>
-              ))}
-            </select>
+        <form onSubmit={handleSubmit} className="space-y-10 animate-in fade-in duration-700 delay-150 fill-mode-both ease-out max-w-3xl">
+          <div className="space-y-3">
+            <label htmlFor="alertId" className="block text-sm font-bold uppercase tracking-widest text-[var(--color-ink)]">
+              Subject Alert (Optional)
+            </label>
+            <div className="relative">
+              <select
+                id="alertId"
+                value={alertId}
+                onChange={(e) => setAlertId(e.target.value)}
+                className="w-full px-5 py-4 bg-transparent border-2 border-[var(--color-ink)]/20 text-lg focus:outline-none focus:border-[var(--color-alert-clay)] transition-colors appearance-none cursor-pointer disabled:opacity-50"
+                disabled={isSubmitting}
+              >
+                <option value="">-- General / Unknown Pet --</option>
+                {activeAlerts.map(alert => (
+                  <option key={alert.id} value={alert.id}>{alert.petName} ({alert.breed})</option>
+                ))}
+              </select>
+            </div>
           </div>
           
-          <div>
-            <label htmlFor="reporterName" className="block text-sm font-semibold text-[#0A0A0A] mb-2">Your Name</label>
+          <div className="space-y-3">
+            <label htmlFor="reporterName" className="block text-sm font-bold uppercase tracking-widest text-[var(--color-ink)]">
+              Your Name
+            </label>
             <input
               type="text"
               id="reporterName"
               value={reporterName}
               onChange={(e) => setReporterName(e.target.value)}
               placeholder="e.g. Jane Doe"
-              className="w-full px-4 py-3 bg-[#FAF6F0] border border-[#E5E0D8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+              className="w-full px-5 py-4 bg-transparent border-2 border-[var(--color-ink)]/20 text-lg focus:outline-none focus:border-[var(--color-alert-clay)] transition-colors placeholder:text-[var(--color-ink)]/30"
               required
+              disabled={isSubmitting}
             />
           </div>
           
-          <div>
-            <label htmlFor="sightingLocation" className="block text-sm font-semibold text-[#0A0A0A] mb-2">Location Seen</label>
+          <div className="space-y-3">
+            <label htmlFor="sightingLocation" className="block text-sm font-bold uppercase tracking-widest text-[var(--color-ink)]">
+              Location Seen
+            </label>
             <div className="relative">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8A8175]" size={20} />
+              <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--color-alert-clay)]" size={24} />
               <input
                 type="text"
                 id="sightingLocation"
                 value={sightingLocation}
                 onChange={(e) => setSightingLocation(e.target.value)}
-                placeholder="Where did you see the pet?"
-                className="w-full pl-12 pr-4 py-3 bg-[#FAF6F0] border border-[#E5E0D8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DE6828]"
+                placeholder="Where exactly did you see the pet?"
+                className="w-full pl-16 pr-5 py-4 bg-transparent border-2 border-[var(--color-ink)]/20 text-lg focus:outline-none focus:border-[var(--color-alert-clay)] transition-colors placeholder:text-[var(--color-ink)]/30"
                 required
+                disabled={isSubmitting}
               />
             </div>
           </div>
           
-          <div>
-            <label htmlFor="notes" className="block text-sm font-semibold text-[#0A0A0A] mb-2">Details / Notes</label>
+          <div className="space-y-3">
+            <label htmlFor="notes" className="block text-sm font-bold uppercase tracking-widest text-[var(--color-ink)]">
+              Observation Details
+            </label>
             <textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Describe what you saw. Direction they were heading, behavior, collar color, etc."
+              placeholder="Describe direction, behavior, collar color, or any distinctive marks..."
               rows={5}
-              className="w-full px-4 py-3 bg-[#FAF6F0] border border-[#E5E0D8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DE6828] resize-none"
+              className="w-full px-5 py-4 bg-transparent border-2 border-[var(--color-ink)]/20 text-lg focus:outline-none focus:border-[var(--color-alert-clay)] transition-colors placeholder:text-[var(--color-ink)]/30 resize-none"
               required
+              disabled={isSubmitting}
             ></textarea>
           </div>
           
-          <div className="pt-4">
+          <div className="pt-6 border-t border-[var(--color-ink)]/10">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 bg-[#DE6828] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#C55A1F] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#DE6828] disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full md:w-auto px-10 py-5 bg-[var(--color-alert-clay)] text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-opacity-90 transition-all focus:outline-none focus:ring-4 focus:ring-[var(--color-alert-clay)]/30 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Eye size={20} />
-              {isSubmitting ? 'Submitting...' : 'Submit Sighting'}
+              <Eye size={24} />
+              {isSubmitting ? 'Recording Sighting...' : 'Submit Sighting'}
             </button>
           </div>
         </form>

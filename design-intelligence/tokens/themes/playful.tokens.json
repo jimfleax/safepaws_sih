@@ -1,0 +1,7 @@
+{
+  "theme": "playful", "description": "Energetic, personality-forward. Modeled on Resn's 'gooey' philosophy and Spotify Wrapped Party (research/awwwards/06-resn.md, 17-spotify-wrapped-party.md).",
+  "color": {"background": "#FFFFFF", "surface": "#F5F0FF", "text-primary": "#17102B", "text-secondary": "#5B5270", "border": "#E4DBFF", "accent-primary": "#7B4FFF", "accent-secondary": "#FF5C8A", "success": "#1FA562", "warning": "#E0A800", "danger": "#E5484D"},
+  "typography": {"font-family-display": "bold, characterful grotesk or condensed display face", "font-family-body": "friendly humanist sans", "scale-ratio": 1.333},
+  "spacing-base": "8px", "radius": {"sm": "8px", "md": "16px", "lg": "24px", "full": "9999px"}, "shadow": "pronounced, colored shadows permitted",
+  "motion": {"voice": "springy, bouncy, higher-amplitude", "duration-base": "250ms", "easing": "spring/overshoot permitted for direct-manipulation elements"}
+}

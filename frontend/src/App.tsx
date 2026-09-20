@@ -84,11 +84,13 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardRoute><Dashboard /></DashboardRoute>} />
           <Route path="/pets/new" element={<DashboardRoute><NewPet /></DashboardRoute>} />
           <Route path="/pets/:petId" element={<DashboardRoute><PetDetail /></DashboardRoute>} />
-          <Route path="/lost" element={<DashboardRoute><LostDogs /></DashboardRoute>} />
           <Route path="/lost/new" element={<DashboardRoute><ReportLost /></DashboardRoute>} />
-          <Route path="/alerts/:alertId" element={<DashboardRoute><AlertDetail /></DashboardRoute>} />
-          <Route path="/community" element={<DashboardRoute><Community /></DashboardRoute>} />
-          <Route path="/sightings/new" element={<DashboardRoute><ReportSighting /></DashboardRoute>} />
+          
+          {/* Public Community & Recovery */}
+          <Route path="/community" element={<Community />} />
+          <Route path="/lost" element={<LostDogs />} />
+          <Route path="/alerts/:alertId" element={<AlertDetail />} />
+          <Route path="/sightings/new" element={<ReportSighting />} />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />

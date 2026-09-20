@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 
 from app.main import app
 from app.db.models import Owner, Pet
-from app.api.dependencies import get_db
+from app.api.dependencies import get_db, get_current_owner
 
 SECRET_KEY = os.getenv('JWT_SECRET', 'supersecret')
 
@@ -150,13 +150,37 @@ def test_unauthenticated_pet_registration_returns_401(stateful_client: TestClien
     }
     response_unauth = stateful_client.post("/api/v1/pets/register", json=pet_data)
     assert response_unauth.status_code == 401
-    
-    # Assert nothing was created
-    added_owners = [item for item in last_mock_session.added if isinstance(item, Owner)]
-    added_pets = [item for item in last_mock_session.added if isinstance(item, Pet)]
-    
-    # We clear the added list before checking to be totally sure, but actually we just check it
-    # We didn't clear it from previous tests so it might have old ones, let's just assert 401
-    # which implies the endpoint threw HTTPException before calling the service.
     pass
+
+def test_profile_completed_logic(client: TestClient):
+    def get_mock_owner_missing_both():
+        return Owner(id="mock-1", name="Mock", phone=None, neighborhood=None)
+    def get_mock_owner_missing_hood():
+        return Owner(id="mock-2", name="Mock", phone="123", neighborhood="")
+    def get_mock_owner_missing_phone():
+        return Owner(id="mock-3", name="Mock", phone="", neighborhood="Hood")
+    def get_mock_owner_both():
+        return Owner(id="mock-4", name="Mock", phone="123", neighborhood="Hood")
+        
+    # 1. Missing phone, missing neighborhood
+    app.dependency_overrides[get_current_owner] = get_mock_owner_missing_both
+    res1 = client.get("/api/auth/me")
+    assert res1.json()["profileCompleted"] is False
+
+    # 2. Missing neighborhood
+    app.dependency_overrides[get_current_owner] = get_mock_owner_missing_hood
+    res2 = client.get("/api/auth/me")
+    assert res2.json()["profileCompleted"] is False
+
+    # 3. Missing phone
+    app.dependency_overrides[get_current_owner] = get_mock_owner_missing_phone
+    res3 = client.get("/api/auth/me")
+    assert res3.json()["profileCompleted"] is False
+
+    # 4. Both present -> true
+    app.dependency_overrides[get_current_owner] = get_mock_owner_both
+    res4 = client.get("/api/auth/me")
+    assert res4.json()["profileCompleted"] is True
+    
+    app.dependency_overrides.pop(get_current_owner, None)
 

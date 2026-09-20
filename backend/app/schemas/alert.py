@@ -16,5 +16,8 @@ class AlertResponse(BaseModel):
     description: Optional[str] = None
     created_at: datetime
     sightings: List[SightingResponse] = []
+    pet_name: str = "Unknown"
+    breed: str = "Unknown"
+    photo_url: str = ""
     
     model_config = ConfigDict(from_attributes=True)
