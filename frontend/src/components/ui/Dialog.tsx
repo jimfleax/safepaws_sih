@@ -80,7 +80,7 @@ const DialogClose = React.forwardRef<
   <DialogPrimitive.Close
     ref={ref}
     className={cn(
-      'p-2 rounded-full text-[var(--color-ink-soft)] hover:bg-[var(--color-bone)] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)]',
+      'p-2 rounded-full text-[var(--color-ink-soft)] hover:bg-[#F3EFE9] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)]',
       className
     )}
     {...props}

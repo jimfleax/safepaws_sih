@@ -79,8 +79,17 @@ export const Header: React.FC<HeaderProps> = ({
   });
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/');
+    try {
+      await fetch('/api/auth/logout', { 
+        method: 'POST', 
+        credentials: 'include' 
+      });
+    } catch (err) {
+      console.error('Logout API failed', err);
+    } finally {
+      logout();
+      navigate('/');
+    }
   };
 
   const navItems = [
@@ -96,7 +105,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Brand Logo - scrolls smoothly to the top of the page */}
         <div
           id="nav-brand-logo"
-          className="flex items-center gap-2.5 cursor-pointer select-none group py-1.5 px-3 rounded-[var(--radius-16)] hover:bg-white/50 transition-all duration-[var(--animate-duration-page)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] min-h-[44px]"
+          className="flex items-center gap-2.5 cursor-pointer select-none group py-1.5 px-3 rounded-[var(--radius-16)] hover:bg-[#F3EFE9] transition-all duration-[var(--animate-duration-page)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] min-h-[44px]"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           title="SafePaws"
         >
@@ -152,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
                           isHovered ? 'animate-ping opacity-90 scale-125' : 'animate-ping opacity-75'
                         }`}
                       />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-accent)] shadow-[0_0_6px_var(--color-accent)]" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-accent)] shadow-[0_0_6px_rgba(226,129,31,0.8)]" />
                     </span>
                   )}
                 </span>

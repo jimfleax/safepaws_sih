@@ -14,7 +14,6 @@ import { EnterScreen } from '../components/EnterScreen';
 import { Header } from '../components/Header';
 import { Hero } from '../components/Hero';
 import { HowItWorksSection } from '../components/HowItWorksSection';
-import { FeaturesSection } from '../components/FeaturesSection';
 import { TrustSection } from '../components/TrustSection';
 import { CommunitySection } from '../components/CommunitySection';
 import { CtaSection } from '../components/CtaSection';
@@ -58,7 +57,7 @@ export default function LandingPage() {
           if (!data.user.profileCompleted) {
             navigate('/setup-profile');
           } else {
-            navigate('/dashboard');
+            navigate('/pets/new');
           }
         }
       } catch (err) {
@@ -137,13 +136,13 @@ export default function LandingPage() {
         }}
         onOpenCommunity={() => navigate('/community')}
         onOpenFeatures={() => {
-          const el = document.getElementById('features');
+          const el = document.getElementById('how-it-works');
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
         onOpenProfile={() => navigate('/dashboard')}
-        onOpenAlerts={() => navigate('/lost')}
+        onOpenAlerts={() => navigate('/dashboard')}
         onOpenIdentify={() => navigate('/scan')}
-        activeAlertCount={alerts?.length || 0}
+        activeAlertCount={alerts.filter((a) => a.status === 'active').length}
       />
 
       {/* 2. Hero Section */}
@@ -153,19 +152,10 @@ export default function LandingPage() {
           onIdentifyClick={() => navigate('/scan')}
         />
 
-        {/* 3. Features */}
-        <div id="features">
-          <FeaturesSection
-            onOpenBiometric={() => navigate('/scan')}
-            onOpenNetwork={() => navigate('/community')}
-            onOpenQrTags={() => handleJoinClick()}
-          />
-        </div>
-
-        {/* 4. How It Works */}
+        {/* 3. How It Works */}
         <HowItWorksSection />
 
-        {/* 5. Trust + Nose Print */}
+        {/* 4. Trust + Nose Print */}
         <TrustSection />
 
         {/* 5. Community + Recovery */}
