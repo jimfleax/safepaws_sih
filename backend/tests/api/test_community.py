@@ -3,7 +3,6 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.db import models
-from tests.conftest import TestingSessionLocal
 
 pytestmark = pytest.mark.asyncio
 

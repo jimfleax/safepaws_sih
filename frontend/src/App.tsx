@@ -16,6 +16,8 @@ const LostDogs = lazy(() => import('./pages/LostDogs'));
 const ReportLost = lazy(() => import('./pages/ReportLost'));
 const AlertDetail = lazy(() => import('./pages/AlertDetail'));
 const Community = lazy(() => import('./pages/Community'));
+const CommunityPostDetail = lazy(() => import('./pages/CommunityPostDetail'));
+const CommunityOnboarding = lazy(() => import('./pages/CommunityOnboarding'));
 const ReportSighting = lazy(() => import('./pages/ReportSighting'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
