@@ -1,0 +1,7 @@
+{
+  "theme": "minimal", "description": "Restraint as the message itself. Modeled on Are.na/Kinfolk/Muji-style discipline (research/awwwards/23-arena.md, 24-kinfolk.md, 25-muji.md).",
+  "color": {"background": "#FFFFFF", "surface": "#FAFAFA", "text-primary": "#111111", "text-secondary": "#6B6B6B", "border": "#E5E5E5", "accent-primary": "#111111", "success": "#1E7A3D", "warning": "#8A6D0A", "danger": "#B3261E"},
+  "typography": {"font-family-display": "system grotesk or single humanist sans", "font-family-body": "same as display (single-family system)", "scale-ratio": 1.25},
+  "spacing-base": "8px", "radius": {"sm": "2px", "md": "4px", "lg": "8px"}, "shadow": "shadow-sm only, used rarely",
+  "motion": {"voice": "brief, low-amplitude, fade-dominant", "duration-base": "150ms"}
+}

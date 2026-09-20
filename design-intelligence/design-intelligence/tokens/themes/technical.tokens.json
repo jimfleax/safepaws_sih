@@ -1,0 +1,7 @@
+{
+  "theme": "technical", "description": "Exposed function as aesthetic. Modeled on Teenage Engineering/Zajno's disciplined-unconventional approach (research/awwwards/15-teenage-engineering.md, 09-zajno.md).",
+  "color": {"background": "#0E0E0E", "surface": "#181818", "text-primary": "#F2F2F2", "text-secondary": "#9C9C9C", "border": "#2A2A2A", "accent-primary": "#FF6A2B", "success": "#3ECF6E", "warning": "#F5C542", "danger": "#FF5C5C"},
+  "typography": {"font-family-display": "grotesk or schematic/technical-manual-style face", "font-family-mono": "used for labels/data, not just code", "scale-ratio": 1.25},
+  "spacing-base": "8px, denser than editorial/luxury", "radius": {"sm": "2px", "md": "4px", "lg": "6px"}, "shadow": "flat, border-based separation preferred over shadow",
+  "motion": {"voice": "precise, mechanical-feeling but not linear-eased", "duration-base": "150ms"}
+}

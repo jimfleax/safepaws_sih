@@ -1,0 +1,405 @@
+{
+  "schema_version": "1.0",
+  "generated": "2026-09-04",
+  "total_references": 25,
+  "categories": {
+    "A": "Premium Product / SaaS",
+    "B": "Creative Studio / Agency",
+    "C": "Experimental / Interactive",
+    "D": "Editorial / Typographic",
+    "E": "E-commerce / Brand",
+    "F": "Culture / Entertainment / Media",
+    "G": "Portfolio / Personal",
+    "H": "Immersive / 3D / Motion-Heavy",
+    "I": "Simple / Minimal / Restrained"
+  },
+  "confidence_tiers": [
+    "VERY HIGH",
+    "HIGH",
+    "MODERATE",
+    "MODERATE-LOW",
+    "LOW"
+  ],
+  "references": [
+    {
+      "id": 1,
+      "slug": "stripe",
+      "name": "Stripe",
+      "category": "A",
+      "url": "https://stripe.com",
+      "confidence": "HIGH",
+      "tags": [
+        "saas",
+        "fintech",
+        "conversion",
+        "gradient",
+        "enterprise"
+      ],
+      "lesson": "Segment proof by buyer type"
+    },
+    {
+      "id": 2,
+      "slug": "framer",
+      "name": "Framer",
+      "category": "A",
+      "url": "https://framer.com",
+      "confidence": "HIGH",
+      "tags": [
+        "saas",
+        "ai-product",
+        "product-demo",
+        "role-based-nav"
+      ],
+      "lesson": "Prove features by embedding, not describing"
+    },
+    {
+      "id": 3,
+      "slug": "linear",
+      "name": "Linear",
+      "category": "A",
+      "url": "https://linear.app",
+      "confidence": "MODERATE-LOW",
+      "tags": [
+        "saas",
+        "minimal",
+        "keyboard-first",
+        "b2b"
+      ],
+      "lesson": "Small object model beats configurability"
+    },
+    {
+      "id": 4,
+      "slug": "uncommon-studio",
+      "name": "Uncommon Studio",
+      "category": "B",
+      "url": "https://uncommonstudio.com.au",
+      "confidence": "HIGH",
+      "tags": [
+        "agency",
+        "video",
+        "portfolio",
+        "motion"
+      ],
+      "lesson": "Lead with real work in motion"
+    },
+    {
+      "id": 5,
+      "slug": "obys-agency",
+      "name": "Obys Agency",
+      "category": "B",
+      "url": "https://obys.agency",
+      "confidence": "VERY HIGH",
+      "tags": [
+        "agency",
+        "typography",
+        "modernist",
+        "grid"
+      ],
+      "lesson": "Consistency across many projects beats one hero site"
+    },
+    {
+      "id": 6,
+      "slug": "resn",
+      "name": "Resn",
+      "category": "B",
+      "url": "https://resn.co.nz",
+      "confidence": "VERY HIGH",
+      "tags": [
+        "agency",
+        "webgl",
+        "shader",
+        "playful",
+        "3d"
+      ],
+      "lesson": "A consistent feeling can replace a consistent style"
+    },
+    {
+      "id": 7,
+      "slug": "bruno-simon",
+      "name": "Bruno Simon Portfolio",
+      "category": "C",
+      "url": "https://bruno-simon.com",
+      "confidence": "VERY HIGH",
+      "tags": [
+        "portfolio",
+        "3d",
+        "webgl",
+        "experimental",
+        "game",
+        "threejs"
+      ],
+      "lesson": "Every decision must serve the one concept"
+    },
+    {
+      "id": 8,
+      "slug": "lusion",
+      "name": "Lusion",
+      "category": "C",
+      "url": "https://lusion.co",
+      "confidence": "VERY HIGH",
+      "tags": [
+        "agency",
+        "webgl",
+        "3d",
+        "experimental",
+        "portfolio"
+      ],
+      "lesson": "Match richness or restraint to the actual brief"
+    },
+    {
+      "id": 9,
+      "slug": "zajno",
+      "name": "Zajno",
+      "category": "C",
+      "url": "https://zajno.com",
+      "confidence": "VERY HIGH",
+      "tags": [
+        "agency",
+        "motion",
+        "gsap",
+        "scroll",
+        "interaction"
+      ],
+      "lesson": "Publish the actual mechanism, not just 'smooth'"
+    },
+    {
+      "id": 10,
+      "slug": "by-kin",
+      "name": "By-Kin",
+      "category": "D",
+      "url": "https://by-kin.com",
+      "confidence": "MODERATE",
+      "tags": [
+        "editorial",
+        "typography",
+        "restraint",
+        "gsap"
+      ],
+      "lesson": "Motion can be editorial discipline"
+    },
+    {
+      "id": 11,
+      "slug": "mat-voyce",
+      "name": "Mat Voyce",
+      "category": "D",
+      "url": "https://matvoyce.tv",
+      "confidence": "VERY HIGH",
+      "tags": [
+        "portfolio",
+        "typography",
+        "kinetic-type",
+        "motion"
+      ],
+      "lesson": "The site's form should echo the specialty"
+    },
+    {
+      "id": 12,
+      "slug": "pentagram",
+      "name": "Pentagram",
+      "category": "D",
+      "url": "https://pentagram.com",
+      "confidence": "MODERATE-LOW",
+      "tags": [
+        "agency",
+        "typography",
+        "editorial",
+        "identity"
+      ],
+      "lesson": "Let org structure drive information architecture"
+    },
+    {
+      "id": 13,
+      "slug": "cowboy",
+      "name": "Cowboy",
+      "category": "E",
+      "url": "https://cowboy.com",
+      "confidence": "HIGH",
+      "tags": [
+        "ecommerce",
+        "product",
+        "achromatic",
+        "trust"
+      ],
+      "lesson": "Pair desire with concrete trust content"
+    },
+    {
+      "id": 14,
+      "slug": "aesop",
+      "name": "Aesop",
+      "category": "E",
+      "url": "https://aesop.com",
+      "confidence": "MODERATE-LOW",
+      "tags": [
+        "ecommerce",
+        "luxury",
+        "restraint",
+        "brand"
+      ],
+      "lesson": "Restraint should be tied to a real product story"
+    },
+    {
+      "id": 15,
+      "slug": "teenage-engineering",
+      "name": "Teenage Engineering",
+      "category": "E",
+      "url": "https://teenage.engineering",
+      "confidence": "MODERATE-LOW",
+      "tags": [
+        "ecommerce",
+        "brand",
+        "industrial",
+        "restraint"
+      ],
+      "lesson": "Expose real function as aesthetic"
+    },
+    {
+      "id": 16,
+      "slug": "a24",
+      "name": "A24",
+      "category": "F",
+      "url": "https://a24films.com",
+      "confidence": "MODERATE-LOW",
+      "tags": [
+        "media",
+        "culture",
+        "portfolio",
+        "bespoke"
+      ],
+      "lesson": "Shared process, not shared template, for heterogeneous portfolios"
+    },
+    {
+      "id": 17,
+      "slug": "spotify-wrapped-party",
+      "name": "Spotify Wrapped Party",
+      "category": "F",
+      "url": "https://wrapped-party.activetheory.dev",
+      "confidence": "VERY HIGH",
+      "tags": [
+        "media",
+        "campaign",
+        "social",
+        "typography"
+      ],
+      "lesson": "Reuse campaign equity for feature extensions"
+    },
+    {
+      "id": 18,
+      "slug": "mschf",
+      "name": "MSCHF",
+      "category": "F",
+      "url": "https://mschf.com",
+      "confidence": "MODERATE-LOW",
+      "tags": [
+        "culture",
+        "provocative",
+        "conceptual"
+      ],
+      "lesson": "Function must be real, not simulated"
+    },
+    {
+      "id": 19,
+      "slug": "minh-pham",
+      "name": "Minh Pham",
+      "category": "G",
+      "url": "https://minhpham.design",
+      "confidence": "HIGH",
+      "tags": [
+        "portfolio",
+        "personal",
+        "gesture",
+        "3d"
+      ],
+      "lesson": "Ask if motion compensates for weak design"
+    },
+    {
+      "id": 20,
+      "slug": "cassie-evans",
+      "name": "Cassie Evans",
+      "category": "G",
+      "url": "https://cassie.codes",
+      "confidence": "LOW",
+      "tags": [
+        "portfolio",
+        "svg",
+        "creative-code"
+      ],
+      "lesson": "Low-confidence entries must be marked, not hidden"
+    },
+    {
+      "id": 21,
+      "slug": "iventions",
+      "name": "Iventions",
+      "category": "H",
+      "url": "https://iventions.com",
+      "confidence": "VERY HIGH",
+      "tags": [
+        "immersive",
+        "3d",
+        "threejs",
+        "events"
+      ],
+      "lesson": "Pick 3D metaphors that map to the real business"
+    },
+    {
+      "id": 22,
+      "slug": "active-theory",
+      "name": "Active Theory",
+      "category": "H",
+      "url": "https://activetheory.net",
+      "confidence": "MODERATE",
+      "tags": [
+        "agency",
+        "webgl",
+        "real-time",
+        "immersive"
+      ],
+      "lesson": "Match technique (real-time vs timeline) to the need"
+    },
+    {
+      "id": 23,
+      "slug": "arena",
+      "name": "Are.na",
+      "category": "I",
+      "url": "https://are.na",
+      "confidence": "MODERATE-LOW",
+      "tags": [
+        "minimal",
+        "restraint",
+        "product",
+        "values-driven"
+      ],
+      "lesson": "Minimalism should change mechanics, not just skin"
+    },
+    {
+      "id": 24,
+      "slug": "kinfolk",
+      "name": "Kinfolk",
+      "category": "I",
+      "url": "https://kinfolk.com",
+      "confidence": "MODERATE-LOW",
+      "tags": [
+        "editorial",
+        "minimal",
+        "lifestyle",
+        "brand"
+      ],
+      "lesson": "Don't dilute a distinctive identity with generic digital defaults"
+    },
+    {
+      "id": 25,
+      "slug": "muji",
+      "name": "Muji",
+      "category": "I",
+      "url": "https://muji.com",
+      "confidence": "MODERATE-LOW",
+      "tags": [
+        "ecommerce",
+        "minimal",
+        "no-brand",
+        "functional"
+      ],
+      "lesson": "Restraint must survive catalog scale"
+    }
+  ],
+  "retrieval_strategy": "Query by 'tags' for contextual matching (e.g. tags containing 'dashboard' or 'luxury'), by 'category' for the 9-category taxonomy, or by 'confidence' to filter to only primary-source-verified entries for high-stakes citation. Each entry's 'lesson' field is the one-sentence principle to actually cite -- never retrieve an entry to copy its composition; retrieve it to extract the principle, per retrieval/chain.md."
+}
