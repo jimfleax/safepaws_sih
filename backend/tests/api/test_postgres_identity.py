@@ -79,6 +79,9 @@ async def test_real_postgres_identity_persistence(client: TestClient):
                 "breed": "Mix",
                 "color": "Black",
                 "age": "2",
+                "owner_name": owner_name,
+                "owner_phone": "123-456",
+                "neighborhood": "Real Hood",
                 "consent_given": True
             }
             
@@ -95,6 +98,7 @@ async def test_real_postgres_identity_persistence(client: TestClient):
                 json=pet_data,
                 cookies={"jwt": token}
             )
+            print("ERROR", res_pet.json())
             assert res_pet.status_code == 201
             pet_id = res_pet.json()["id"]
             

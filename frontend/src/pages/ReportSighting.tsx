@@ -46,7 +46,8 @@ export default function ReportSighting() {
         reporterName,
         location: sightingLocation,
         notes,
-        alertId: alertId || undefined
+        alertId: alertId || undefined,
+        petId: statePetId || linkedAlert?.petId || undefined
       });
 
       await usePetStore.getState().hydrate();
