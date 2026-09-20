@@ -175,7 +175,8 @@ export default function PublicTagProfile() {
                             reporterName: 'Anonymous Finder (Tag Scan)',
                             location: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
                             notes: `Direct location ping from tag ID: ${pet.qrTagId}`,
-                            alertId: activeAlert?.id
+                            alertId: activeAlert?.id,
+                            petId: pet.id
                           });
                           setSuccessMessage('Location securely transmitted to the owner!');
                         } catch (err) {

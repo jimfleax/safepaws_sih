@@ -8,12 +8,12 @@ class SightingBase(BaseModel):
     notes: Optional[str] = None
 
 class SightingCreate(SightingBase):
-    pet_id: str
+    pet_id: Optional[str] = None
     alert_id: Optional[str] = None
 
 class SightingResponse(SightingBase):
     id: str
-    pet_id: str
+    pet_id: Optional[str] = None
     alert_id: Optional[str] = None
     time: datetime
     confirmed: bool
