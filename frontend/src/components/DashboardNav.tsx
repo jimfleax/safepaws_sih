@@ -87,13 +87,20 @@ export const DashboardNav = () => {
       </nav>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-background)] border-t border-[var(--color-border)] px-6 py-3 flex items-center justify-between z-50 safe-area-pb shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-background)] border-t border-[var(--color-border)] px-4 py-3 flex items-center justify-between z-50 safe-area-pb shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <Link 
           to="/dashboard" 
           className={`flex flex-col items-center justify-center gap-1 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] ${isCurrent('/dashboard') ? 'text-[var(--color-ink)]' : 'text-[var(--color-ink-soft)]'}`}
         >
           <List size={24} />
-          <span className="text-[length:var(--text-metadata)]">My pets</span>
+          <span className="text-[10px] font-medium">My pets</span>
+        </Link>
+        <Link 
+          to="/lost" 
+          className={`flex flex-col items-center justify-center gap-1 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] ${isCurrent('/lost') ? 'text-[var(--color-ink)]' : 'text-[var(--color-ink-soft)]'}`}
+        >
+          <ShieldAlert size={24} />
+          <span className="text-[10px] font-medium">Alerts</span>
         </Link>
         <Link 
           to="/scan" 
@@ -103,14 +110,21 @@ export const DashboardNav = () => {
           <div className="w-14 h-14 bg-[var(--color-accent)] rounded-full flex items-center justify-center text-white shadow-lg border-4 border-[var(--color-background)] transition-transform hover:scale-105 focus:ring-4 focus:ring-[var(--color-focus)]">
             <ScanLine size={28} />
           </div>
-          <span className="text-[length:var(--text-metadata)] text-[var(--color-accent)] mt-1 font-medium">Scan</span>
+          <span className="text-[10px] text-[var(--color-accent)] mt-1 font-bold">Scan</span>
+        </Link>
+        <Link 
+          to="/community" 
+          className={`flex flex-col items-center justify-center gap-1 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] ${isCurrent('/community') ? 'text-[var(--color-ink)]' : 'text-[var(--color-ink-soft)]'}`}
+        >
+          <Users size={24} />
+          <span className="text-[10px] font-medium">Community</span>
         </Link>
         <button 
           onClick={handleLogout} 
           className="flex flex-col items-center justify-center gap-1 text-[var(--color-ink-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px]"
         >
           <User size={24} />
-          <span className="text-[length:var(--text-metadata)]">Logout</span>
+          <span className="text-[10px] font-medium">Logout</span>
         </button>
       </nav>
     </>
