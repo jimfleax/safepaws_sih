@@ -54,13 +54,13 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
   };
 
   return (
-    <div className="relative w-full h-full bg-background-crisis flex flex-col items-center justify-center overflow-hidden touch-none">
+    <div className="relative w-full h-full bg-[var(--color-ink)] flex flex-col items-center justify-center overflow-hidden touch-none">
       {error ? (
-        <div className="text-white text-center p-4">
-          <p className="mb-4 font-medium text-bone">{error}</p>
-          <div className="w-full max-w-sm mx-auto border border-dashed border-accent/50 rounded-[2rem] p-8 flex flex-col items-center justify-center bg-ink shadow-sm">
-             <Camera className="w-12 h-12 text-accent/60 mb-3" />
-             <span className="text-bone/90 text-sm font-medium">Tap to select photo fallback</span>
+        <div className="text-[var(--color-bone)] text-center p-4">
+          <p className="mb-4 font-medium">{error}</p>
+          <div className="w-full max-w-sm mx-auto border border-dashed border-[var(--color-marigold)]/50 rounded-[2rem] p-8 flex flex-col items-center justify-center bg-[var(--color-ink)] shadow-sm focus-within:ring-2 focus-within:ring-[var(--color-marigold)] relative">
+             <Camera className="w-12 h-12 text-[var(--color-marigold)]/60 mb-3" />
+             <span className="text-[var(--color-bone)]/90 text-sm font-medium">Tap to select photo fallback</span>
              <input 
                type="file" 
                accept="image/*" 
@@ -100,7 +100,7 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
                   </defs>
                   
                   {/* Full-screen dimming overlay */}
-                  <rect x="-500%" y="-500%" width="1100%" height="1100%" fill="var(--color-background-crisis)" fillOpacity="0.85" mask="url(#scan-mask)" pointerEvents="none" />
+                  <rect x="-500%" y="-500%" width="1100%" height="1100%" fill="var(--color-ink)" fillOpacity="0.85" mask="url(#scan-mask)" pointerEvents="none" />
                   
                   {/* Outline guide */}
                   <path 
@@ -119,21 +119,21 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
           </div>
 
           {/* One Instruction */}
-          <div className="absolute top-16 left-0 right-0 text-center px-4 pointer-events-none">
-             <p className="text-white text-base font-semibold tracking-wide bg-ink/60 backdrop-blur-md inline-block px-6 py-2.5 rounded-full border border-white/10 shadow-lg">
+          <div className="absolute top-24 left-0 right-0 text-center px-4 pointer-events-none">
+             <p className="text-[var(--color-bone)] text-base font-sans font-semibold tracking-wide bg-[var(--color-ink)]/60 backdrop-blur-md inline-block px-6 py-2.5 rounded-full border border-[var(--color-bone)]/10 shadow-lg">
                {phase === 'ALIGN' ? 'Hold still...' : 'Position nose within the frame'}
              </p>
           </div>
 
           {/* Capture Control */}
-          <div className="absolute bottom-12 left-0 right-0 flex justify-center pb-safe">
+          <div className="absolute bottom-16 left-0 right-0 flex justify-center pb-safe">
              <button 
                onClick={handleCaptureClick}
-               className="group relative w-20 h-20 rounded-full bg-transparent flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-accent/50"
+               className="group relative w-20 h-20 rounded-full bg-transparent flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-[var(--color-marigold)]/50"
                aria-label="Capture photo"
              >
-                <div className="absolute inset-0 rounded-full border-[3px] border-white/80 group-active:scale-95 transition-transform motion-reduce:transition-none" />
-                <div className="w-[60px] h-[60px] rounded-full bg-white group-active:bg-accent transition-colors duration-200 motion-reduce:transition-none" />
+                <div className="absolute inset-0 rounded-full border-[3px] border-[var(--color-bone)]/80 group-active:scale-95 transition-transform motion-reduce:transition-none" />
+                <div className="w-[60px] h-[60px] rounded-full bg-[var(--color-bone)] group-active:bg-[var(--color-marigold)] transition-colors duration-200 motion-reduce:transition-none" />
              </button>
           </div>
         </>
