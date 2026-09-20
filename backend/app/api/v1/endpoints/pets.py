@@ -50,10 +50,21 @@ async def enroll_image(
     pet_id: str,
     file: UploadFile = File(...),
     service: RegistrationService = Depends(get_registration_service),
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner),
 ):
     """
     Enroll a biometric image for an existing pet profile.
+    Requires the authenticated user to be the pet's owner.
     """
+    stmt = select(Pet).where(Pet.id == pet_id)
+    result = await db.execute(stmt)
+    pet = result.scalars().first()
+    if not pet:
+        raise HTTPException(status_code=404, detail="Pet not found")
+    if pet.owner_id != current_owner.id:
+        raise HTTPException(status_code=403, detail="Not authorized to enroll images for this pet")
+
     validate_image(file)
     file_bytes = await file.read()
     return await service.enroll_image(
@@ -181,3 +192,25 @@ async def list_pets(
             qr_tag_id=pet.qr_tag_id or ""
         ) for pet in pets
     ]
+
+@router.delete("/{pet_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_pet(
+    pet_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner)
+):
+    """
+    Delete a pet record. Only the owning user may delete their pet.
+    """
+    stmt = select(Pet).where(Pet.id == pet_id)
+    result = await db.execute(stmt)
+    pet = result.scalars().first()
+
+    if not pet:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pet not found")
+
+    if pet.owner_id != current_owner.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this pet")
+
+    await db.delete(pet)
+    await db.commit()

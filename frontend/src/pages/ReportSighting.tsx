@@ -11,13 +11,24 @@ export default function ReportSighting() {
   const searchParams = new URLSearchParams(location.search);
   const defaultAlertId = searchParams.get('alertId') || '';
 
+  // Also support navigate('/sightings/new', { state: { petId } }) from PublicTagProfile
+  const stateData = location.state as { petId?: string } | null;
+  const statePetId = stateData?.petId || '';
+
   const { alerts } = usePetStore();
   const activeAlerts = alerts.filter(a => a.status === 'active');
 
-  // Pre-fill from linked alert
-  const linkedAlert = defaultAlertId ? alerts.find(a => a.id === defaultAlertId) : null;
+  // Resolve alertId from petId state (find active alert for that pet)
+  const alertFromPetId = statePetId
+    ? activeAlerts.find(a => a.petId === statePetId)?.id || ''
+    : '';
 
-  const [alertId, setAlertId] = useState(defaultAlertId);
+  const resolvedDefaultAlertId = defaultAlertId || alertFromPetId;
+
+  // Pre-fill from linked alert
+  const linkedAlert = resolvedDefaultAlertId ? alerts.find(a => a.id === resolvedDefaultAlertId) : null;
+
+  const [alertId, setAlertId] = useState(resolvedDefaultAlertId);
   const [reporterName, setReporterName] = useState('');
   const [sightingLocation, setSightingLocation] = useState('');
   const [notes, setNotes] = useState('');
@@ -55,7 +66,7 @@ export default function ReportSighting() {
     }
   };
 
-  const backHref = defaultAlertId ? `/alerts/${defaultAlertId}` : '/lost';
+  const backHref = resolvedDefaultAlertId ? `/alerts/${resolvedDefaultAlertId}` : '/lost';
 
   return (
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">

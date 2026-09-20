@@ -54,14 +54,13 @@ const PageLoader = () => (
 export default function App() {
   const hydrate = usePetStore(state => state.hydrate);
   const { isInitializing, checkSession } = useAuthStore();
-  
-  React.useEffect(() => {
-    hydrate();
-  }, [hydrate]);
 
   React.useEffect(() => {
-    checkSession();
-  }, [checkSession]);
+    // Check session first, then hydrate store so getAllPets has auth cookie
+    checkSession().then(() => {
+      hydrate();
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isInitializing) {
     return <PageLoader />;

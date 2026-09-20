@@ -33,6 +33,18 @@ class PetBase(BaseModel):
 class PetCreate(PetBase):
     pass
 
+class PetUpdate(BaseModel):
+    """Partial update schema — all fields optional."""
+    name: Optional[str] = None
+    breed: Optional[str] = None
+    color: Optional[str] = None
+    age: Optional[str] = None
+    weight: Optional[str] = None
+    medical_notes: Optional[str] = None
+    distinctive_features: Optional[List[str]] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
 class PetResponse(PetBase):
     id: str
     photo_url: str

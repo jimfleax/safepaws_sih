@@ -2,6 +2,7 @@ import React from 'react';
 import { ScanResult } from './types';
 import { CheckCircle2, AlertCircle, HelpCircle, AlertTriangle, ServerCrash, RefreshCw, Eye, PlusCircle, Megaphone } from 'lucide-react';
 import { usePetStore } from '../../store/petStore';
+import { useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
 
 interface ResultViewProps {
@@ -13,15 +14,29 @@ interface ResultViewProps {
 export default function ResultView({ result, onRetry, onConfirmCandidate }: ResultViewProps) {
   const navigate = useNavigate();
   const pets = usePetStore(state => state.pets);
-  
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
+  // MATCH: if the found pet belongs to the current user → go to their pet detail
+  //        if found by a stranger (unauthenticated or different owner) → public profile page
   const handleViewProfile = (petId: string) => {
-    usePetStore.getState().setSelectedPetId(petId);
-    navigate('/dashboard');
+    const myPet = pets.find(p => p.id === petId);
+    if (myPet && isAuthenticated) {
+      navigate(`/pets/${petId}`);
+    } else {
+      // Pet found in a community scan — navigate to public tag profile if we have the QR id,
+      // otherwise fall back to the pet detail (which is public-readable)
+      navigate(`/pets/${petId}`);
+    }
   };
 
   const handleRegister = () => {
-    navigate('/setup');
+    if (isAuthenticated) {
+      navigate('/pets/new');
+    } else {
+      navigate('/');
+    }
   };
+
 
   const ViewWrapper = ({ children }: { children: React.ReactNode }) => (
     <div className="w-full h-full bg-[var(--color-ink)] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
