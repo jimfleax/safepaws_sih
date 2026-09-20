@@ -7,7 +7,7 @@ import { ShieldAlert, MapPin, Clock, Users, ArrowLeft, CheckCircle } from 'lucid
 export default function AlertDetail() {
   const { alertId } = useParams();
   const navigate = useNavigate();
-  const { alerts, sightings, resolveAlert } = usePetStore();
+  const { alerts, sightings, resolveAlert, pets } = usePetStore();
   
   const alert = alerts.find(a => a.id === alertId);
   const alertSightings = sightings.filter(s => s.alertId === alertId);
@@ -39,7 +39,7 @@ export default function AlertDetail() {
     }
   };
 
-  const isOwner = usePetStore.getState().pets.some(p => p.id === alert.petId);
+  const isOwner = pets.some(p => p.id === alert.petId);
 
   return (
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
