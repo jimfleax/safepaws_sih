@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { DashboardNav } from '../components/DashboardNav';
 import { usePetStore } from '../store/petStore';
-import { ShieldAlert, MapPin, Clock, Users, ArrowLeft, CheckCircle } from 'lucide-react';
+import { AlertCircle, ShieldAlert, MapPin, Clock, Users, ArrowLeft, CheckCircle } from 'lucide-react';
 
 export default function AlertDetail() {
   const { alertId } = useParams();
