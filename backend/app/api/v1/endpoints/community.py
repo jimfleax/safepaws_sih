@@ -145,7 +145,7 @@ async def update_preferences(
     *,
     db: AsyncSession = Depends(dependencies.get_db),
     pref_in: CommunityPreferenceCreate,
-    current_user: models.Owner = Depends(dependencies.get_current_user)
+    current_user: models.Owner = Depends(dependencies.get_current_owner)
 ) -> Any:
     """
     Update or create community preferences.
