@@ -67,6 +67,7 @@ async def get_all_sightings(db: AsyncSession = Depends(get_db)):
     return [
         SightingResponse(
             id=s.id,
+            pet_id=s.pet_id,
             reporter_name=s.reporter_name,
             location=s.location,
             notes=s.notes,
