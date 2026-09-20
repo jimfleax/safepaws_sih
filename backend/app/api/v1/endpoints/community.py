@@ -20,7 +20,7 @@ async def create_post(
     *,
     db: AsyncSession = Depends(dependencies.get_db),
     post_in: CommunityPostCreate,
-    current_user: models.Owner = Depends(dependencies.get_current_user)
+    current_user: models.Owner = Depends(dependencies.get_current_owner)
 ) -> Any:
     """
     Create a new community post.
@@ -73,7 +73,7 @@ async def create_reply(
     db: AsyncSession = Depends(dependencies.get_db),
     post_id: str,
     reply_in: CommunityReplyCreate,
-    current_user: models.Owner = Depends(dependencies.get_current_user)
+    current_user: models.Owner = Depends(dependencies.get_current_owner)
 ) -> Any:
     """
     Reply to a post.
@@ -111,7 +111,7 @@ async def create_report(
     *,
     db: AsyncSession = Depends(dependencies.get_db),
     report_in: ReportCreate,
-    current_user: models.Owner = Depends(dependencies.get_current_user)
+    current_user: models.Owner = Depends(dependencies.get_current_owner)
 ) -> Any:
     """
     Report a post or reply for moderation.
@@ -128,7 +128,7 @@ async def create_report(
 @router.get("/preferences", response_model=CommunityPreference)
 async def get_preferences(
     db: AsyncSession = Depends(dependencies.get_db),
-    current_user: models.Owner = Depends(dependencies.get_current_user)
+    current_user: models.Owner = Depends(dependencies.get_current_owner)
 ) -> Any:
     """
     Get current user's community preferences (interests).
