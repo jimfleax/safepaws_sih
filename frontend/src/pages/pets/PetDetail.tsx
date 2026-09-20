@@ -71,6 +71,29 @@ export default function PetDetail() {
     }
   };
 
+  const handleResolveAlert = async () => {
+    if (!petId) return;
+    try {
+      setActionError('');
+      setSuccessMessage('');
+      
+      // We need to resolve the active alert for this pet
+      const store = usePetStore.getState();
+      const activeAlert = store.alerts.find(a => a.petId === petId && a.status === 'active');
+      
+      if (activeAlert) {
+        await ApiClient.resolveAlert(activeAlert.id);
+      }
+      
+      setSuccessMessage('Alert resolved successfully!');
+      const fetchedPet = await ApiClient.getPet(petId);
+      setPet(fetchedPet);
+      await store.hydrate();
+    } catch (e: any) {
+      setActionError(e.message || 'Failed to resolve alert');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--color-bone)] flex flex-col">
@@ -265,7 +288,7 @@ export default function PetDetail() {
 
             {/* Actions */}
             <section className="mt-8 pt-8 border-t border-[var(--color-border)] space-y-4">
-              {isSafe && (
+              {isSafe ? (
                 <button
                   onClick={handleLostAlert}
                   className="w-full py-4 px-6 bg-[var(--color-alert-clay)] hover:opacity-90 text-white font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
@@ -273,11 +296,26 @@ export default function PetDetail() {
                   <AlertCircle className="w-4 h-4" />
                   Report Missing
                 </button>
+              ) : (
+                <button
+                  onClick={handleResolveAlert}
+                  className="w-full py-4 px-6 bg-[var(--color-success)] hover:opacity-90 text-white font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  Resolve Alert (Mark Safe)
+                </button>
               )}
               
               <button
+                onClick={() => alert('Edit identity feature coming soon.')}
+                className="w-full py-4 px-6 bg-transparent hover:bg-[var(--color-border)] text-[var(--color-ink)] font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2 border border-[var(--color-ink-soft)]/30 hover:border-[var(--color-ink-soft)]"
+              >
+                Edit Identity Record
+              </button>
+              
+              <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="w-full py-4 px-6 bg-transparent hover:bg-[var(--color-border)] text-[var(--color-trail)] hover:text-[var(--color-ink)] font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2 border border-transparent hover:border-[var(--color-ink-soft)]"
+                className="w-full py-4 px-6 bg-transparent hover:bg-[var(--color-border)] text-[var(--color-trail)] hover:text-[var(--color-alert-clay)] font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2 border border-transparent"
               >
                 <Trash2 className="w-4 h-4" />
                 Remove Identity Record
