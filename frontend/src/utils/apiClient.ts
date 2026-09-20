@@ -124,6 +124,49 @@ export class ApiClient {
     return res.json();
   }
 
+  static async updatePet(petId: string, updates: Partial<Pet>): Promise<Pet> {
+    const payload: any = {};
+    if (updates.name !== undefined) payload.name = updates.name;
+    if (updates.breed !== undefined) payload.breed = updates.breed;
+    if (updates.color !== undefined) payload.color = updates.color;
+    if (updates.age !== undefined) payload.age = updates.age;
+    if (updates.weight !== undefined) payload.weight = updates.weight;
+    if (updates.medicalNotes !== undefined) payload.medical_notes = updates.medicalNotes;
+    if (updates.distinctiveFeatures !== undefined) payload.distinctive_features = updates.distinctiveFeatures;
+
+    const res = await fetch(`/api/v1/pets/${petId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      credentials: 'include'
+    });
+    if (!res.ok) {
+      let msg = res.statusText;
+      try { const errData = await res.json(); msg = errData.detail || msg; } catch (e) {}
+      throw new Error(`Failed to update pet: ${msg}`);
+    }
+    
+    const data = await res.json();
+    return {
+      id: data.id,
+      name: data.name,
+      species: data.species,
+      breed: data.breed,
+      color: data.color,
+      age: data.age,
+      weight: data.weight,
+      ownerName: data.owner_name,
+      ownerPhone: data.owner_phone,
+      neighborhood: data.neighborhood,
+      medicalNotes: data.medical_notes,
+      distinctiveFeatures: data.distinctive_features,
+      microchipId: data.microchip_id,
+      photoUrl: data.photo_url || "",
+      status: data.status,
+      qrTagId: data.qr_tag_id
+    };
+  }
+
   static async reportSighting(sighting: any): Promise<any> {
     const payload = {
       reporter_name: sighting.reporterName,
@@ -214,6 +257,100 @@ export class ApiClient {
   static async getHealth(): Promise<{status: string, pipeline_mode: string}> {
     const res = await fetch('/api/v1/health/');
     if (!res.ok) throw new Error('Health check failed');
+    return res.json();
+  }
+
+  // --- Community Endpoints ---
+
+  static async getCommunityPosts(channel?: string, query?: string): Promise<any[]> {
+    let url = '/api/v1/community/posts';
+    if (query) url = `/api/v1/community/search?query=${encodeURIComponent(query)}`;
+    else if (channel) url = `/api/v1/community/posts?channel=${encodeURIComponent(channel)}`;
+    
+    const res = await fetch(url, { credentials: 'omit' }); // public browsing allowed
+    if (!res.ok) throw new Error('Failed to fetch posts');
+    return res.json();
+  }
+
+  static async createCommunityPost(postData: { title: string; content: string; channel: string }): Promise<any> {
+    const res = await fetch('/api/v1/community/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(postData),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('Failed to create post');
+    return res.json();
+  }
+
+  static async getCommunityPost(postId: string): Promise<any> {
+    const res = await fetch(`/api/v1/community/posts/${postId}`, { credentials: 'omit' });
+    if (!res.ok) throw new Error('Failed to fetch post');
+    return res.json();
+  }
+
+  static async getCommunityReplies(postId: string): Promise<any[]> {
+    const res = await fetch(`/api/v1/community/posts/${postId}/replies`, { credentials: 'omit' });
+    if (!res.ok) throw new Error('Failed to fetch replies');
+    return res.json();
+  }
+
+  static async createCommunityReply(postId: string, content: string): Promise<any> {
+    const res = await fetch(`/api/v1/community/posts/${postId}/replies`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('Failed to create reply');
+    return res.json();
+  }
+
+  static async reportContent(reason: string, postId?: string, replyId?: string): Promise<any> {
+    const res = await fetch('/api/v1/community/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason, post_id: postId, reply_id: replyId }),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('Failed to report content');
+    return res.json();
+  }
+
+  static async getCommunityNotifications(): Promise<any[]> {
+    const res = await fetch('/api/v1/community/notifications', { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to fetch notifications');
+    return res.json();
+  }
+
+  static async markNotificationRead(notificationId: string): Promise<any> {
+    const res = await fetch(`/api/v1/community/notifications/${notificationId}/read`, {
+      method: 'PATCH',
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('Failed to mark notification as read');
+    return res.json();
+  }
+
+  static async updateCommunityPreferences(interests: string[]): Promise<any> {
+    const res = await fetch('/api/v1/community/preferences', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ interests }),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('Failed to update preferences');
+    return res.json();
+  }
+
+  static async createRecoveryTask(alertId: string, taskType: string, description: string): Promise<any> {
+    const res = await fetch(`/api/v1/community/tasks?alert_id=${alertId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task_type: taskType, description }),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('Failed to create task');
     return res.json();
   }
 }

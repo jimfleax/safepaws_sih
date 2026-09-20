@@ -10,7 +10,7 @@ from app.schemas.community import (
     CommunityReply, CommunityReplyCreate,
     Report, ReportCreate,
     CommunityPreference, CommunityPreferenceCreate,
-    RecoveryTask, Notification
+    RecoveryTask, RecoveryTaskCreate, Notification
 )
 
 router = APIRouter()

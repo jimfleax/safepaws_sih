@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { DashboardNav } from '../components/DashboardNav';
 import { usePetStore } from '../store/petStore';
 import { useAuthStore } from '../store/authStore';
+import { ApiClient } from '../utils/apiClient';
 import {
   Search, Plus, MapPin, Clock, AlertTriangle, Heart, Users,
   MessageSquare, Eye, Bell, ChevronRight, ArrowRight, Flag, X, Menu, SlidersHorizontal
@@ -68,16 +69,7 @@ export default function Community() {
     try {
       const channel = activeChannel !== 'all' ? activeChannel : undefined;
       const query = searchQuery.trim();
-      const base = '/api/v1/community';
-      const url = query
-        ? `${base}/search?query=${encodeURIComponent(query)}`
-        : channel
-          ? `${base}/posts?channel=${encodeURIComponent(channel)}`
-          : `${base}/posts`;
-
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Network error');
-      let data = await res.json();
+      let data = await ApiClient.getCommunityPosts(channel, query);
       
       // Client-side mapping for requested mock filters (if no native backend support yet)
       if (activeFilter === 'urgent') data = data.filter((p: Post) => p.channel === 'urgent' || p.channel === 'lost-found');
@@ -98,13 +90,7 @@ export default function Community() {
     if (!isAuthenticated) { navigate('/'); return; }
     setSubmitting(true);
     try {
-      const res = await fetch('/api/v1/community/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPost),
-      });
-      if (!res.ok) throw new Error();
-      const created = await res.json();
+      const created = await ApiClient.createCommunityPost(newPost);
       setPosts(prev => [created, ...prev]);
       setShowNewPostForm(false);
       setNewPost({ title: '', content: '', channel: 'general' });
@@ -506,10 +492,8 @@ const NotificationList = () => {
   useEffect(() => {
     const fetchNotifs = async () => {
       try {
-        const res = await fetch('/api/v1/community/notifications');
-        if (res.ok) {
-          setNotifications(await res.json());
-        }
+        const data = await ApiClient.getCommunityNotifications();
+        setNotifications(data);
       } catch (e) {
         // fail silently
       } finally {
@@ -522,7 +506,7 @@ const NotificationList = () => {
   const markRead = async (id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     try {
-      await fetch(`/api/v1/community/notifications/${id}/read`, { method: 'PATCH' });
+      await ApiClient.markNotificationRead(id);
     } catch (e) {}
   };
 
@@ -572,11 +556,7 @@ const PostRow: React.FC<{ post: Post }> = ({ post }) => {
 
   const handleReport = async (reason: string) => {
     try {
-      await fetch('/api/v1/community/reports', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: post.id, reason }),
-      });
+      await ApiClient.reportContent(reason, post.id);
     } finally {
       setReported(true);
       setShowReport(false);
