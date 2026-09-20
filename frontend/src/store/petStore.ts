@@ -36,8 +36,14 @@ export const usePetStore = create<PetState>((set) => ({
 
   hydrate: async () => {
     try {
-      const [pets, alerts, sightings] = await Promise.all([
-        ApiClient.getAllPets(),
+      let pets: Pet[] = [];
+      try {
+        pets = await ApiClient.getAllPets();
+      } catch (e) {
+        // May fail if not authenticated
+      }
+      
+      const [alerts, sightings] = await Promise.all([
         ApiClient.getAllAlerts(),
         ApiClient.getAllSightings()
       ]);
@@ -46,9 +52,9 @@ export const usePetStore = create<PetState>((set) => ({
         alerts: alerts.map(a => ({
           id: a.id,
           petId: a.pet_id,
-          petName: pets.find(p => p.id === a.pet_id)?.name || 'Unknown',
-          breed: pets.find(p => p.id === a.pet_id)?.breed || 'Unknown',
-          photoUrl: pets.find(p => p.id === a.pet_id)?.photoUrl || '',
+          petName: a.pet_name || 'Unknown',
+          breed: a.breed || 'Unknown',
+          photoUrl: a.photo_url || '',
           status: a.status as 'active' | 'resolved',
           broadcastRadiusKm: 5,
           notifiedNeighborsCount: 0,

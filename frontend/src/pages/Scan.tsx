@@ -43,6 +43,18 @@ export default function Scan() {
       {/* Mobile-primary: fills the experience */}
       <div className="w-full h-full relative overflow-hidden max-w-md mx-auto sm:rounded-2xl sm:shadow-2xl sm:h-[800px] sm:max-h-[90vh] bg-black">
         
+        {/* Close Button */}
+        <button 
+          onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/dashboard'}
+          className="absolute top-6 right-6 z-50 p-2 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/10 hover:bg-white/20 transition-colors"
+          aria-label="Close scan"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
         {(phase === 'SCAN' || phase === 'ALIGN' || phase === 'CAPTURE') && (
           <CameraView 
             phase={phase} 

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Phone, MapPin, ShieldCheck, AlertCircle } from 'lucide-react';
 import { Pet } from '../types';
 import { ApiClient } from '../utils/apiClient';
+import { usePetStore } from '../store/petStore';
 
 export default function PublicTagProfile() {
   const { tagId } = useParams<{ tagId: string }>();
@@ -30,28 +31,28 @@ export default function PublicTagProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F6F1E7] flex flex-col items-center justify-center p-6">
-        <div className="w-12 h-12 border-4 border-[#E2811F] border-t-transparent rounded-full animate-spin mb-6" />
-        <h2 className="font-serif text-[24px] text-[#1C1A17] mb-2">Locating Profile...</h2>
-        <p className="text-[#63684B] text-[15px] max-w-xs text-center leading-relaxed">Securely retrieving the biometric and contact record for this SafePaws tag.</p>
+      <div className="min-h-screen bg-[var(--color-bone)] flex flex-col items-center justify-center p-6">
+        <div className="w-12 h-12 border-[3px] border-[var(--color-marigold)] border-t-transparent rounded-full animate-spin mb-6" />
+        <h2 className="font-serif text-[24px] text-[var(--color-ink)] mb-2">Accessing Record...</h2>
+        <p className="text-[var(--color-trail)] text-[15px] max-w-xs text-center leading-relaxed">Securely retrieving the identity profile for this SafePaws tag.</p>
       </div>
     );
   }
 
   if (!pet) {
     return (
-      <div className="min-h-screen bg-[#F6F1E7] flex flex-col items-center justify-center p-6 text-center">
-        <div className="bg-white p-10 rounded-[2rem] shadow-sm border border-[#E5E0D8] max-w-md w-full">
-          <div className="w-16 h-16 rounded-full bg-[#B3452F]/10 flex items-center justify-center mx-auto mb-6">
-            <AlertCircle className="w-8 h-8 text-[#B3452F]" />
+      <div className="min-h-screen bg-[var(--color-bone)] flex flex-col items-center justify-center p-6 text-center">
+        <div className="bg-[var(--color-surface)] p-10 max-w-md w-full border border-[var(--color-border)]">
+          <div className="w-16 h-16 rounded-full bg-[var(--color-alert-clay)]/10 flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-8 h-8 text-[var(--color-alert-clay)]" />
           </div>
-          <h2 className="font-serif text-[28px] text-[#1C1A17] mb-3">{error || 'Unknown Tag'}</h2>
-          <p className="text-[#63684B] text-[15px] leading-relaxed mb-8">
+          <h2 className="font-serif text-[28px] text-[var(--color-ink)] mb-3">{error || 'Unknown Tag'}</h2>
+          <p className="text-[var(--color-trail)] text-[15px] leading-relaxed mb-8">
             This SafePaws tag does not exist or has been unregistered. If you found a pet, please contact your local shelter.
           </p>
           <button 
             onClick={() => navigate('/')}
-            className="w-full py-4 px-6 rounded-full bg-[#1C1A17] hover:bg-[#2A2723] text-white font-semibold text-[15px] shadow-sm transition-transform hover:-translate-y-0.5 focus:outline-none"
+            className="w-full h-14 rounded-none bg-[var(--color-ink)] hover:bg-[#2A2723] text-white font-semibold text-[15px] uppercase tracking-widest transition-colors focus:outline-none"
           >
             Return to SafePaws
           </button>
@@ -63,164 +64,140 @@ export default function PublicTagProfile() {
   const isLost = pet.status === 'lost';
 
   return (
-    <div className="min-h-screen bg-[#F6F1E7] pb-32 font-sans text-[#1C1A17]">
+    <div className="min-h-screen bg-[var(--color-bone)] font-sans text-[var(--color-ink)] pb-24">
       
       {/* Minimal Header */}
-      <header className="py-6 px-6 sm:px-8 max-w-2xl mx-auto flex justify-center">
-        <div className="font-serif text-[24px] tracking-tight font-bold text-[#E2811F]">SafePaws</div>
+      <header className="py-8 px-6 flex justify-center">
+        <div className="font-serif text-[20px] tracking-tight font-bold text-[var(--color-marigold)]">SafePaws</div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6">
-        <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-[#E5E0D8]">
+      <main className="max-w-[720px] mx-auto px-6">
+        
+        {/* Main Content Area */}
+        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] overflow-hidden">
           
-          {/* Hero Image */}
-          <div className="relative w-full aspect-square sm:aspect-[4/3] bg-[#E5E0D8]">
+          {/* Photo */}
+          <div className="relative w-full aspect-square sm:aspect-[4/3] bg-[var(--color-border)]">
             <img
               src={pet.photoUrl}
               alt={`Photo of ${pet.name}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover grayscale-[0.1]"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#1C1A17]/30 via-transparent to-[#1C1A17]/40 pointer-events-none" />
-            
             {isLost && (
               <div className="absolute top-6 left-6">
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold uppercase tracking-[0.08em] shadow-md backdrop-blur-md bg-[#B3452F]/90 text-white">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FFB4A3]" />
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-alert-clay)] text-white text-[12px] font-bold uppercase tracking-widest shadow-md">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse" />
                   Reported Missing
                 </span>
               </div>
             )}
           </div>
           
-          <div className="p-8 sm:p-10">
+          <div className="p-8 sm:p-12">
+            
             {/* Identity Header */}
-            <div className="text-center mb-10">
-              <h1 className="font-serif text-[42px] sm:text-[52px] leading-[1.05] tracking-[-0.02em] text-[#1C1A17] mb-2">
+            <div className="text-center mb-12">
+              <h1 className="font-serif text-[48px] sm:text-[56px] leading-[1.05] tracking-[-0.02em] text-[var(--color-ink)] mb-3">
                 I am {pet.name}
               </h1>
-              <p className="text-[18px] text-[#63684B]">
+              <p className="text-[18px] text-[var(--color-trail)] font-serif italic">
                 {pet.breed} {pet.color ? `· ${pet.color}` : ''}
               </p>
             </div>
 
-            {/* Emergency Lost Banner */}
+            {/* Emergency Notice */}
             {isLost && (
-              <div className="mb-10 p-6 bg-[#B3452F]/10 border border-[#B3452F]/20 rounded-[1.5rem] text-center">
-                <AlertCircle className="w-8 h-8 text-[#B3452F] mx-auto mb-3" />
-                <h3 className="font-serif text-[24px] text-[#B3452F] leading-tight mb-2">Please Help Me Get Home</h3>
-                <p className="text-[15px] text-[#1C1A17] leading-relaxed max-w-sm mx-auto">
-                  My family is urgently looking for me. If you've found me, please contact them immediately using the information below.
+              <div className="mb-12 p-8 border-2 border-[var(--color-alert-clay)] bg-white text-center">
+                <AlertCircle className="w-8 h-8 text-[var(--color-alert-clay)] mx-auto mb-4" />
+                <h3 className="font-serif text-[28px] text-[var(--color-alert-clay)] leading-tight mb-3">Please Help Me Get Home</h3>
+                <p className="text-[16px] text-[var(--color-ink)] leading-relaxed max-w-sm mx-auto font-medium">
+                  My family is urgently looking for me. If you've found me, please contact them immediately.
                 </p>
               </div>
             )}
 
-            <div className="space-y-10">
-              
-              {/* Primary Contact Action */}
-              <div>
-                <h3 className="text-[12px] font-bold text-[#63684B] uppercase tracking-[0.12em] mb-4 flex items-center justify-center gap-2">
-                  <span className="w-3 h-px bg-[#63684B]" />
-                  Owner Contact
-                  <span className="w-3 h-px bg-[#63684B]" />
+            {/* Medical Notes */}
+            {pet.medicalNotes && (
+              <div className="mb-12 border-l-4 border-[var(--color-alert-clay)] bg-[var(--color-bone)] p-6">
+                <h3 className="text-[11px] font-bold text-[var(--color-alert-clay)] uppercase tracking-[0.2em] mb-2">
+                  Critical Medical Notes
                 </h3>
-                <a 
-                  href={`tel:${pet.ownerPhone}`} 
-                  className="flex flex-col sm:flex-row items-center justify-center gap-4 bg-[#F6F1E7] hover:bg-[#E5E0D8] p-6 rounded-[1.5rem] border border-[#E5E0D8] transition-colors group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                    <Phone className="w-5 h-5 text-[#E2811F]" />
-                  </div>
-                  <div className="text-center sm:text-left">
-                    <div className="text-[13px] text-[#63684B] mb-0.5">Call Primary Contact</div>
-                    <div className="font-serif text-[24px] text-[#1C1A17] tracking-tight">{pet.ownerPhone}</div>
-                  </div>
-                </a>
+                <p className="text-[16px] text-[var(--color-ink)] leading-relaxed font-medium">
+                  {pet.medicalNotes}
+                </p>
               </div>
+            )}
 
-              {/* Medical Alert */}
-              {pet.medicalNotes && (
-                <div>
-                  <h3 className="text-[12px] font-bold text-[#B3452F] uppercase tracking-[0.12em] mb-3 text-center">
-                    Critical Medical Notes
-                  </h3>
-                  <div className="bg-white border-2 border-[#B3452F]/20 p-5 rounded-[1.25rem] text-[15px] text-[#1C1A17] leading-relaxed text-center shadow-sm">
-                    {pet.medicalNotes}
-                  </div>
-                </div>
-              )}
-
-              {/* Basic Info */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-start gap-3 bg-[#F6F1E7]/50 p-5 rounded-[1.25rem] border border-[#E5E0D8]">
-                  <MapPin className="w-5 h-5 text-[#E2811F] shrink-0" />
-                  <div>
-                    <div className="text-[12px] font-bold text-[#63684B] uppercase tracking-wider mb-0.5">Neighborhood</div>
-                    <div className="text-[15px] font-medium text-[#1C1A17]">{pet.neighborhood || 'Not provided'}</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 bg-[#F6F1E7]/50 p-5 rounded-[1.25rem] border border-[#E5E0D8]">
-                  <ShieldCheck className="w-5 h-5 text-[#4C7A52] shrink-0" />
-                  <div>
-                    <div className="text-[12px] font-bold text-[#63684B] uppercase tracking-wider mb-0.5">Registration</div>
-                    <div className="text-[15px] font-medium text-[#1C1A17] font-mono tracking-tight">{pet.qrTagId}-BIO</div>
-                  </div>
-                </div>
+            {/* Quiet Info */}
+            <div className="mb-12 flex flex-col sm:flex-row gap-8 justify-center border-y border-[var(--color-border)] py-8">
+              <div className="flex flex-col items-center text-center">
+                <MapPin className="w-5 h-5 text-[var(--color-trail)] mb-2 opacity-50" />
+                <span className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-1">Neighborhood</span>
+                <span className="text-[15px] font-medium text-[var(--color-ink)]">{pet.neighborhood || 'Unknown'}</span>
               </div>
+              <div className="hidden sm:block w-px h-full bg-[var(--color-border)]" />
+              <div className="flex flex-col items-center text-center">
+                <ShieldCheck className="w-5 h-5 text-[var(--color-success)] mb-2 opacity-50" />
+                <span className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-1">Tag ID</span>
+                <span className="text-[15px] font-medium text-[var(--color-ink)] font-mono tracking-tight">{pet.qrTagId}-BIO</span>
+              </div>
+            </div>
+
+            {/* Discoverable Actions (>=44px touch targets) */}
+            <div className="space-y-4">
+              <a
+                href={`tel:${pet.ownerPhone}`}
+                className="w-full h-16 flex items-center justify-center gap-3 bg-[var(--color-marigold)] hover:bg-[var(--color-accent-hover)] text-white font-semibold text-[15px] uppercase tracking-widest transition-colors focus:outline-none"
+              >
+                <Phone className="w-5 h-5" />
+                Call Owner
+              </a>
               
-              {/* Actions Footer */}
-              <div className="pt-8 border-t border-[#E5E0D8] space-y-4">
-                <a
-                  href={`tel:${pet.ownerPhone}`}
-                  className="w-full py-4 px-6 rounded-full bg-[#E2811F] hover:bg-[#CA721A] text-white font-semibold text-[15px] shadow-[0_4px_14px_rgba(226,129,31,0.25)] transition-transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
-                >
-                  <Phone className="w-5 h-5" />
-                  Call Owner Directly
-                </a>
-                
-                <button
-                  onClick={async () => {
-                    if (!navigator.geolocation) {
-                      alert('Geolocation is not supported by your browser.');
-                      return;
-                    }
-                    setLocationSending(true);
-                    navigator.geolocation.getCurrentPosition(
-                      async (position) => {
-                        try {
-                          const { latitude, longitude } = position.coords;
-                          await ApiClient.reportSighting({
-                            reporterName: 'Anonymous Finder (Tag Scan)',
-                            location: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
-                            notes: `Direct location ping from tag ID: ${pet.qrTagId}`
-                          });
-                          alert('Location successfully securely transmitted to the owner!');
-                        } catch (err) {
-                          alert('Failed to send location. Please try calling the owner.');
-                        } finally {
-                          setLocationSending(false);
-                        }
-                      },
-                      () => {
-                        alert('Unable to retrieve your location. Please check your device permissions.');
+              <button
+                onClick={async () => {
+                  if (!navigator.geolocation) {
+                    alert('Geolocation is not supported by your browser.');
+                    return;
+                  }
+                  setLocationSending(true);
+                  navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                      try {
+                        const { latitude, longitude } = position.coords;
+                        const activeAlert = usePetStore.getState().alerts.find(a => a.petId === pet.id && a.status === 'active');
+                        await ApiClient.reportSighting({
+                          reporterName: 'Anonymous Finder (Tag Scan)',
+                          location: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+                          notes: `Direct location ping from tag ID: ${pet.qrTagId}`,
+                          alertId: activeAlert?.id
+                        });
+                        alert('Location successfully securely transmitted to the owner!');
+                      } catch (err) {
+                        alert('Failed to send location. Please try calling the owner.');
+                      } finally {
                         setLocationSending(false);
                       }
-                    );
-                  }}
-                  disabled={locationSending}
-                  className="w-full py-4 px-6 rounded-full bg-[#1C1A17] hover:bg-[#2A2723] text-white font-semibold text-[15px] shadow-sm transition-transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0"
-                >
-                  <MapPin className="w-5 h-5 text-[#F6F1E7]" />
-                  {locationSending ? 'Sending Location...' : 'Send My Location'}
-                </button>
-              </div>
-
+                    },
+                    () => {
+                      alert('Unable to retrieve your location. Please check your device permissions.');
+                      setLocationSending(false);
+                    }
+                  );
+                }}
+                disabled={locationSending}
+                className="w-full h-16 flex items-center justify-center gap-3 bg-[var(--color-ink)] hover:bg-[#2A2723] text-[var(--color-bone)] font-semibold text-[15px] uppercase tracking-widest transition-colors disabled:opacity-70 focus:outline-none"
+              >
+                <MapPin className="w-5 h-5 opacity-80" />
+                {locationSending ? 'Transmitting...' : 'Send My Location'}
+              </button>
             </div>
+            
           </div>
         </div>
         
-        <div className="text-center mt-8 pb-8 text-[#63684B] text-[13px]">
-          Secured by SafePaws Identity Network
+        <div className="text-center mt-8 text-[var(--color-trail)] text-[12px] uppercase tracking-[0.2em] font-medium">
+          Secured by SafePaws
         </div>
       </main>
     </div>

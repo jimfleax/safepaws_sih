@@ -21,6 +21,15 @@ class PetBase(BaseModel):
     
     consent_given: bool = Field(default=False, description="User must explicitly give consent to store biometric data")
 
+    from pydantic import field_validator
+    
+    @field_validator("microchip_id", mode="before")
+    @classmethod
+    def empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
+
 class PetCreate(PetBase):
     pass
 

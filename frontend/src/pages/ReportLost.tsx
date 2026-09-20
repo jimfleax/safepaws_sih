@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { DashboardNav } from '../components/DashboardNav';
 import { usePetStore } from '../store/petStore';
-import { useNavigate } from 'react-router-dom';
-import { ShieldAlert, AlertTriangle } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ShieldAlert, AlertTriangle, ArrowLeft } from 'lucide-react';
 
 export default function ReportLost() {
   const { pets, triggerLostAlert } = usePetStore();
@@ -12,6 +12,8 @@ export default function ReportLost() {
   const [selectedPet, setSelectedPet] = useState(safePets.length > 0 ? safePets[0].id : '');
   const [lastSeen, setLastSeen] = useState('');
   const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +21,9 @@ export default function ReportLost() {
     
     const pet = pets.find(p => p.id === selectedPet);
     if (!pet) return;
+    
+    setIsSubmitting(true);
+    setError('');
     
     try {
       const { ApiClient } = await import('../utils/apiClient');
@@ -30,50 +35,71 @@ export default function ReportLost() {
       
       await usePetStore.getState().hydrate();
       navigate(`/alerts/${res.id}`);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to create alert:', err);
+      setError(err.message || 'Failed to trigger alert. Please try again.');
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
       <DashboardNav />
-      <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-8 md:pb-8 pb-28">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#0A0A0A]">Report Lost Pet</h1>
-          <p className="text-[#8A8175] mt-2">Trigger a community alert for your missing pet.</p>
-        </div>
+      <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-12 md:py-20 md:pb-12 pb-28">
+        <Link to="/lost" className="group inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors mb-12">
+          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          Back to Alerts
+        </Link>
         
-        <div 
-          className="p-6 rounded-2xl mb-8 flex gap-4" 
-          style={{ 
-            backgroundColor: 'color-mix(in srgb, var(--color-alert-clay) 10%, transparent)',
-            border: '2px solid var(--color-alert-clay)'
-          }}
-        >
-          <AlertTriangle size={24} style={{ color: 'var(--color-alert-clay)' }} className="shrink-0" />
+        <header className="mb-12 border-b border-[var(--color-ink)]/10 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4 text-[var(--color-ink)]">
+            Declare a Missing Pet
+          </h1>
+          <p className="text-xl text-[var(--color-ink-soft)] leading-relaxed max-w-2xl">
+            Trigger a community-wide emergency alert. We will notify nearby neighbors and active users immediately.
+          </p>
+        </header>
+
+        {error && (
+          <div className="mb-8 p-6 bg-[var(--color-alert-clay)]/10 border-l-4 border-[var(--color-alert-clay)] text-[var(--color-ink)] flex gap-4 animate-in fade-in">
+            <AlertTriangle size={24} className="text-[var(--color-alert-clay)] shrink-0" />
+            <p className="font-medium">{error}</p>
+          </div>
+        )}
+        
+        <div className="mb-12 p-6 border-l-4 border-[var(--color-alert-clay)] bg-white/50 animate-in fade-in duration-700 delay-150 fill-mode-both ease-out flex gap-5">
+          <ShieldAlert size={28} className="text-[var(--color-alert-clay)] shrink-0" />
           <div>
-            <h3 className="font-bold" style={{ color: 'var(--color-alert-clay)' }}>Emergency Alert</h3>
-            <p className="text-sm mt-1 text-[#0A0A0A]">This will immediately notify the community and display your pet on the lost pets board.</p>
+            <h3 className="text-lg font-bold text-[var(--color-alert-clay)] mb-1">Emergency Broadcast Active</h3>
+            <p className="text-base text-[var(--color-ink-soft)] leading-relaxed">
+              Upon submission, your pet's profile, including their biometric nose print, will be distributed to local users and digital recovery boards.
+            </p>
           </div>
         </div>
 
         {safePets.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 border border-[#E5E0D8] text-center">
-            <h3 className="text-xl font-bold text-[#0A0A0A] mb-2">No Safe Pets Available</h3>
-            <p className="text-[#8A8175]">You don't have any pets registered, or all your pets are already reported lost.</p>
+          <div className="py-16 border-t border-[var(--color-ink)]/10 text-center animate-in fade-in duration-700 delay-300 fill-mode-both ease-out">
+            <h3 className="text-2xl font-serif font-bold text-[var(--color-ink)] mb-3">No Registered Pets Available</h3>
+            <p className="text-[var(--color-ink-soft)] text-lg">
+              You don't have any pets registered, or all your pets are already reported lost.
+            </p>
+            <Link to="/dashboard" className="inline-block mt-6 px-6 py-3 bg-[var(--color-ink)] text-[var(--color-bone)] font-bold uppercase tracking-wider text-sm hover:bg-opacity-90">
+              Return to Dashboard
+            </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#E5E0D8] p-6 space-y-6">
-            <div>
-              <label htmlFor="pet-select" className="block text-sm font-semibold text-[#0A0A0A] mb-2">Select Pet</label>
+          <form onSubmit={handleSubmit} className="space-y-10 animate-in fade-in duration-700 delay-300 fill-mode-both ease-out max-w-3xl">
+            <div className="space-y-3">
+              <label htmlFor="pet-select" className="block text-sm font-bold uppercase tracking-widest text-[var(--color-ink)]">
+                1. Select Missing Pet
+              </label>
               <select 
                 id="pet-select"
                 value={selectedPet}
                 onChange={(e) => setSelectedPet(e.target.value)}
-                className="w-full px-4 py-3 bg-[#FAF6F0] border border-[#E5E0D8] rounded-xl focus:outline-none focus:ring-2"
-                style={{ '--tw-ring-color': 'var(--color-alert-clay)' } as React.CSSProperties}
+                className="w-full px-5 py-4 bg-transparent border-2 border-[var(--color-ink)]/20 text-lg focus:outline-none focus:border-[var(--color-alert-clay)] transition-colors appearance-none cursor-pointer"
                 required
+                disabled={isSubmitting}
               >
                 {safePets.map(pet => (
                   <option key={pet.id} value={pet.id}>{pet.name} ({pet.breed})</option>
@@ -81,42 +107,46 @@ export default function ReportLost() {
               </select>
             </div>
             
-            <div>
-              <label htmlFor="last-seen" className="block text-sm font-semibold text-[#0A0A0A] mb-2">Last Seen Location</label>
+            <div className="space-y-3">
+              <label htmlFor="last-seen" className="block text-sm font-bold uppercase tracking-widest text-[var(--color-ink)]">
+                2. Last Known Location
+              </label>
               <input
                 type="text"
                 id="last-seen"
                 value={lastSeen}
                 onChange={(e) => setLastSeen(e.target.value)}
                 placeholder="e.g. Central Park near 72nd St entrance"
-                className="w-full px-4 py-3 bg-[#FAF6F0] border border-[#E5E0D8] rounded-xl focus:outline-none focus:ring-2"
-                style={{ '--tw-ring-color': 'var(--color-alert-clay)' } as React.CSSProperties}
+                className="w-full px-5 py-4 bg-transparent border-2 border-[var(--color-ink)]/20 text-lg focus:outline-none focus:border-[var(--color-alert-clay)] transition-colors placeholder:text-[var(--color-ink)]/30"
                 required
+                disabled={isSubmitting}
               />
             </div>
             
-            <div>
-              <label htmlFor="description" className="block text-sm font-semibold text-[#0A0A0A] mb-2">Additional Details</label>
+            <div className="space-y-3">
+              <label htmlFor="description" className="block text-sm font-bold uppercase tracking-widest text-[var(--color-ink)]">
+                3. Critical Context & Details
+              </label>
               <textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Was wearing a red collar, gets scared easily by loud noises..."
-                rows={4}
-                className="w-full px-4 py-3 bg-[#FAF6F0] border border-[#E5E0D8] rounded-xl focus:outline-none focus:ring-2 resize-none"
-                style={{ '--tw-ring-color': 'var(--color-alert-clay)' } as React.CSSProperties}
+                placeholder="Describe collar color, behavior if approached, or direction headed..."
+                rows={5}
+                className="w-full px-5 py-4 bg-transparent border-2 border-[var(--color-ink)]/20 text-lg focus:outline-none focus:border-[var(--color-alert-clay)] transition-colors placeholder:text-[var(--color-ink)]/30 resize-none"
                 required
+                disabled={isSubmitting}
               ></textarea>
             </div>
             
-            <div className="pt-4">
+            <div className="pt-6 border-t border-[var(--color-ink)]/10">
               <button 
                 type="submit"
-                className="w-full py-4 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                style={{ backgroundColor: 'var(--color-alert-clay)', '--tw-ring-color': 'var(--color-alert-clay)' } as React.CSSProperties}
+                disabled={isSubmitting}
+                className="w-full md:w-auto px-10 py-5 bg-[var(--color-alert-clay)] text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-opacity-90 transition-all focus:outline-none focus:ring-4 focus:ring-[var(--color-alert-clay)]/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <ShieldAlert size={20} />
-                Trigger Alert Now
+                <ShieldAlert size={24} />
+                {isSubmitting ? 'Broadcasting Alert...' : 'Trigger Community Alert'}
               </button>
             </div>
           </form>

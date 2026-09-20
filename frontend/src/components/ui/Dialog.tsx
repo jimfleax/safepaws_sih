@@ -19,7 +19,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-[var(--animate-duration-dialog)]',
       className
     )}
     {...props}
@@ -37,7 +37,7 @@ const DialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          'relative w-full max-w-3xl bg-[#FAF6F0] rounded-[28px] border border-[#E9DCcb] shadow-2xl overflow-hidden pointer-events-auto my-auto max-h-[92vh] flex flex-col data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-top-[15px] data-[state=open]:slide-in-from-top-[15px]',
+          'relative w-full max-w-3xl bg-[var(--color-surface)] rounded-[var(--radius-28)] border border-[var(--color-border)] shadow-2xl overflow-hidden pointer-events-auto my-auto max-h-[92vh] flex flex-col data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-top-[15px] data-[state=open]:slide-in-from-top-[15px] duration-[var(--animate-duration-dialog)]',
           className
         )}
         {...props}
@@ -55,7 +55,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('font-serif text-xl sm:text-2xl text-[#241812] font-semibold', className)}
+    className={cn('text-[length:var(--text-section-heading)] text-[var(--color-ink)] font-serif font-semibold', className)}
     {...props}
   />
 ));
@@ -67,7 +67,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-xs text-[#6F5D52]', className)}
+    className={cn('text-[length:var(--text-metadata)] text-[var(--color-ink-soft)]', className)}
     {...props}
   />
 ));
@@ -80,7 +80,7 @@ const DialogClose = React.forwardRef<
   <DialogPrimitive.Close
     ref={ref}
     className={cn(
-      'p-2 rounded-full text-[#6E5A4D] hover:bg-[#E5D7C7] transition-colors cursor-pointer',
+      'p-2 rounded-full text-[var(--color-ink-soft)] hover:bg-[var(--color-bone)] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)]',
       className
     )}
     {...props}

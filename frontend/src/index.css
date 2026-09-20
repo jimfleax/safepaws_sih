@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* BASE COLORS */
+  /* BASE COLORS - STAGE 2 */
   --color-ink: #1C1A17;
   --color-bone: #F6F1E7;
   --color-marigold: #E2811F;
@@ -19,9 +19,9 @@
   --color-accent-hover: #C9721B;
   --color-accent-active: #B06317;
   --color-alert: var(--color-alert-clay);
-  --color-success: #3A6D4F;
-  --color-danger: var(--color-alert-clay);
-  --color-focus: rgba(226, 129, 31, 0.5);
+  --color-success: #4C7A52;
+  --color-danger: #D32F2F; /* distinct destructive red */
+  --color-focus: var(--color-marigold);
 
   /* TYPOGRAPHY */
   --font-serif: "Newsreader", Georgia, Cambria, serif;
@@ -30,22 +30,39 @@
   /* Typography Roles */
   --text-hero-display: 3.5rem;
   --text-hero-display--line-height: 1.1;
+  --text-hero-display--font-weight: 700;
+  
   --text-section-heading: 2.25rem;
   --text-section-heading--line-height: 1.2;
+  --text-section-heading--font-weight: 600;
+  
   --text-card-heading: 1.25rem;
   --text-card-heading--line-height: 1.3;
+  --text-card-heading--font-weight: 600;
+  
   --text-body-large: 1.125rem;
   --text-body-large--line-height: 1.5;
+  --text-body-large--font-weight: 400;
+  
   --text-body: 1rem;
   --text-body--line-height: 1.5;
+  --text-body--font-weight: 400;
+  
   --text-label-button: 0.875rem;
   --text-label-button--line-height: 1.25;
+  --text-label-button--font-weight: 500;
+  
   --text-metadata: 0.75rem;
   --text-metadata--line-height: 1.4;
+  --text-metadata--font-weight: 400;
+  
   --text-system-biometric: 0.75rem;
   --text-system-biometric--line-height: 1.2;
-  --text-error: 0.875rem;
-  --text-error--line-height: 1.4;
+  --text-system-biometric--font-family: monospace;
+  
+  --text-error-failure: 0.875rem;
+  --text-error-failure--line-height: 1.4;
+  --text-error-failure--font-weight: 500;
 
   /* GRID BREAKPOINTS */
   --breakpoint-mobile: 320px;
@@ -59,12 +76,12 @@
   --radius-24: 24px;
   --radius-28: 28px;
   --radius-9999: 9999px;
-  --radius-scan-frame: 24px; /* scan-frame primitive */
+  --radius-scan-frame: 24px;
 
   /* MOTION TOKENS */
-  --animate-duration-base: 200ms;
-  --animate-duration-smooth: 300ms;
-  --animate-duration-slow: 500ms;
+  --animate-duration-micro: 150ms;
+  --animate-duration-dialog: 300ms;
+  --animate-duration-page: 200ms;
 }
 
 @layer base {
@@ -88,30 +105,15 @@
     font-family: var(--font-serif);
   }
 
-  /* Custom cursor enabled universally across the entire app and all elements */
-  *,
-  *::before,
-  *::after {
-    cursor: none !important;
-  }
-
-  html,
-  body,
-  button,
-  a,
-  input,
-  textarea,
-  select,
-  label,
-  summary,
-  [role="button"],
-  [role="link"],
-  [role="tab"],
-  [tabindex],
-  .cursor-pointer,
-  .cursor-default,
-  .cursor-text {
-    cursor: none !important;
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 

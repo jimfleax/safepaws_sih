@@ -108,6 +108,18 @@ class Alert(Base):
     pet = relationship("Pet", backref="alerts")
     sightings = relationship("Sighting", back_populates="alert")
 
+    @property
+    def pet_name(self) -> str:
+        return self.pet.name if self.pet else "Unknown"
+        
+    @property
+    def breed(self) -> str:
+        return self.pet.breed if self.pet else "Unknown"
+        
+    @property
+    def photo_url(self) -> str:
+        return self.pet.photo_url if self.pet else ""
+
 class Sighting(Base):
     __tablename__ = 'sightings'
 

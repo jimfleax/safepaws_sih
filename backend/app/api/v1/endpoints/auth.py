@@ -73,8 +73,11 @@ async def google_login(request_data: GoogleLoginRequest, response: Response, db:
         secure=os.getenv("NODE_ENV") == "production"
     )
     
-    # We return the profileCompleted flag based on whether they have a real phone number
-    profile_completed = bool(owner.phone and owner.phone != "")
+    # We return the profileCompleted flag based on whether they have a real phone number and neighborhood
+    profile_completed = bool(
+        owner.phone and owner.phone.strip() != "" and 
+        owner.neighborhood and owner.neighborhood.strip() != ""
+    )
     
     return {
         "success": True,
@@ -89,7 +92,10 @@ async def google_login(request_data: GoogleLoginRequest, response: Response, db:
 
 @router.get("/me")
 async def get_current_session(current_owner: Owner = Depends(get_current_owner)):
-    profile_completed = bool(current_owner.phone and current_owner.phone != "")
+    profile_completed = bool(
+        current_owner.phone and current_owner.phone.strip() != "" and 
+        current_owner.neighborhood and current_owner.neighborhood.strip() != ""
+    )
     return {
         "id": current_owner.id,
         "name": current_owner.name,
