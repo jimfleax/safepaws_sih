@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 class SearchResultMatch(BaseModel):
     pet_id: str
+    qr_tag_id: Optional[str] = None
     confidence: float
 
 class SearchResponse(BaseModel):
