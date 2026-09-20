@@ -156,9 +156,9 @@ export default function LandingPage() {
         {/* 3. Features */}
         <div id="features">
           <FeaturesSection
-            onOpenBiometric={() => {}}
-            onOpenNetwork={() => {}}
-            onOpenQrTags={() => {}}
+            onOpenBiometric={() => navigate('/scan')}
+            onOpenNetwork={() => navigate('/community')}
+            onOpenQrTags={() => handleJoinClick()}
           />
         </div>
 
