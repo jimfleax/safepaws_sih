@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { ShieldAlert, ScanLine, List, LogOut, User } from 'lucide-react';
+import { ShieldAlert, ScanLine, List, LogOut, User, Users } from 'lucide-react';
 
 export const DashboardNav = () => {
   const { user, logout } = useAuthStore();
@@ -47,6 +47,16 @@ export const DashboardNav = () => {
           >
             <ShieldAlert size={20} />
             Alerts
+          </Link>
+
+          <Link 
+            to="/community"
+            className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium transition-colors text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] min-h-[44px] ${
+              isCurrent('/community') ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-sm' : 'text-[var(--color-ink-soft)] hover:bg-[#F3EFE9] hover:text-[var(--color-ink)]'
+            }`}
+          >
+            <Users size={20} />
+            Community
           </Link>
         </div>
 
