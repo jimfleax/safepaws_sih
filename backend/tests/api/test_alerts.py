@@ -58,7 +58,7 @@ def teardown_app_overrides():
 def test_owner_can_resolve_own_alert(client: TestClient):
     owner = Owner(id="owner_1")
     pet = Pet(id="pet_1", owner_id="owner_1", status="lost")
-    alert = Alert(id="alert_1", pet_id="pet_1", status="active", created_at=datetime.datetime.utcnow(), updated_at=datetime.datetime.utcnow())
+    alert = Alert(id="alert_1", pet_id="pet_1", status="active", created_at=datetime.datetime.utcnow())
     
     setup_app_overrides(owner, pet, alert)
     try:
@@ -71,7 +71,7 @@ def test_owner_can_resolve_own_alert(client: TestClient):
 def test_authenticated_non_owner_cannot_resolve_alert(client: TestClient):
     owner_imposter = Owner(id="owner_2")
     pet = Pet(id="pet_1", owner_id="owner_1", status="lost")
-    alert = Alert(id="alert_1", pet_id="pet_1", status="active", created_at=datetime.datetime.utcnow(), updated_at=datetime.datetime.utcnow())
+    alert = Alert(id="alert_1", pet_id="pet_1", status="active", created_at=datetime.datetime.utcnow())
     
     setup_app_overrides(owner_imposter, pet, alert)
     try:
@@ -82,7 +82,7 @@ def test_authenticated_non_owner_cannot_resolve_alert(client: TestClient):
 
 def test_anonymous_cannot_resolve_alert(client: TestClient):
     pet = Pet(id="pet_1", owner_id="owner_1", status="lost")
-    alert = Alert(id="alert_1", pet_id="pet_1", status="active", created_at=datetime.datetime.utcnow(), updated_at=datetime.datetime.utcnow())
+    alert = Alert(id="alert_1", pet_id="pet_1", status="active", created_at=datetime.datetime.utcnow())
 
     
     setup_app_overrides(None, pet, alert)
