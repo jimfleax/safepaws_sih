@@ -9,10 +9,17 @@ from app.schemas.alert import AlertCreate, AlertResponse
 router = APIRouter()
 
 @router.post("/", response_model=AlertResponse, status_code=status.HTTP_201_CREATED)
-async def create_alert(alert_in: AlertCreate, db: AsyncSession = Depends(get_db)):
+async def create_alert(
+    alert_in: AlertCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner)
+):
     pet = (await db.execute(select(Pet).where(Pet.id == alert_in.pet_id))).scalars().first()
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")
+        
+    if pet.owner_id != current_owner.id:
+        raise HTTPException(status_code=403, detail="Not authorized to create alert for this pet")
         
     pet.status = "lost"
     

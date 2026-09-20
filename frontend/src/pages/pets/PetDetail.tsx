@@ -20,6 +20,9 @@ export default function PetDetail() {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const [actionError, setActionError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
   useEffect(() => {
     async function loadPet() {
       if (!petId) return;
@@ -38,26 +41,30 @@ export default function PetDetail() {
   const handleDelete = async () => {
     if (!petId) return;
     try {
+      setActionError('');
       await ApiClient.deletePet(petId);
       navigate('/dashboard');
     } catch (e: any) {
-      alert(e.message || 'Failed to delete pet');
+      setActionError(e.message || 'Failed to delete pet');
+      setShowDeleteConfirm(false);
     }
   };
 
   const handleLostAlert = async () => {
     if (!petId) return;
     try {
+      setActionError('');
+      setSuccessMessage('');
       await ApiClient.createAlert({
         petId: petId,
         lastSeenAddress: pet?.neighborhood || 'Unknown location',
         description: `Lost pet: ${pet?.name}`,
       });
-      alert('Lost alert broadcasted successfully!');
+      setSuccessMessage('Lost alert broadcasted successfully!');
       const fetchedPet = await ApiClient.getPet(petId);
       setPet(fetchedPet);
     } catch (e: any) {
-      alert(e.message || 'Failed to create alert');
+      setActionError(e.message || 'Failed to create alert');
     }
   };
 

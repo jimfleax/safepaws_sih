@@ -11,35 +11,36 @@ export default function AlertDetail() {
   
   const alert = alerts.find(a => a.id === alertId);
   const alertSightings = sightings.filter(s => s.alertId === alertId);
-  
+  const [actionError, setActionError] = useState('');
+
   if (!alert) {
     return (
-      <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
-        <DashboardNav />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-3xl font-serif font-bold text-[var(--color-ink)]">Alert not found</h2>
-            <button onClick={() => navigate('/lost')} className="mt-6 text-[var(--color-alert-clay)] font-semibold uppercase tracking-wider text-sm hover:underline">
-              Return to Recovery Board
-            </button>
-          </div>
-        </main>
+      <div className="min-h-screen bg-[var(--color-bone)] flex items-center justify-center p-6">
+        <div className="bg-white p-8 max-w-md w-full text-center">
+          <AlertCircle className="text-[var(--color-alert-clay)] mx-auto mb-4" size={48} />
+          <h2 className="text-2xl font-serif mb-2">Alert Not Found</h2>
+          <p className="text-[var(--color-ink-soft)] mb-6">This alert may have been resolved or deleted.</p>
+          <button onClick={() => navigate('/lost')} className="text-white bg-[var(--color-ink)] px-6 py-2 rounded-full font-bold">
+            Back to Recovery Board
+          </button>
+        </div>
       </div>
     );
   }
 
+  const isOwner = pets.some(p => p.id === alert.petId);
+
   const handleResolve = async () => {
     try {
+      setActionError('');
       const { ApiClient } = await import('../utils/apiClient');
       await ApiClient.resolveAlert(alert.id);
       await usePetStore.getState().hydrate();
       navigate('/dashboard');
-    } catch (err) {
-      console.error('Failed to resolve alert', err);
+    } catch (err: any) {
+      setActionError(err.message || 'Failed to resolve alert');
     }
   };
-
-  const isOwner = pets.some(p => p.id === alert.petId);
 
   return (
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
