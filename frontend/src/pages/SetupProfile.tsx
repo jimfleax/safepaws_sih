@@ -146,7 +146,7 @@ export const SetupProfile: React.FC = () => {
               </p>
 
               {error && (
-                <div className="mb-6 p-4 rounded-[1rem] bg-[var(--color-danger-light)] text-[var(--color-danger)] text-sm font-medium">
+                <div className="mb-6 p-4 rounded-[1rem] bg-[var(--color-danger)]/10 text-[var(--color-danger)] text-sm font-medium">
                   {error}
                 </div>
               )}
