@@ -26,8 +26,8 @@ describe('Scan Page - States', () => {
 
   it('renders CameraView initially', async () => {
     renderWithRouter(<Scan />);
-    expect(screen.getByText(/Position nose within the frame/i)).toBeInTheDocument();
-    
+    expect(screen.getAllByText(/Position nose within the frame/i)[0]).toBeInTheDocument();
+
     // Check for the capture button
     const captureBtn = screen.getByLabelText(/Capture photo/i);
     expect(captureBtn).toBeInTheDocument();
