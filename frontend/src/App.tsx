@@ -67,7 +67,6 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <CustomCursor />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public / Marketing */}
