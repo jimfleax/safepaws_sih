@@ -148,10 +148,10 @@ export default function PublicTagProfile() {
 
             {/* Discoverable Actions (>=44px touch targets) */}
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-4">
                 <a
                   href={`tel:${pet.ownerPhone}`}
-                  className="flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-ink)] text-white font-bold tracking-wide transition-transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)] focus:ring-offset-2"
+                  className="flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-marigold)] hover:bg-[var(--color-accent-hover)] text-white font-bold tracking-wide uppercase transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)] focus:ring-offset-2 w-full"
                 >
                   <Phone size={20} />
                   Call Owner
@@ -177,7 +177,7 @@ export default function PublicTagProfile() {
                             notes: `Direct location ping from tag ID: ${pet.qrTagId}`,
                             alertId: activeAlert?.id
                           });
-                          setSuccessMessage('Location successfully securely transmitted to the owner!');
+                          setSuccessMessage('Location securely transmitted to the owner!');
                         } catch (err) {
                           setActionError('Failed to send location. Please try calling the owner.');
                         } finally {
@@ -191,10 +191,17 @@ export default function PublicTagProfile() {
                     );
                   }}
                   disabled={locationSending}
-                  className="flex items-center justify-center gap-3 px-6 py-4 bg-white text-[var(--color-ink)] font-bold tracking-wide border-2 border-[var(--color-ink)] transition-transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-trail)] hover:opacity-90 text-white font-bold tracking-wide uppercase transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-trail)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed w-full"
                 >
                   <MapPin size={20} />
-                  {locationSending ? 'Sending...' : 'Send Location Ping'}
+                  {locationSending ? 'Sending Location...' : 'Send My Location'}
+                </button>
+                
+                <button
+                  onClick={() => navigate('/sightings/new', { state: { petId: pet.id } })}
+                  className="mt-2 text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] font-semibold text-[13px] tracking-widest uppercase transition-colors underline underline-offset-4"
+                >
+                  File a detailed sighting report
                 </button>
               </div>
 
