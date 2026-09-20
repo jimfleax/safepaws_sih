@@ -38,7 +38,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
           <div className="absolute inset-0 bg-[var(--color-trail)]/20 blur-xl rounded-full"></div>
           <CheckCircle2 className="w-20 h-20 text-[var(--color-trail)] relative z-10 drop-shadow-[0_0_10px_var(--color-trail)]" />
         </div>
-        <h2 className="text-3xl font-serif font-bold text-white mb-2 tracking-wide">Match Found</h2>
+        <h2 className="text-3xl font-serif font-bold text-white mb-2 tracking-wide">Match Found!</h2>
         <p className="text-lg text-[var(--color-bone)]/70 mb-8 max-w-md font-light">
           We found a decisive match for <strong className="text-white font-medium">{pet.name}</strong>.
         </p>
