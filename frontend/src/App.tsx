@@ -46,8 +46,8 @@ const DashboardRoute = ({ children }: { children: React.ReactNode }) => {
 
 // A fallback loader for Suspense boundaries
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-[#FAF6F0]">
-    <div className="w-8 h-8 border-4 border-[#DE6828] border-t-transparent rounded-full animate-spin"></div>
+  <div className="min-h-screen flex items-center justify-center bg-[var(--color-bone)]">
+    <div className="w-8 h-8 border-4 border-[var(--color-marigold)] border-t-transparent rounded-full animate-spin"></div>
   </div>
 );
 
@@ -103,3 +103,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+

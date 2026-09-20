@@ -316,7 +316,7 @@ export default function NewPet() {
                         {/* Clean Scanning Indicator */}
                         {isScanning && (
                           <div className="absolute inset-0 bg-[var(--color-marigold)]/10 flex flex-col items-center justify-center">
-                            <div className="absolute top-0 left-0 right-0 h-1 bg-[var(--color-marigold)] shadow-[0_0_20px_#E2811F] animate-scan" />
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-[var(--color-marigold)] shadow-[0_0_20px_var(--color-marigold)] animate-scan" />
                           </div>
                         )}
 
@@ -438,4 +438,5 @@ export default function NewPet() {
     </div>
   );
 }
+
 
