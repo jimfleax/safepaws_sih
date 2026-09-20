@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { usePetStore } from './store/petStore';
-import { CustomCursor } from './components/CustomCursor';
+
 
 // Lazy loaded routes for chunk splitting
 const LandingPage = lazy(() => import('./pages/LandingPage'));
