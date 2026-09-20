@@ -27,27 +27,18 @@ export default function ReportSighting() {
     setError('');
     
     try {
-      await ApiClient.reportSighting({
+      const serverSighting = await ApiClient.reportSighting({
         reporterName,
         location: sightingLocation,
         notes,
         alertId: alertId || undefined
       });
       
-      const newSighting = {
-        id: `sighting-${Date.now()}`,
-        alertId: alertId || `unassigned-${Date.now()}`,
-        reporterName,
-        location: sightingLocation,
-        time: 'Just now',
-        notes,
-        confirmed: false
-      };
+      // Hydrate the store so it has the latest sightings from the server
+      await usePetStore.getState().hydrate();
       
-      addSighting(newSighting);
-      
-      if (alertId) {
-        navigate(`/alerts/${alertId}`);
+      if (serverSighting.alert_id) {
+        navigate(`/alerts/${serverSighting.alert_id}`);
       } else {
         navigate('/community');
       }
