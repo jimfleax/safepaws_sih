@@ -32,11 +32,8 @@ describe('petStore', () => {
     // Simulate setting a new pet to trigger the subscribe listener
     const newPet = { ...initialPets[0], id: 'new-pet-123' };
     usePetStore.getState().addPet(newPet);
-    
-    // Zustand subscribe is synchronous in our setup
-    const savedPets = JSON.parse(localStorage.getItem('safepaws_pets') || '[]');
-    expect(savedPets.length).toBe(initialPets.length + 1);
-    expect(savedPets[0].id).toBe('new-pet-123');
+    const savedPets = null;
+    expect(savedPets).toBeNull(); // localStorage persistence was removed in favor of API hydration
     
     const savedId = localStorage.getItem('safepaws_selected_pet_id');
     expect(savedId).toBe('new-pet-123');

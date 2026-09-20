@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/safepaws"
     DEBUG: bool = True
     FAISS_INDEX_PATH: str = "faiss_index.bin"
-    EMBEDDING_DIMENSION: int = 128
+    EMBEDDING_DIMENSION: int = 1280
 
     # Biometric Decision Thresholds
     # PROVISIONAL: These values (0.85/0.70) are strictly uncalibrated placeholders for M0 development.

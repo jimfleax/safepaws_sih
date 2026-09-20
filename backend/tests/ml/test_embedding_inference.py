@@ -218,6 +218,8 @@ class TestScaffoldModeInference:
 # Production mode: checkpoint failure cases
 # ---------------------------------------------------------------------------
 
+
+
 class TestProductionModeCheckpoints:
     def test_missing_checkpoint_raises(self):
         cfg = EmbeddingModelConfig(
@@ -288,7 +290,6 @@ class TestProductionModeCheckpoints:
         assert exc.value.error_code == "CHECKPOINT_BACKBONE_MISMATCH"
 
     def test_matching_metadata_proceeds_to_load_attempt(self, tmp_path):
-        """With matching metadata, it should NOT raise checkpoint errors — only model load error."""
         weights = tmp_path / "model.pt"
         weights.write_bytes(b"fake_weights")
         meta = tmp_path / "checkpoint.json"
@@ -300,6 +301,9 @@ class TestProductionModeCheckpoints:
             model_weights_path=str(weights),
             checkpoint_metadata_path=str(meta),
         )
-        # Should get NotImplementedError (real loader not yet implemented), not a checkpoint error
-        with pytest.raises(NotImplementedError):
+        # We need to catch DomainException with MODEL_LOAD_FAILURE here instead of NotImplementedError
+        # because the implementation attempts to load 'fake_weights' which fails as an invalid key.
+        with pytest.raises(DomainException) as exc:
             BiometricEmbeddingModel(config=cfg)
+        assert exc.value.error_code == "MODEL_LOAD_FAILURE"
+

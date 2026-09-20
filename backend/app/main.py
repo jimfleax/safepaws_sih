@@ -63,4 +63,15 @@ async def os_error_handler(request, exc):
     # Re-raise standard OSError
     raise exc
 
+import os
+from fastapi.staticfiles import StaticFiles
+
+# Ensure static/images exists so mount doesn't fail
+os.makedirs("static/images", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+from app.api.v1.endpoints import auth, users
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(users.router, prefix="/api/users", tags=["users"])

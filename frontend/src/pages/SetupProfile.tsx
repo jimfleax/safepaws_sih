@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { apiFetch } from '../lib/api';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, Phone, ArrowRight } from 'lucide-react';
 
 export const SetupProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -12,13 +12,9 @@ export const SetupProfile: React.FC = () => {
   const [neighborhood, setNeighborhood] = useState('');
   const [loading, setLoading] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-    } catch (e) {
-      console.error('Logout failed:', e);
-    }
+  const handleLogout = () => {
     logout();
   };
 
@@ -36,27 +32,20 @@ export const SetupProfile: React.FC = () => {
         try {
           const { latitude, longitude } = position.coords;
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-          const data = await res.json();
-          
-          if (data && data.address) {
-            // Try to get a meaningful neighborhood/locality string
-            const addr = data.address;
-            const placeName = addr.neighbourhood || addr.suburb || addr.city_district || addr.city || addr.town || addr.village || '';
-            if (placeName) {
-              setNeighborhood(placeName);
-            }
+          if (res.ok) {
+            const data = await res.json();
+            setNeighborhood(data.address?.suburb || data.address?.neighbourhood || data.address?.city || '');
           }
-        } catch (error) {
-          console.error("Failed to fetch address:", error);
+        } catch (e) {
+          console.error('Failed to reverse geocode', e);
         } finally {
-          setLocationLoading(false);
           setStep(2);
+          setLocationLoading(false);
         }
       },
-      (error) => {
-        console.error("Location error:", error);
+      () => {
+        setStep(2);
         setLocationLoading(false);
-        setStep(2); // Proceed anyway if location denied
       }
     );
   };
@@ -65,106 +54,145 @@ export const SetupProfile: React.FC = () => {
     e.preventDefault();
     if (!phone || !neighborhood) return;
     setLoading(true);
+    setError(null);
 
     try {
-      const res = await apiFetch('/users/profile', {
+      const response = await fetch('/api/users/profile', {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, neighborhood }),
+        credentials: 'include'
       });
-
-      if (res.ok) {
-        setProfileCompleted(true);
-        navigate('/');
-      } else {
-        console.error('Failed to update profile');
+      
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
       }
+      
+      const updatedUser = await response.json();
+      
+      useAuthStore.getState().updateProfile({ 
+        phone: updatedUser.phone, 
+        neighborhood: updatedUser.neighborhood 
+      });
+      navigate('/pets/new');
     } catch (err) {
       console.error(err);
+      setError('Failed to save profile. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FAF6F0] text-[#241812]">
-      <div className="p-8 bg-white rounded-2xl shadow-xl max-w-md w-full relative z-10">
-        <button 
-          onClick={handleLogout} 
-          className="absolute top-4 right-4 text-sm font-medium text-red-600 hover:text-red-700 cursor-pointer"
-        >
-          Logout
-        </button>
-        {step === 1 ? (
-          <div className="text-center">
-            <div className="w-16 h-16 bg-[#FDF8F5] rounded-full flex items-center justify-center mx-auto mb-6">
-              <MapPin className="w-8 h-8 text-[#DE6828]" />
-            </div>
-            <h1 className="text-2xl font-bold mb-4">Set Your Location</h1>
-            <p className="mb-8 text-[#6B5E55]">
-              We need your location to show you pets missing and found in your neighborhood.
-            </p>
-            
-            <button 
-              onClick={requestLocation}
-              disabled={locationLoading}
-              className="w-full flex items-center justify-center gap-2 py-3 mb-3 bg-[#DE6828] text-white rounded-xl font-medium hover:bg-[#C95A20] transition-colors disabled:opacity-50 cursor-pointer"
-            >
-              {locationLoading ? (
-                'Getting Location...'
-              ) : (
-                <>
-                  <Navigation className="w-5 h-5" />
-                  Grant Location Access
-                </>
-              )}
-            </button>
-            <button 
-              onClick={() => setStep(2)}
-              disabled={locationLoading}
-              className="w-full py-3 text-[#6B5E55] hover:text-[#241812] transition-colors font-medium disabled:opacity-50 cursor-pointer"
-            >
-              Skip for now
-            </button>
-          </div>
-        ) : (
-          <div>
-            <h1 className="text-2xl font-bold mb-4">Setup Your Profile</h1>
-            <p className="mb-6 text-[#6B5E55]">Please provide your contact details to help coordinate pet rescues in your neighborhood.</p>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Phone Number *</label>
-                <input 
-                  type="tel" 
-                  required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-2 border border-[#E8DEC8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DE6828]" 
-                  placeholder="+1 (555) 000-0000"
-                />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#F6F1E7] text-[#1C1A17] p-6 relative overflow-hidden">
+      
+      {/* Decorative background element */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#E2811F]/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#4C7A52]/5 rounded-full blur-[120px] pointer-events-none" />
+
+      <header className="absolute top-8 left-8">
+        <div className="font-serif text-[24px] tracking-tight font-bold text-[#E2811F]">SafePaws</div>
+      </header>
+      
+      <button 
+        onClick={handleLogout} 
+        className="absolute top-8 right-8 text-[13px] font-bold tracking-wider uppercase text-[#63684B] hover:text-[#1C1A17] transition-colors"
+      >
+        Sign Out
+      </button>
+
+      <div className="w-full max-w-[440px]">
+        
+        {/* Progress indicator */}
+        <div className="flex items-center gap-2 mb-8 px-4">
+          <div className={`h-1 flex-1 rounded-full transition-colors duration-300 ${step >= 1 ? 'bg-[#1C1A17]' : 'bg-[#E5E0D8]'}`} />
+          <div className={`h-1 flex-1 rounded-full transition-colors duration-300 ${step >= 2 ? 'bg-[#1C1A17]' : 'bg-[#E5E0D8]'}`} />
+        </div>
+
+        <div className="bg-white rounded-[2rem] p-10 sm:p-12 shadow-[0_8px_30px_rgba(28,26,23,0.04)] border border-[#E5E0D8] relative z-10 text-center">
+          
+          {step === 1 ? (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="w-20 h-20 bg-[#F6F1E7] rounded-full flex items-center justify-center mx-auto mb-8">
+                <Navigation className="w-8 h-8 text-[#E2811F]" />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Neighborhood *</label>
-                <input 
-                  type="text" 
-                  required
-                  value={neighborhood}
-                  onChange={(e) => setNeighborhood(e.target.value)}
-                  className="w-full px-4 py-2 border border-[#E8DEC8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DE6828]" 
-                  placeholder="e.g. Oakridge Park"
-                />
-              </div>
+              <h1 className="font-serif text-[36px] leading-tight text-[#1C1A17] mb-4">Set Location</h1>
+              <p className="text-[#63684B] text-[15px] leading-relaxed mb-10 max-w-sm mx-auto">
+                SafePaws relies on local community alerts. We need your neighborhood to accurately map sightings and broadcast alerts.
+              </p>
               
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="w-full py-3 mt-4 bg-[#DE6828] text-white rounded-xl font-medium hover:bg-[#C95A20] transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                {loading ? 'Saving...' : 'Complete Profile'}
-              </button>
-            </form>
-          </div>
-        )}
+              <div className="space-y-4">
+                <button 
+                  onClick={requestLocation}
+                  disabled={locationLoading}
+                  className="w-full flex items-center justify-center gap-2 py-4 bg-[#E2811F] hover:bg-[#CA721A] text-white rounded-full font-semibold text-[15px] transition-all hover:-translate-y-0.5 shadow-[0_4px_14px_rgba(226,129,31,0.25)] disabled:opacity-70 disabled:hover:translate-y-0"
+                >
+                  {locationLoading ? 'Locating...' : 'Enable Auto-Location'}
+                </button>
+                <button 
+                  onClick={() => setStep(2)}
+                  disabled={locationLoading}
+                  className="w-full py-4 text-[#63684B] hover:text-[#1C1A17] transition-colors font-semibold text-[15px] disabled:opacity-50"
+                >
+                  Enter manually instead
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="animate-in fade-in slide-in-from-right-8 duration-500 text-left">
+              <h1 className="font-serif text-[36px] leading-tight text-[#1C1A17] mb-3 text-center">Contact Info</h1>
+              <p className="text-[#63684B] text-[15px] mb-8 leading-relaxed">
+                Provide your emergency contact details so the community can reach you instantly.
+              </p>
+
+              {error && (
+                <div className="mb-6 p-4 rounded-[1rem] bg-[var(--color-danger-light)] text-[var(--color-danger)] text-sm font-medium">
+                  {error}
+                </div>
+              )}
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-[12px] font-bold text-[#63684B] uppercase tracking-[0.12em] mb-2 flex items-center gap-2">
+                    <Phone size={14} /> Phone Number *
+                  </label>
+                  <input 
+                    type="tel" 
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full px-5 py-4 border border-[#E5E0D8] bg-[#F6F1E7] text-[#1C1A17] text-[15px] rounded-[1rem] focus:outline-none focus:ring-2 focus:ring-[#E2811F] transition-all" 
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-bold text-[#63684B] uppercase tracking-[0.12em] mb-2 flex items-center gap-2">
+                    <MapPin size={14} /> Neighborhood *
+                  </label>
+                  <input 
+                    type="text" 
+                    required
+                    value={neighborhood}
+                    onChange={(e) => setNeighborhood(e.target.value)}
+                    className="w-full px-5 py-4 border border-[#E5E0D8] bg-[#F6F1E7] text-[#1C1A17] text-[15px] rounded-[1rem] focus:outline-none focus:ring-2 focus:ring-[#E2811F] transition-all" 
+                    placeholder="e.g. Oakridge Park"
+                  />
+                </div>
+                
+                <div className="pt-4">
+                  <button 
+                    type="submit" 
+                    disabled={loading}
+                    className="group w-full flex items-center justify-center gap-2 py-4 bg-[#1C1A17] hover:bg-[#2A2723] text-white rounded-full font-semibold text-[15px] shadow-sm transition-transform hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0"
+                  >
+                    {loading ? 'Saving...' : 'Complete Profile'}
+                    {!loading && <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

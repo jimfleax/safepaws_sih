@@ -3,7 +3,7 @@ from app.schemas.pet import PetCreate, PetResponse
 from typing import Dict, Any
 
 from app.services.registration_service import RegistrationService
-from app.api.dependencies import get_registration_service, get_db
+from app.api.dependencies import get_registration_service, get_db, get_current_owner
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.models import Pet, Owner
@@ -30,6 +30,7 @@ def validate_image(file: UploadFile):
 async def register_pet(
     pet_in: PetCreate,
     service: RegistrationService = Depends(get_registration_service),
+    current_owner: Owner = Depends(get_current_owner),
 ):
     """
     Register a new pet profile.
@@ -41,7 +42,7 @@ async def register_pet(
             detail="Owner consent (consent_given=true) is required to register a pet profile."
         )
 
-    return await service.register_pet(pet_in)
+    return await service.register_pet(pet_in, current_owner=current_owner)
 
 
 @router.post("/{pet_id}/enroll-image", status_code=status.HTTP_200_OK)
@@ -62,6 +63,42 @@ async def enroll_image(
         content_type=file.content_type,
     )
 
+
+@router.get("/tag/{qr_tag_id}", response_model=PetResponse)
+async def get_pet_by_tag(
+    qr_tag_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get a public-safe pet profile by QR tag ID.
+    """
+    from sqlalchemy.orm import selectinload
+    stmt = select(Pet).options(selectinload(Pet.owner), selectinload(Pet.photos)).where(Pet.qr_tag_id == qr_tag_id)
+    result = await db.execute(stmt)
+    pet = result.scalars().first()
+    
+    if not pet:
+        raise HTTPException(status_code=404, detail="Pet not found")
+        
+    return PetResponse(
+        id=pet.id,
+        name=pet.name,
+        species=pet.species,
+        breed=pet.breed,
+        color=pet.color,
+        age=pet.age,
+        weight=pet.weight,
+        owner_name=pet.owner_name,
+        owner_phone=pet.owner_phone,
+        neighborhood=pet.neighborhood,
+        medical_notes=pet.medical_notes,
+        distinctive_features=pet.distinctive_features,
+        microchip_id=pet.microchip_id,
+        consent_given=True,
+        photo_url=pet.photo_url,
+        status=pet.status,
+        qr_tag_id=pet.qr_tag_id or ""
+    )
 
 @router.get("/{pet_id}", response_model=PetResponse)
 async def get_pet(
