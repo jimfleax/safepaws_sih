@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "dimensions": [
+    {"id": "visual_hierarchy", "name": "Visual Hierarchy", "default_weight": 10, "floor": false},
+    {"id": "composition", "name": "Composition", "default_weight": 10, "floor": false},
+    {"id": "typography", "name": "Typography", "default_weight": 10, "floor": false},
+    {"id": "spacing_rhythm", "name": "Spacing/Rhythm", "default_weight": 10, "floor": false},
+    {"id": "ux_usability", "name": "UX/Usability", "default_weight": 10, "floor": false},
+    {"id": "interaction", "name": "Interaction", "default_weight": 10, "floor": false},
+    {"id": "motion", "name": "Motion", "default_weight": 5, "floor": false},
+    {"id": "responsive_design", "name": "Responsive Design", "default_weight": 10, "floor": false},
+    {"id": "accessibility", "name": "Accessibility", "default_weight": 10, "floor": true, "floor_note": "May be reweighted upward, never meaningfully downward. BLOCKER failures here override total score regardless of weight."},
+    {"id": "performance", "name": "Performance", "default_weight": 5, "floor": true, "floor_note": "Same floor logic as accessibility."},
+    {"id": "brand_expression", "name": "Brand Expression", "default_weight": 5, "floor": false},
+    {"id": "content_clarity", "name": "Content Clarity", "default_weight": 5, "floor": false}
+  ],
+  "context_profiles": {
+    "default": {"description": "General-purpose page, no strong surface-type signal"},
+    "dashboard": {"playbook": "playbooks/dashboard.md", "reweight": {"ux_usability": 15, "visual_hierarchy": 13, "motion": 3, "brand_expression": 3, "composition": 7, "typography": 8, "spacing_rhythm": 8, "interaction": 10, "responsive_design": 10, "accessibility": 10, "performance": 8, "content_clarity": 5}},
+    "portfolio": {"playbook": "playbooks/portfolio.md", "reweight": {"composition": 15, "typography": 15, "brand_expression": 15, "motion": 10, "accessibility": 10, "performance": 5, "visual_hierarchy": 10, "spacing_rhythm": 8, "ux_usability": 5, "interaction": 5, "responsive_design": 7, "content_clarity": 5}},
+    "agency": {"playbook": "playbooks/agency.md", "reweight": {"composition": 13, "typography": 12, "brand_expression": 13, "motion": 8, "accessibility": 10, "visual_hierarchy": 10, "ux_usability": 8, "interaction": 8, "responsive_design": 8, "performance": 5, "spacing_rhythm": 5, "content_clarity": 5}},
+    "ecommerce": {"playbook": "playbooks/ecommerce.md", "reweight": {"ux_usability": 15, "content_clarity": 10, "motion": 3, "accessibility": 10, "performance": 8, "visual_hierarchy": 8, "composition": 7, "typography": 7, "spacing_rhythm": 7, "interaction": 10, "responsive_design": 12, "brand_expression": 3}},
+    "editorial": {"playbook": "playbooks/editorial.md", "reweight": {"typography": 18, "spacing_rhythm": 13, "motion": 3, "accessibility": 10, "ux_usability": 8, "visual_hierarchy": 8, "composition": 8, "interaction": 5, "responsive_design": 10, "performance": 7, "brand_expression": 5, "content_clarity": 5}},
+    "fintech": {"playbook": "playbooks/fintech.md", "reweight": {"accessibility": 15, "ux_usability": 15, "content_clarity": 10, "motion": 2, "interaction": 10, "responsive_design": 10, "visual_hierarchy": 8, "composition": 5, "typography": 8, "spacing_rhythm": 7, "performance": 5, "brand_expression": 5}},
+    "saas_landing": {"playbook": "playbooks/saas-landing.md", "reweight": {"ux_usability": 12, "content_clarity": 8, "brand_expression": 8, "visual_hierarchy": 11, "composition": 9, "typography": 9, "spacing_rhythm": 8, "interaction": 8, "motion": 5, "responsive_design": 10, "accessibility": 10, "performance": 5}},
+    "creative_experiment": {"playbook": "playbooks/creative-experiment.md", "reweight": {"composition": 16, "brand_expression": 16, "motion": 12, "typography": 12, "accessibility": 8, "ux_usability": 4, "visual_hierarchy": 10, "spacing_rhythm": 6, "interaction": 8, "responsive_design": 4, "performance": 4, "content_clarity": 2, "note": "Accessibility floor still applies but this profile explicitly permits disclosed, conscious tradeoffs per principles/22-creative-web.md; performance/responsive floors are similarly context-adjusted, never removed, only weighted differently against evaluation."}}
+  },
+  "notes": "Reweight profiles are additive guidance derived from research/synthesis and playbooks, not hard-coded law -- an agent should state which profile it used and why, and may blend profiles for hybrid surfaces (e.g. an AI product landing page blending saas_landing and creative_experiment)."
+}
