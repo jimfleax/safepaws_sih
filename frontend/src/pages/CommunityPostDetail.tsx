@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { DashboardNav } from '../components/DashboardNav';
 import { useAuthStore } from '../store/authStore';
+import { ApiClient } from '../utils/apiClient';
 import { ArrowLeft, MessageSquare, Flag, Clock } from 'lucide-react';
 
 type Reply = {
@@ -39,16 +40,12 @@ export default function CommunityPostDetail() {
       try {
         setLoading(true);
         // Try real API first
-        const pRes = await fetch(`/api/v1/community/posts/${postId}`);
-        if (!pRes.ok) throw new Error('Network fallback');
-        
-        const pData = await pRes.json();
+        if (!postId) throw new Error('No post ID');
+        const pData = await ApiClient.getCommunityPost(postId);
         setPost(pData);
         
-        const rRes = await fetch(`/api/v1/community/posts/${postId}/replies`);
-        if (rRes.ok) {
-          setReplies(await rRes.json());
-        }
+        const rData = await ApiClient.getCommunityReplies(postId);
+        setReplies(rData);
       } catch (err) {
         // Fallback for UI visualization if API isn't fully seeded
         setPost({
@@ -71,20 +68,11 @@ export default function CommunityPostDetail() {
 
   const handleReply = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!replyContent.trim() || !isAuthenticated) return;
+    if (!replyContent.trim() || !isAuthenticated || !postId) return;
     
     try {
-      const res = await fetch(`/api/v1/community/posts/${postId}/replies`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: replyContent }),
-      });
-      if (res.ok) {
-        const created = await res.json();
-        setReplies(prev => [...prev, created]);
-      } else {
-        throw new Error();
-      }
+      const created = await ApiClient.createCommunityReply(postId, replyContent);
+      setReplies(prev => [...prev, created]);
     } catch {
       // Optimistic
       setReplies(prev => [...prev, {
@@ -100,11 +88,7 @@ export default function CommunityPostDetail() {
 
   const handleReport = async (reason: string, targetId: string, type: 'post' | 'reply') => {
     try {
-      await fetch('/api/v1/community/reports', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: type === 'post' ? targetId : undefined, reason }),
-      });
+      await ApiClient.reportContent(reason, type === 'post' ? targetId : undefined, type === 'reply' ? targetId : undefined);
     } finally {
       if (type === 'post') {
         setReportedPost(true);
@@ -245,7 +229,15 @@ export default function CommunityPostDetail() {
                             {new Date(reply.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-                        <button className="text-[var(--color-ink-soft)] hover:text-[var(--color-alert-clay)] transition-colors" title="Report reply">
+                        <button 
+                          onClick={() => {
+                            if (window.confirm("Flag this reply for moderation?")) {
+                              handleReport('inappropriate', reply.id, 'reply');
+                            }
+                          }}
+                          className="text-[var(--color-ink-soft)] hover:text-[var(--color-alert-clay)] transition-colors" 
+                          title="Report reply"
+                        >
                           <Flag size={12} />
                         </button>
                       </div>
