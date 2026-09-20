@@ -95,14 +95,124 @@ class PetBiometricEnrollment(Base):
     pet = relationship("Pet", back_populates="biometric_enrollments")
     photo = relationship("PetPhoto", back_populates="enrollment")
 
+class Alert(Base):
+    __tablename__ = 'alerts'
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    pet_id = Column(String, ForeignKey("pets.id"), nullable=False)
+    status = Column(String, default="active", nullable=False)
+    last_seen_address = Column(String, nullable=True)
+    description = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    pet = relationship("Pet", backref="alerts")
+    sightings = relationship("Sighting", back_populates="alert")
+
+    @property
+    def pet_name(self) -> str:
+        return self.pet.name if self.pet else "Unknown"
+        
+    @property
+    def breed(self) -> str:
+        return self.pet.breed if self.pet else "Unknown"
+        
+    @property
+    def photo_url(self) -> str:
+        return self.pet.photo_url if self.pet else ""
+
 class Sighting(Base):
     __tablename__ = 'sightings'
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    alert_id = Column(String, nullable=True, index=True)
+    alert_id = Column(String, ForeignKey("alerts.id"), nullable=True, index=True)
     reporter_name = Column(String, nullable=False)
     location = Column(String, nullable=False)
     location_geom = Column(Geography(geometry_type='POINT', srid=4326), nullable=True)
     notes = Column(String, nullable=True)
     time = Column(DateTime, default=datetime.utcnow)
     confirmed = Column(Boolean, default=False)
+
+    alert = relationship("Alert", back_populates="sightings")
+
+class CommunityPost(Base):
+    __tablename__ = 'community_posts'
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    author_id = Column(String, ForeignKey("owners.id"), nullable=False)
+    channel = Column(String, nullable=False) # e.g. "Lost & Found", "Sightings", "Local Alerts"
+    title = Column(String, nullable=False)
+    content = Column(String, nullable=False)
+    associated_alert_id = Column(String, ForeignKey("alerts.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    author = relationship("Owner", backref="community_posts")
+    alert = relationship("Alert", backref="community_posts")
+    replies = relationship("CommunityReply", back_populates="post")
+    reports = relationship("Report", back_populates="post")
+
+class CommunityReply(Base):
+    __tablename__ = 'community_replies'
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    post_id = Column(String, ForeignKey("community_posts.id"), nullable=False)
+    author_id = Column(String, ForeignKey("owners.id"), nullable=False)
+    content = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    post = relationship("CommunityPost", back_populates="replies")
+    author = relationship("Owner", backref="community_replies")
+    reports = relationship("Report", back_populates="reply")
+
+class Report(Base):
+    __tablename__ = 'reports'
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    reporter_id = Column(String, ForeignKey("owners.id"), nullable=False)
+    post_id = Column(String, ForeignKey("community_posts.id"), nullable=True)
+    reply_id = Column(String, ForeignKey("community_replies.id"), nullable=True)
+    reason = Column(String, nullable=False) # e.g. spam, harassment, scam, inappropriate, misinformation
+    status = Column(String, default="pending") # pending, reviewed, resolved, dismissed
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    reporter = relationship("Owner", backref="reports_submitted")
+    post = relationship("CommunityPost", back_populates="reports")
+    reply = relationship("CommunityReply", back_populates="reports")
+
+class Notification(Base):
+    __tablename__ = 'notifications'
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    user_id = Column(String, ForeignKey("owners.id"), nullable=False)
+    type = Column(String, nullable=False) # e.g. new_sighting, reply, system
+    title = Column(String, nullable=False)
+    content = Column(String, nullable=False)
+    read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("Owner", backref="notifications")
+
+class CommunityPreference(Base):
+    __tablename__ = 'community_preferences'
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    user_id = Column(String, ForeignKey("owners.id"), nullable=False, unique=True)
+    interests = Column(ARRAY(String), default=list) # e.g. ["Lost & Found", "Rescue"]
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    user = relationship("Owner", backref="community_preference")
+
+class RecoveryTask(Base):
+    __tablename__ = 'recovery_tasks'
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    alert_id = Column(String, ForeignKey("alerts.id"), nullable=False)
+    assignee_id = Column(String, ForeignKey("owners.id"), nullable=True)
+    task_type = Column(String, nullable=False) # e.g. put_up_flyers, search_area
+    description = Column(String, nullable=False)
+    status = Column(String, default="open") # open, assigned, completed
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    alert = relationship("Alert", backref="recovery_tasks")
+    assignee = relationship("Owner", backref="assigned_tasks")
+

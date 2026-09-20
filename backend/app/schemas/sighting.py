@@ -1,5 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
+from datetime import datetime
 
 class SightingBase(BaseModel):
     reporter_name: str
@@ -7,12 +8,12 @@ class SightingBase(BaseModel):
     notes: Optional[str] = None
 
 class SightingCreate(SightingBase):
-    pass
+    alert_id: Optional[str] = None
 
 class SightingResponse(SightingBase):
     id: str
     alert_id: Optional[str] = None
-    time: str
+    time: datetime
     confirmed: bool
     
     model_config = ConfigDict(from_attributes=True)

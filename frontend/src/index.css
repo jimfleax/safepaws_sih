@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme {
+  /* BASE COLORS - STAGE 2 */
+  --color-ink: #1C1A17;
+  --color-bone: #F6F1E7;
+  --color-marigold: #E2811F;
+  --color-trail: #63684B;
+  --color-alert-clay: #B3452F;
+  --color-ink-soft: #8A8175;
+
+  /* SEMANTIC COLORS */
+  --color-background: var(--color-bone);
+  --color-background-crisis: var(--color-ink);
+  --color-surface: #FFFFFF;
+  --color-surface-raised: rgba(255, 255, 255, 0.8);
+  --color-border: #E5E0D8;
+  --color-accent: var(--color-marigold);
+  --color-accent-hover: #C9721B;
+  --color-accent-active: #B06317;
+  --color-alert: var(--color-alert-clay);
+  --color-success: #4C7A52;
+  --color-danger: #D32F2F; /* distinct destructive red */
+  --color-focus: var(--color-marigold);
+
+  /* TYPOGRAPHY */
+  --font-serif: "Newsreader", Georgia, Cambria, serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Typography Roles */
+  --text-hero-display: 3.5rem;
+  --text-hero-display--line-height: 1.1;
+  --text-hero-display--font-weight: 700;
+  
+  --text-section-heading: 2.25rem;
+  --text-section-heading--line-height: 1.2;
+  --text-section-heading--font-weight: 600;
+  
+  --text-card-heading: 1.25rem;
+  --text-card-heading--line-height: 1.3;
+  --text-card-heading--font-weight: 600;
+  
+  --text-body-large: 1.125rem;
+  --text-body-large--line-height: 1.5;
+  --text-body-large--font-weight: 400;
+  
+  --text-body: 1rem;
+  --text-body--line-height: 1.5;
+  --text-body--font-weight: 400;
+  
+  --text-label-button: 0.875rem;
+  --text-label-button--line-height: 1.25;
+  --text-label-button--font-weight: 500;
+  
+  --text-metadata: 0.75rem;
+  --text-metadata--line-height: 1.4;
+  --text-metadata--font-weight: 400;
+  
+  --text-system-biometric: 0.75rem;
+  --text-system-biometric--line-height: 1.2;
+  --text-system-biometric--font-family: monospace;
+  
+  --text-error-failure: 0.875rem;
+  --text-error-failure--line-height: 1.4;
+  --text-error-failure--font-weight: 500;
+
+  /* GRID BREAKPOINTS */
+  --breakpoint-mobile: 320px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-large-desktop: 1440px;
+
+  /* RADIUS */
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-24: 24px;
+  --radius-28: 28px;
+  --radius-9999: 9999px;
+  --radius-scan-frame: 24px;
+
+  /* MOTION TOKENS */
+  --animate-duration-micro: 150ms;
+  --animate-duration-dialog: 300ms;
+  --animate-duration-page: 200ms;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-ink);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Hide native cursor on pointer devices so custom cursor is used instead */
+  @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    *, *::before, *::after {
+      cursor: none !important;
+    }
+  }
+
+  h1, h2, h3, .font-serif, .font-editorial {
+    font-family: var(--font-serif);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Custom subtle animations */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    background-position: 100% center;
+  }
+  50% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 100% center;
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 28s linear infinite;
+}
+
+.animate-spin-reverse-slow {
+  animation: spin-slow 36s linear infinite reverse;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 4s ease-in-out infinite;
+}
