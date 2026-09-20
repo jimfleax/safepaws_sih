@@ -111,6 +111,20 @@ export default function PetDetail() {
           Dashboard
         </button>
 
+        {actionError && (
+          <div className="mb-8 p-4 bg-[var(--color-alert-clay)]/10 border border-[var(--color-alert-clay)]/30 rounded text-[var(--color-alert-clay)] font-semibold flex items-start gap-3">
+            <AlertCircle size={20} className="shrink-0 mt-0.5" />
+            <span>{actionError}</span>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="mb-8 p-4 bg-[#63684B]/10 border border-[#63684B]/30 rounded text-[#63684B] font-semibold flex items-start gap-3">
+            <ShieldCheck size={20} className="shrink-0 mt-0.5" />
+            <span>{successMessage}</span>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row gap-12 lg:gap-20">
           
           {/* LEFT COLUMN: Photo & Identity */}

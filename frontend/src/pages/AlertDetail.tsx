@@ -51,6 +51,13 @@ export default function AlertDetail() {
           Back to Alerts
         </Link>
         
+        {actionError && (
+          <div className="mb-6 p-4 bg-[var(--color-alert-clay)]/10 border border-[var(--color-alert-clay)]/30 rounded text-[var(--color-alert-clay)] font-semibold flex items-start gap-3">
+            <AlertCircle size={20} className="shrink-0 mt-0.5" />
+            <span>{actionError}</span>
+          </div>
+        )}
+
         {alert.status === 'active' && (
           <div className="mb-16 border-l-4 border-[var(--color-alert-clay)] pl-6 py-2 animate-in fade-in slide-in-from-left-4 duration-700 ease-out flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
