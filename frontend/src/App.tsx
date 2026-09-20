@@ -88,6 +88,8 @@ export default function App() {
           
           {/* Public Community & Recovery */}
           <Route path="/community" element={<Community />} />
+          <Route path="/community/post/:postId" element={<CommunityPostDetail />} />
+          <Route path="/community/onboarding" element={<DashboardRoute><CommunityOnboarding /></DashboardRoute>} />
           <Route path="/lost" element={<LostDogs />} />
           <Route path="/alerts/:alertId" element={<AlertDetail />} />
           <Route path="/sightings/new" element={<ReportSighting />} />
