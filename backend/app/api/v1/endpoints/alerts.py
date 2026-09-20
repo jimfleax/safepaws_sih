@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from app.api.dependencies import get_db
-from app.db.models import Alert, Pet
+from app.api.dependencies import get_db, get_current_owner
+from app.db.models import Alert, Pet, Owner
 from app.schemas.alert import AlertCreate, AlertResponse
 
 router = APIRouter()
@@ -39,17 +39,25 @@ async def get_alert(alert_id: str, db: AsyncSession = Depends(get_db)):
     return alert
 
 @router.put("/{alert_id}/resolve", response_model=AlertResponse)
-async def resolve_alert(alert_id: str, db: AsyncSession = Depends(get_db)):
+async def resolve_alert(
+    alert_id: str, 
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner)
+):
     stmt = select(Alert).options(selectinload(Alert.sightings), selectinload(Alert.pet)).where(Alert.id == alert_id)
     alert = (await db.execute(stmt)).scalars().first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
         
-    alert.status = "resolved"
-    
     pet = (await db.execute(select(Pet).where(Pet.id == alert.pet_id))).scalars().first()
-    if pet:
-        pet.status = "safe"
+    if not pet:
+        raise HTTPException(status_code=404, detail="Pet not found")
+
+    if pet.owner_id != current_owner.id:
+        raise HTTPException(status_code=403, detail="Not authorized to resolve this alert")
+        
+    alert.status = "resolved"
+    pet.status = "safe"
         
     await db.commit()
     await db.refresh(alert)
