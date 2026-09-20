@@ -83,32 +83,42 @@ export const HowItWorksSection: React.FC = () => {
           </h2>
         </div>
 
-        {/* Cards */}
-        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          {steps.map(({ icon: Icon, number, title, body }) => (
+        {/* Sequential Steps */}
+        <div ref={cardsRef} className="flex flex-col gap-12 sm:gap-16 max-w-4xl">
+          {steps.map(({ icon: Icon, number, title, body }, index) => (
             <div
               key={number}
-              className="group flex flex-col p-7 sm:p-8 bg-[#F6F1E7] rounded-3xl border border-[#EDE4D8] transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-[#DDD0BE]"
+              className="group flex flex-col md:flex-row md:items-start gap-6 md:gap-12"
             >
-              {/* Step number + icon row */}
-              <div className="flex items-center justify-between mb-8">
-                <span className="font-serif text-[#8A8175] text-[14px] font-normal">
+              {/* Number and Icon column */}
+              <div className="flex items-center md:flex-col md:items-start gap-4 md:w-32 shrink-0">
+                <span className="font-serif text-[#1C1A17] text-[32px] sm:text-[48px] leading-none">
                   {number}
                 </span>
-                <div className="w-12 h-12 rounded-2xl bg-[#E2811F]/10 text-[#E2811F] flex items-center justify-center transition-colors group-hover:bg-[#E2811F]/16">
-                  <Icon className="w-6 h-6 stroke-[1.5]" />
+                <div className="hidden md:flex w-12 h-12 rounded-full bg-[#F6F1E7] text-[#1C1A17] items-center justify-center transition-transform group-hover:scale-110">
+                  <Icon className="w-5 h-5 stroke-[1.5]" />
                 </div>
               </div>
 
-              {/* Thin rule */}
-              <div className="w-full h-px bg-[#EDE4D8] mb-6" />
-
-              <h3 className="font-sans font-semibold text-[18px] text-[#1C1A17] mb-3 leading-snug">
-                {title}
-              </h3>
-              <p className="text-[#55463D] text-[15px] leading-relaxed flex-1">
-                {body}
-              </p>
+              {/* Text column */}
+              <div className="flex-1 border-t border-[#1C1A17] pt-6 mt-2 md:mt-0 md:border-t-0 md:border-l md:pl-10 md:pt-0">
+                <div className="flex items-center gap-3 md:hidden mb-4">
+                  <div className="w-10 h-10 rounded-full bg-[#F6F1E7] text-[#1C1A17] flex items-center justify-center">
+                    <Icon className="w-4 h-4 stroke-[1.5]" />
+                  </div>
+                  <h3 className="font-sans font-semibold text-[20px] text-[#1C1A17]">
+                    {title}
+                  </h3>
+                </div>
+                
+                <h3 className="hidden md:block font-sans font-semibold text-[24px] text-[#1C1A17] mb-4">
+                  {title}
+                </h3>
+                
+                <p className="text-[#55463D] text-[16px] sm:text-[18px] leading-relaxed">
+                  {body}
+                </p>
+              </div>
             </div>
           ))}
         </div>
