@@ -13,6 +13,8 @@ export default function PublicTagProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [locationSending, setLocationSending] = useState(false);
+  const [actionError, setActionError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     async function fetchTag() {
@@ -146,51 +148,67 @@ export default function PublicTagProfile() {
 
             {/* Discoverable Actions (>=44px touch targets) */}
             <div className="space-y-4">
-              <a
-                href={`tel:${pet.ownerPhone}`}
-                className="w-full h-16 flex items-center justify-center gap-3 bg-[var(--color-marigold)] hover:bg-[var(--color-accent-hover)] text-white font-semibold text-[15px] uppercase tracking-widest transition-colors focus:outline-none"
-              >
-                <Phone className="w-5 h-5" />
-                Call Owner
-              </a>
-              
-              <button
-                onClick={async () => {
-                  if (!navigator.geolocation) {
-                    alert('Geolocation is not supported by your browser.');
-                    return;
-                  }
-                  setLocationSending(true);
-                  navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                      try {
-                        const { latitude, longitude } = position.coords;
-                        const activeAlert = usePetStore.getState().alerts.find(a => a.petId === pet.id && a.status === 'active');
-                        await ApiClient.reportSighting({
-                          reporterName: 'Anonymous Finder (Tag Scan)',
-                          location: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
-                          notes: `Direct location ping from tag ID: ${pet.qrTagId}`,
-                          alertId: activeAlert?.id
-                        });
-                        alert('Location successfully securely transmitted to the owner!');
-                      } catch (err) {
-                        alert('Failed to send location. Please try calling the owner.');
-                      } finally {
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a
+                  href={`tel:${pet.ownerPhone}`}
+                  className="flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-ink)] text-white font-bold tracking-wide transition-transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)] focus:ring-offset-2"
+                >
+                  <Phone size={20} />
+                  Call Owner
+                </a>
+                
+                <button
+                  onClick={async () => {
+                    setActionError('');
+                    setSuccessMessage('');
+                    if (!navigator.geolocation) {
+                      setActionError('Geolocation is not supported by your browser.');
+                      return;
+                    }
+                    setLocationSending(true);
+                    navigator.geolocation.getCurrentPosition(
+                      async (position) => {
+                        try {
+                          const { latitude, longitude } = position.coords;
+                          const activeAlert = usePetStore.getState().alerts.find(a => a.petId === pet.id && a.status === 'active');
+                          await ApiClient.reportSighting({
+                            reporterName: 'Anonymous Finder (Tag Scan)',
+                            location: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+                            notes: `Direct location ping from tag ID: ${pet.qrTagId}`,
+                            alertId: activeAlert?.id
+                          });
+                          setSuccessMessage('Location successfully securely transmitted to the owner!');
+                        } catch (err) {
+                          setActionError('Failed to send location. Please try calling the owner.');
+                        } finally {
+                          setLocationSending(false);
+                        }
+                      },
+                      () => {
+                        setActionError('Unable to retrieve your location. Please check your device permissions.');
                         setLocationSending(false);
                       }
-                    },
-                    () => {
-                      alert('Unable to retrieve your location. Please check your device permissions.');
-                      setLocationSending(false);
-                    }
-                  );
-                }}
-                disabled={locationSending}
-                className="w-full h-16 flex items-center justify-center gap-3 bg-[var(--color-ink)] hover:bg-[#2A2723] text-[var(--color-bone)] font-semibold text-[15px] uppercase tracking-widest transition-colors disabled:opacity-70 focus:outline-none"
-              >
-                <MapPin className="w-5 h-5 opacity-80" />
-                {locationSending ? 'Transmitting...' : 'Send My Location'}
-              </button>
+                    );
+                  }}
+                  disabled={locationSending}
+                  className="flex items-center justify-center gap-3 px-6 py-4 bg-white text-[var(--color-ink)] font-bold tracking-wide border-2 border-[var(--color-ink)] transition-transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <MapPin size={20} />
+                  {locationSending ? 'Sending...' : 'Send Location Ping'}
+                </button>
+              </div>
+
+              {actionError && (
+                <div className="p-4 bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] text-sm text-center font-medium">
+                  {actionError}
+                </div>
+              )}
+
+              {successMessage && (
+                <div className="p-4 bg-emerald-50 text-emerald-800 text-sm text-center font-medium">
+                  {successMessage}
+                </div>
+              )}
             </div>
             
           </div>
