@@ -7,12 +7,7 @@ export const DashboardNav = () => {
   const { user, logout } = useAuthStore();
   const location = useLocation();
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-    } catch (e) {
-      console.error('Logout failed:', e);
-    }
+  const handleLogout = () => {
     logout();
   };
 

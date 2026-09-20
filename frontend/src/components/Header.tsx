@@ -79,17 +79,8 @@ export const Header: React.FC<HeaderProps> = ({
   });
 
   const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { 
-        method: 'POST', 
-        credentials: 'include' 
-      });
-    } catch (err) {
-      console.error('Logout API failed', err);
-    } finally {
-      logout();
-      navigate('/');
-    }
+    await logout();
+    navigate('/');
   };
 
   const navItems = [

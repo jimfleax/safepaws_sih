@@ -8,6 +8,7 @@ import { Pet } from '../../types';
 import { ApiClient } from '../../utils/apiClient';
 import { DashboardNav } from '../../components/DashboardNav';
 import { QrTagModal } from '../../components/modals/QrTagModal';
+import { usePetStore } from '../../store/petStore';
 
 export default function PetDetail() {
   const { petId } = useParams<{ petId: string }>();
@@ -43,6 +44,7 @@ export default function PetDetail() {
     try {
       setActionError('');
       await ApiClient.deletePet(petId);
+      await usePetStore.getState().hydrate();
       navigate('/dashboard');
     } catch (e: any) {
       setActionError(e.message || 'Failed to delete pet');
@@ -63,6 +65,7 @@ export default function PetDetail() {
       setSuccessMessage('Lost alert broadcasted successfully!');
       const fetchedPet = await ApiClient.getPet(petId);
       setPet(fetchedPet);
+      await usePetStore.getState().hydrate();
     } catch (e: any) {
       setActionError(e.message || 'Failed to create alert');
     }
