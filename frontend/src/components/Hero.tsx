@@ -131,8 +131,8 @@ export const Hero: React.FC<HeroProps> = ({
             ref={headingRef}
             className="font-serif text-[42px] sm:text-[56px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] text-[#1C1A17] font-normal"
           >
-            A community safety net{' '}
-            <em className="not-italic text-[#E2811F]">for your pet.</em>
+            Your dog's nose is their{' '}
+            <em className="not-italic text-[#E2811F]">return ticket.</em>
           </h1>
 
           {/* Body */}
@@ -140,9 +140,7 @@ export const Hero: React.FC<HeroProps> = ({
             ref={bodyRef}
             className="mt-6 sm:mt-7 text-[16px] sm:text-[18px] leading-[1.7] text-[#55463D] max-w-[480px]"
           >
-            Every dog's nose print is unique. Use it to protect them. Join our
-            neighborhood-powered recovery network to ensure every lost companion
-            finds their way home.
+            Like a human fingerprint, every dog's nose has a unique pattern of ridges and creases. SafePaws uses advanced biometrics to turn a simple smartphone photo of their nose into an unlosable identity.
           </p>
 
           {/* CTAs */}
@@ -152,15 +150,15 @@ export const Hero: React.FC<HeroProps> = ({
           >
             <button
               onClick={onIdentifyClick}
-              className="group relative w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-[#E2811F] text-white font-semibold text-[15px] shadow-[0_6px_22px_rgba(226,129,31,0.35)] transition-all duration-200 hover:bg-[#CA721A] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(226,129,31,0.4)] active:translate-y-0 active:bg-[#B06317] cursor-none"
+              className="group relative w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-[#1C1A17] text-white font-semibold text-[14px] tracking-wide uppercase transition-colors duration-200 hover:bg-[#3A352F] cursor-none"
               aria-label="Scan a found dog's nose to identify them"
             >
               <Camera className="w-5 h-5 flex-shrink-0" />
-              <span>SCAN A DOG</span>
+              <span>SCAN A FOUND DOG</span>
             </button>
             <button
               onClick={onJoinClick}
-              className="group w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-white hover:bg-[#FDF9F5] active:bg-[#F2EAE1] text-[#1C1A17] font-semibold text-[15px] shadow-sm border border-[#E4D5C5] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-none"
+              className="group w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-transparent text-[#1C1A17] font-semibold text-[14px] tracking-wide uppercase border border-[#1C1A17] transition-colors duration-200 hover:bg-[#1C1A17] hover:text-white cursor-none"
               aria-label="Register your pet with SafePaws"
             >
               <Plus className="w-5 h-5 flex-shrink-0" />

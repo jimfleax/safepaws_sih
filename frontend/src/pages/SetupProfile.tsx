@@ -21,7 +21,7 @@ export const SetupProfile: React.FC = () => {
   const requestLocation = () => {
     setLocationLoading(true);
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser');
+      setError('Geolocation is not supported by your browser');
       setStep(2);
       setLocationLoading(false);
       return;

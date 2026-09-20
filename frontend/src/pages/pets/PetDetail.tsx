@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, QrCode, AlertCircle, Trash2, 
-  MapPin, Phone, ShieldCheck, Heart
+  MapPin, Phone, ShieldCheck, Heart, Info
 } from 'lucide-react';
 import { Pet } from '../../types';
 import { ApiClient } from '../../utils/apiClient';
 import { DashboardNav } from '../../components/DashboardNav';
 import { QrTagModal } from '../../components/modals/QrTagModal';
+import { usePetStore } from '../../store/petStore';
 
 export default function PetDetail() {
   const { petId } = useParams<{ petId: string }>();
@@ -19,6 +20,9 @@ export default function PetDetail() {
 
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const [actionError, setActionError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     async function loadPet() {
@@ -38,36 +42,41 @@ export default function PetDetail() {
   const handleDelete = async () => {
     if (!petId) return;
     try {
+      setActionError('');
       await ApiClient.deletePet(petId);
+      await usePetStore.getState().hydrate();
       navigate('/dashboard');
     } catch (e: any) {
-      alert(e.message || 'Failed to delete pet');
+      setActionError(e.message || 'Failed to delete pet');
+      setShowDeleteConfirm(false);
     }
   };
 
   const handleLostAlert = async () => {
     if (!petId) return;
     try {
+      setActionError('');
+      setSuccessMessage('');
       await ApiClient.createAlert({
         petId: petId,
         lastSeenAddress: pet?.neighborhood || 'Unknown location',
         description: `Lost pet: ${pet?.name}`,
       });
-      alert('Lost alert broadcasted successfully!');
-      // reload pet to reflect status change
+      setSuccessMessage('Lost alert broadcasted successfully!');
       const fetchedPet = await ApiClient.getPet(petId);
       setPet(fetchedPet);
+      await usePetStore.getState().hydrate();
     } catch (e: any) {
-      alert(e.message || 'Failed to create alert');
+      setActionError(e.message || 'Failed to create alert');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F6F1E7]">
+      <div className="min-h-screen bg-[var(--color-bone)] flex flex-col">
         <DashboardNav />
-        <div className="max-w-3xl mx-auto px-6 py-20 text-center text-[#63684B]">
-          Loading pet details...
+        <div className="flex-1 flex items-center justify-center text-[var(--color-trail)]">
+          Loading identity record...
         </div>
       </div>
     );
@@ -75,13 +84,13 @@ export default function PetDetail() {
 
   if (!pet) {
     return (
-      <div className="min-h-screen bg-[#F6F1E7]">
+      <div className="min-h-screen bg-[var(--color-bone)] flex flex-col">
         <DashboardNav />
-        <div className="max-w-3xl mx-auto px-6 py-20 text-center">
-          <h2 className="text-2xl font-serif text-[#1C1A17] mb-4">{error || 'Pet not found'}</h2>
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <h2 className="text-3xl font-serif text-[var(--color-ink)] mb-4">{error || 'Pet not found'}</h2>
           <button 
             onClick={() => navigate('/dashboard')}
-            className="text-[#E2811F] hover:text-[#C9721B] font-medium transition-colors"
+            className="text-[var(--color-marigold)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors"
           >
             Return to Dashboard
           </button>
@@ -93,217 +102,188 @@ export default function PetDetail() {
   const isSafe = pet.status === 'safe';
 
   return (
-    <div className="min-h-screen bg-[#F6F1E7] pb-32">
+    <div className="min-h-screen bg-[var(--color-bone)] pb-32">
       <DashboardNav />
       
-      <main className="max-w-[1040px] mx-auto px-6 lg:px-8 py-8 lg:py-12">
+      <main className="max-w-[1100px] mx-auto px-6 lg:px-8 py-8 lg:py-12">
         <button 
           onClick={() => navigate('/dashboard')}
-          className="group inline-flex items-center gap-2 text-[#63684B] hover:text-[#1C1A17] mb-8 transition-colors"
+          className="group inline-flex items-center gap-2 text-[var(--color-trail)] hover:text-[var(--color-ink)] mb-8 lg:mb-12 transition-colors font-medium text-sm tracking-wide uppercase"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          <span className="text-[14px] font-medium tracking-wide">BACK TO DASHBOARD</span>
+          Dashboard
         </button>
 
-        <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgba(28,26,23,0.04)] border border-[#E5E0D8] overflow-hidden">
+        {actionError && (
+          <div className="mb-8 p-4 bg-[var(--color-alert-clay)]/10 border border-[var(--color-alert-clay)]/30 rounded text-[var(--color-alert-clay)] font-semibold flex items-start gap-3">
+            <AlertCircle size={20} className="shrink-0 mt-0.5" />
+            <span>{actionError}</span>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="mb-8 p-4 bg-[#63684B]/10 border border-[#63684B]/30 rounded text-[#63684B] font-semibold flex items-start gap-3">
+            <ShieldCheck size={20} className="shrink-0 mt-0.5" />
+            <span>{successMessage}</span>
+          </div>
+        )}
+
+        <div className="flex flex-col md:flex-row gap-12 lg:gap-20">
           
-          {/* Top Section: Photo & Core Details */}
-          <div className="flex flex-col md:flex-row">
+          {/* LEFT COLUMN: Photo & Identity */}
+          <div className="w-full md:w-1/2 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both">
             
-            {/* Image Column */}
-            <div className="w-full md:w-[45%] lg:w-[40%] relative bg-[#E5E0D8]">
-              <div className="absolute inset-0 z-10 pointer-events-none"
-                style={{
-                  background: 'linear-gradient(to bottom, rgba(28,26,23,0.2) 0%, transparent 25%, transparent 75%, rgba(28,26,23,0.4) 100%)',
-                }}
-              />
+            <div className="relative w-full aspect-[4/5] bg-[var(--color-border)] overflow-hidden rounded-sm mb-8">
               <img
                 src={pet.photoUrl}
                 alt={pet.name}
-                className="w-full h-[60vh] md:h-full object-cover"
+                className="w-full h-full object-cover grayscale-[0.2]"
                 referrerPolicy="no-referrer"
               />
-              
-              {/* Status Badge */}
-              <div className="absolute top-6 left-6 z-20">
-                <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold uppercase tracking-[0.08em] text-white shadow-md backdrop-blur-md ${
-                  isSafe ? 'bg-[#4C7A52]/90' : 'bg-[#B3452F]/90'
-                }`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${isSafe ? 'bg-[#A3D9B0]' : 'bg-[#FFB4A3]'}`} />
-                  {isSafe ? 'Safe at Home' : 'Lost Alert Active'}
-                </span>
-              </div>
-            </div>
-
-            {/* Core Details Column */}
-            <div className="w-full md:w-[55%] lg:w-[60%] p-8 sm:p-10 lg:p-12 flex flex-col justify-between bg-white">
-              <div>
-                <div className="flex justify-between items-start gap-4 mb-4">
-                  <h1 className="font-serif text-[42px] sm:text-[52px] leading-[1.05] tracking-[-0.02em] text-[#1C1A17]">
-                    {pet.name}
-                  </h1>
-                  <button
-                    onClick={() => setIsQrModalOpen(true)}
-                    className="flex-shrink-0 p-3 bg-[#F6F1E7] hover:bg-[#E5E0D8] text-[#E2811F] rounded-full transition-colors"
-                    title="View QR Tag"
-                    aria-label="View QR Tag"
-                  >
-                    <QrCode className="w-6 h-6" />
-                  </button>
-                </div>
-                
-                <p className="text-[#63684B] text-[18px] leading-relaxed mb-8">
-                  {pet.breed} {pet.color ? `· ${pet.color}` : ''}
-                </p>
-                
-                {/* Badges */}
-                <div className="flex flex-wrap gap-3 mb-10">
-                  <div className="flex items-center gap-2 px-4 py-2 bg-[#F6F1E7] rounded-full text-[13px] text-[#1C1A17] font-medium border border-[#E5E0D8]">
-                    <ShieldCheck className="w-4 h-4 text-[#4C7A52]" />
-                    <span>Verified Identity</span>
-                  </div>
-                  {pet.microchipId && (
-                    <div className="flex items-center gap-2 px-4 py-2 bg-[#F6F1E7] rounded-full text-[13px] text-[#1C1A17] font-medium border border-[#E5E0D8]">
-                      <Heart className="w-4 h-4 text-[#E2811F]" />
-                      <span>Microchipped</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Single Restrained Nose-Print Identity Treatment */}
-              <div className="p-6 bg-[#F6F1E7] rounded-[1.5rem] border border-[#E5E0D8] flex items-center gap-5 transition-shadow hover:shadow-sm">
-                <div className="relative w-16 h-16 rounded-[1rem] overflow-hidden border border-[#E2811F]/30 bg-white">
-                  <img src={pet.photoUrl} alt="Nose print biometric" className="w-full h-full object-cover filter grayscale opacity-90" />
-                  <div className="absolute inset-0 bg-[#E2811F]/5 mix-blend-overlay" />
-                  <div className="absolute inset-0 ring-1 ring-inset ring-[#1C1A17]/10 rounded-[1rem]" />
-                </div>
-                <div>
-                  <div className="text-[11px] font-bold text-[#63684B] uppercase tracking-[0.12em] mb-1">Biometric Record</div>
-                  <div className="text-[14px] font-mono text-[#1C1A17] font-medium tracking-tight mb-0.5">{pet.qrTagId}-BIO</div>
-                  <div className="text-[12px] text-[#63684B]">Nose-print securely linked to tag</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full h-px bg-[#E5E0D8]" />
-
-          {/* Bottom Section: Details & Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-            
-            {/* Information Grid */}
-            <div className="p-8 sm:p-10 lg:p-12 md:border-r border-[#E5E0D8] space-y-10">
-              
-              <div>
-                <h3 className="text-[12px] font-bold text-[#63684B] uppercase tracking-[0.12em] mb-4 flex items-center gap-2">
-                  <span className="w-3 h-px bg-[#63684B]" />
-                  Basic Info
-                </h3>
-                <div className="grid grid-cols-2 gap-4 text-[15px] text-[#1C1A17]">
-                  <div>
-                    <span className="block text-[#63684B] text-[13px] mb-1">Age</span>
-                    {pet.age || 'Unknown'}
-                  </div>
-                  <div>
-                    <span className="block text-[#63684B] text-[13px] mb-1">Weight</span>
-                    {pet.weight || 'Unknown'}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-[12px] font-bold text-[#63684B] uppercase tracking-[0.12em] mb-4 flex items-center gap-2">
-                  <span className="w-3 h-px bg-[#63684B]" />
-                  Distinctive Features
-                </h3>
-                {pet.distinctiveFeatures?.length > 0 ? (
-                  <ul className="space-y-2 text-[15px] text-[#1C1A17]">
-                    {pet.distinctiveFeatures.map((f, i) => (
-                      <li key={i} className="flex gap-2">
-                        <span className="text-[#E2811F]">•</span> {f}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-[#63684B] text-[15px] italic">No distinctive features recorded.</p>
-                )}
-              </div>
-
-              {pet.medicalNotes && (
-                <div>
-                  <h3 className="text-[12px] font-bold text-[#63684B] uppercase tracking-[0.12em] mb-4 flex items-center gap-2">
-                    <span className="w-3 h-px bg-[#63684B]" />
-                    Medical Notes
-                  </h3>
-                  <p className="text-[15px] text-[#1C1A17] leading-relaxed bg-[#F6F1E7]/50 p-4 rounded-xl border border-[#E5E0D8]">
-                    {pet.medicalNotes}
-                  </p>
+              {!isSafe && (
+                <div className="absolute top-6 left-6 z-20">
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[var(--color-alert-clay)] text-white text-[11px] font-bold uppercase tracking-widest">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse" />
+                    Lost Alert Active
+                  </span>
                 </div>
               )}
             </div>
 
-            {/* Recovery & Actions */}
-            <div className="p-8 sm:p-10 lg:p-12 space-y-10 bg-[#FAF8F5]">
-              
-              <div>
-                <h3 className="text-[12px] font-bold text-[#63684B] uppercase tracking-[0.12em] mb-5 flex items-center gap-2">
-                  <span className="w-3 h-px bg-[#63684B]" />
-                  Recovery Contact
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4">
-                    <div className="mt-0.5 p-2 bg-white rounded-lg border border-[#E5E0D8]">
-                      <Phone className="w-4 h-4 text-[#E2811F]" />
-                    </div>
-                    <div>
-                      <div className="text-[13px] text-[#63684B] mb-0.5">Primary Contact</div>
-                      <div className="text-[15px] font-medium text-[#1C1A17]">{pet.ownerPhone || 'Not provided'}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="mt-0.5 p-2 bg-white rounded-lg border border-[#E5E0D8]">
-                      <MapPin className="w-4 h-4 text-[#E2811F]" />
-                    </div>
-                    <div>
-                      <div className="text-[13px] text-[#63684B] mb-0.5">Neighborhood</div>
-                      <div className="text-[15px] font-medium text-[#1C1A17]">{pet.neighborhood || 'Not provided'}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="space-y-3 pt-6 border-t border-[#E5E0D8]">
-                {isSafe && (
-                  <button
-                    onClick={handleLostAlert}
-                    className="w-full py-4 px-6 rounded-full bg-[#B3452F] hover:bg-[#9A3926] active:bg-[#7D2E1E] text-white font-semibold text-[15px] shadow-[0_4px_14px_rgba(179,69,47,0.3)] transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
-                  >
-                    <AlertCircle className="w-5 h-5" />
-                    Report Pet as Lost
-                  </button>
-                )}
+            <div>
+              <div className="flex justify-between items-end gap-4 mb-2">
+                <h1 className="font-serif text-[48px] lg:text-[64px] leading-[0.9] tracking-[-0.03em] text-[var(--color-ink)]">
+                  {pet.name}
+                </h1>
                 <button
                   onClick={() => setIsQrModalOpen(true)}
-                  className="w-full py-4 px-6 rounded-full bg-white border border-[#E5E0D8] hover:bg-[#F6F1E7] text-[#1C1A17] font-semibold text-[15px] shadow-sm transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
+                  className="mb-1 p-2 text-[var(--color-trail)] hover:text-[var(--color-marigold)] transition-colors"
+                  title="View QR Tag"
+                  aria-label="View QR Tag"
                 >
-                  <QrCode className="w-5 h-5 text-[#E2811F]" />
-                  View Smart Tag
+                  <QrCode className="w-6 h-6" />
                 </button>
-                
-                <div className="pt-6 text-center">
-                  <button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="inline-flex items-center gap-2 text-[#B3452F] hover:text-[#9A3926] text-[14px] font-medium transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Remove Pet Profile
-                  </button>
+              </div>
+              
+              <p className="text-[var(--color-trail)] text-[16px] lg:text-[18px] font-serif italic mb-8">
+                {pet.breed} {pet.color ? `· ${pet.color}` : ''}
+              </p>
+
+              {/* Physical Nose-print Treatment */}
+              <div className="group flex items-center gap-5 p-5 bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-ink-soft)] transition-colors cursor-default">
+                <div className="relative w-16 h-16 bg-[var(--color-bone)] overflow-hidden mix-blend-multiply group-hover:scale-[1.02] transition-transform duration-300">
+                  <img 
+                    src={pet.photoUrl} 
+                    alt="Nose print biometric" 
+                    className="w-full h-full object-cover filter contrast-[1.2] grayscale opacity-80 mix-blend-darken" 
+                  />
+                  <div className="absolute inset-0 bg-[var(--color-marigold)] mix-blend-screen opacity-10" />
+                  <div className="absolute inset-0 border-[3px] border-[var(--color-surface)] mix-blend-overlay" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-1">
+                    Verified Biometric Identity
+                  </div>
+                  <div className="text-[14px] font-mono text-[var(--color-ink)] font-medium tracking-tight">
+                    {pet.qrTagId}-BIO
+                  </div>
+                </div>
+                <ShieldCheck className="w-5 h-5 text-[var(--color-success)] opacity-80" />
+              </div>
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: Quiet Metadata & Actions */}
+          <div className="w-full md:w-1/2 flex flex-col gap-10 md:pt-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 ease-out fill-mode-both">
+            
+            {/* Owner Metadata */}
+            <section>
+              <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
+                Recovery Contact
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-baseline gap-4">
+                  <span className="w-24 text-[13px] text-[var(--color-trail)]">Primary</span>
+                  <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.ownerPhone || 'Not provided'}</span>
+                </div>
+                <div className="flex items-baseline gap-4">
+                  <span className="w-24 text-[13px] text-[var(--color-trail)]">Neighborhood</span>
+                  <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.neighborhood || 'Not provided'}</span>
                 </div>
               </div>
+            </section>
 
-            </div>
+            {/* Basic Info */}
+            <section>
+              <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
+                Physical Profile
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-baseline gap-4">
+                  <span className="w-24 text-[13px] text-[var(--color-trail)]">Age</span>
+                  <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.age || 'Unknown'}</span>
+                </div>
+                <div className="flex items-baseline gap-4">
+                  <span className="w-24 text-[13px] text-[var(--color-trail)]">Weight</span>
+                  <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.weight || 'Unknown'}</span>
+                </div>
+                <div className="flex items-baseline gap-4">
+                  <span className="w-24 text-[13px] text-[var(--color-trail)]">Microchip</span>
+                  <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.microchipId || 'None recorded'}</span>
+                </div>
+              </div>
+            </section>
+
+            {/* Distinctive Features */}
+            {pet.distinctiveFeatures && pet.distinctiveFeatures.length > 0 && (
+              <section>
+                <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
+                  Distinctive Features
+                </h3>
+                <ul className="space-y-2">
+                  {pet.distinctiveFeatures.map((f, i) => (
+                    <li key={i} className="text-[15px] text-[var(--color-ink)] font-medium before:content-['—'] before:mr-3 before:text-[var(--color-trail)]">
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {/* Medical Notes */}
+            {pet.medicalNotes && (
+              <section>
+                <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
+                  Medical Notes
+                </h3>
+                <p className="text-[15px] text-[var(--color-ink)] leading-relaxed font-medium italic">
+                  {pet.medicalNotes}
+                </p>
+              </section>
+            )}
+
+            {/* Actions */}
+            <section className="mt-8 pt-8 border-t border-[var(--color-border)] space-y-4">
+              {isSafe && (
+                <button
+                  onClick={handleLostAlert}
+                  className="w-full py-4 px-6 bg-[var(--color-alert-clay)] hover:opacity-90 text-white font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                >
+                  <AlertCircle className="w-4 h-4" />
+                  Report Missing
+                </button>
+              )}
+              
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full py-4 px-6 bg-transparent hover:bg-[var(--color-border)] text-[var(--color-trail)] hover:text-[var(--color-ink)] font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2 border border-transparent hover:border-[var(--color-ink-soft)]"
+              >
+                <Trash2 className="w-4 h-4" />
+                Remove Identity Record
+              </button>
+            </section>
+
           </div>
         </div>
       </main>
@@ -316,27 +296,25 @@ export default function PetDetail() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#1C1A17]/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[2rem] p-8 sm:p-10 max-w-md w-full shadow-2xl text-center">
-            <div className="w-16 h-16 rounded-full bg-[#B3452F]/10 text-[#B3452F] flex items-center justify-center mx-auto mb-6">
-              <Trash2 className="w-7 h-7" />
-            </div>
-            <h4 className="font-serif text-[28px] leading-tight text-[#1C1A17] mb-3">Remove {pet.name}?</h4>
-            <p className="text-[16px] text-[#63684B] leading-relaxed mb-8">
-              This will permanently delete their connected biometric safety profile and disable the QR collar tag. This action cannot be undone.
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[var(--color-ink)]/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[var(--color-surface)] p-8 max-w-md w-full text-center">
+            <Trash2 className="w-8 h-8 text-[var(--color-alert-clay)] mx-auto mb-6" />
+            <h4 className="font-serif text-[32px] leading-tight text-[var(--color-ink)] mb-4">Remove Record?</h4>
+            <p className="text-[15px] text-[var(--color-trail)] leading-relaxed mb-8">
+              This action permanently deletes the biometric identity record for {pet.name} and revokes tag access.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 py-3.5 rounded-full font-semibold text-[#1C1A17] bg-[#F6F1E7] border border-[#E5E0D8] hover:bg-[#E5E0D8] transition-colors"
-              >
-                Cancel
-              </button>
+            <div className="flex flex-col gap-3">
               <button
                 onClick={handleDelete}
-                className="flex-1 py-3.5 rounded-full font-semibold text-white bg-[#B3452F] hover:bg-[#9A3926] transition-colors shadow-md"
+                className="w-full py-4 bg-[var(--color-alert-clay)] hover:opacity-90 text-white font-semibold text-[14px] uppercase tracking-widest transition-colors"
               >
-                Remove Profile
+                Confirm Removal
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="w-full py-4 bg-transparent hover:bg-[var(--color-border)] text-[var(--color-ink)] font-semibold text-[14px] uppercase tracking-widest transition-colors"
+              >
+                Cancel
               </button>
             </div>
           </div>

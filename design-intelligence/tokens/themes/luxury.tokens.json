@@ -1,0 +1,7 @@
+{
+  "theme": "luxury", "description": "Apothecary-restraint, product/material carries interest. Modeled on Aesop/Cowboy (research/awwwards/14-aesop.md, 13-cowboy.md).",
+  "color": {"background": "#F7F5F2", "surface": "#FFFFFF", "text-primary": "#000000", "text-secondary": "#9C9C9C", "border": "#DCD8D0", "accent-primary": "#000000", "success": "#1E5631", "warning": "#7A5C1E", "danger": "#7A1E1E"},
+  "typography": {"font-family-display": "refined serif or high-quality grotesk", "font-family-body": "same family, lighter weight", "scale-ratio": 1.25, "tracking": "slightly loose on labels/small caps"},
+  "spacing-base": "8px, very generous whitespace throughout", "radius": {"sm": "0px", "md": "0px", "lg": "2px"}, "shadow": "none — flat, achromatic UI chrome; product photography carries color",
+  "motion": {"voice": "slow, deliberate, minimal", "duration-base": "400ms"}
+}

@@ -26,7 +26,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   isInitializing: true,
   setAuth: (user) => set({ user, isAuthenticated: true, isInitializing: false }),
-  logout: () => set({ user: null, isAuthenticated: false, isInitializing: false }),
+  logout: async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch (e) {
+      console.error('Logout failed on backend', e);
+    }
+    set({ user: null, isAuthenticated: false, isInitializing: false });
+  },
   setProfileCompleted: (status) => 
     set((state) => ({
       user: state.user ? { ...state.user, profileCompleted: status } : null

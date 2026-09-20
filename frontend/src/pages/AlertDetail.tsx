@@ -1,159 +1,173 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { DashboardNav } from '../components/DashboardNav';
 import { usePetStore } from '../store/petStore';
-import { ShieldAlert, MapPin, Clock, Users, ArrowLeft, CheckCircle } from 'lucide-react';
+import { AlertCircle, ShieldAlert, MapPin, Clock, Users, ArrowLeft, CheckCircle } from 'lucide-react';
 
 export default function AlertDetail() {
   const { alertId } = useParams();
   const navigate = useNavigate();
-  const { alerts, sightings, resolveAlert } = usePetStore();
+  const { alerts, sightings, resolveAlert, pets } = usePetStore();
   
   const alert = alerts.find(a => a.id === alertId);
   const alertSightings = sightings.filter(s => s.alertId === alertId);
-  
+  const [actionError, setActionError] = useState('');
+
   if (!alert) {
     return (
-      <div className="min-h-screen bg-[#FAF6F0] flex flex-col md:flex-row">
-        <DashboardNav />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-[#0A0A0A]">Alert not found</h2>
-            <button onClick={() => navigate('/lost')} className="mt-4 text-[#DE6828] font-semibold underline">Back to Lost Dogs</button>
-          </div>
-        </main>
+      <div className="min-h-screen bg-[var(--color-bone)] flex items-center justify-center p-6">
+        <div className="bg-white p-8 max-w-md w-full text-center">
+          <AlertCircle className="text-[var(--color-alert-clay)] mx-auto mb-4" size={48} />
+          <h2 className="text-2xl font-serif mb-2">Alert Not Found</h2>
+          <p className="text-[var(--color-ink-soft)] mb-6">This alert may have been resolved or deleted.</p>
+          <button onClick={() => navigate('/lost')} className="text-white bg-[var(--color-ink)] px-6 py-2 rounded-full font-bold">
+            Back to Recovery Board
+          </button>
+        </div>
       </div>
     );
   }
 
+  const isOwner = pets.some(p => p.id === alert.petId);
+
   const handleResolve = async () => {
     try {
+      setActionError('');
       const { ApiClient } = await import('../utils/apiClient');
       await ApiClient.resolveAlert(alert.id);
       await usePetStore.getState().hydrate();
       navigate('/dashboard');
-    } catch (err) {
-      console.error('Failed to resolve alert', err);
+    } catch (err: any) {
+      setActionError(err.message || 'Failed to resolve alert');
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
       <DashboardNav />
-      <main className="flex-1 max-w-5xl w-full mx-auto px-6 py-8 md:pb-8 pb-28">
-        <Link to="/lost" className="inline-flex items-center gap-2 text-[#8A8175] hover:text-[#0A0A0A] transition-colors mb-6 font-medium">
-          <ArrowLeft size={20} />
+      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-12 md:py-20 md:pb-12 pb-28">
+        <Link to="/lost" className="group inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors mb-12">
+          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
           Back to Alerts
         </Link>
         
-        {alert.status === 'active' && (
-          <div 
-            className="p-6 rounded-2xl mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4" 
-            style={{ 
-              backgroundColor: 'color-mix(in srgb, var(--color-alert-clay) 10%, transparent)',
-              border: '2px solid var(--color-alert-clay)'
-            }}
-          >
-            <div className="flex items-center gap-4">
-              <ShieldAlert size={32} style={{ color: 'var(--color-alert-clay)' }} className="shrink-0" />
-              <div>
-                <h1 className="text-2xl font-bold" style={{ color: 'var(--color-alert-clay)' }}>Active Alert: {alert.petName}</h1>
-                <p className="text-[#0A0A0A] mt-1">{alert.notifiedNeighborsCount} neighbors notified within {alert.broadcastRadiusKm}km radius</p>
-              </div>
-            </div>
-            <button 
-              onClick={handleResolve}
-              className="px-6 py-3 bg-white font-bold rounded-xl whitespace-nowrap hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center gap-2"
-              style={{ color: 'var(--color-alert-clay)' }}
-            >
-              <CheckCircle size={20} />
-              Mark as Found
-            </button>
+        {actionError && (
+          <div className="mb-6 p-4 bg-[var(--color-alert-clay)]/10 border border-[var(--color-alert-clay)]/30 rounded text-[var(--color-alert-clay)] font-semibold flex items-start gap-3">
+            <AlertCircle size={20} className="shrink-0 mt-0.5" />
+            <span>{actionError}</span>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white rounded-2xl border border-[#E5E0D8] overflow-hidden">
-              <div className="h-80 relative">
-                <img src={alert.photoUrl} alt={alert.petName} className="w-full h-full object-cover" />
+        {alert.status === 'active' && (
+          <div className="mb-16 border-l-4 border-[var(--color-alert-clay)] pl-6 py-2 animate-in fade-in slide-in-from-left-4 duration-700 ease-out flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldAlert size={24} className="text-[var(--color-alert-clay)]" />
+                <h1 className="text-2xl md:text-3xl font-serif font-bold text-[var(--color-alert-clay)]">
+                  Active Crisis Alert: {alert.petName}
+                </h1>
               </div>
-              <div className="p-8">
-                <div className="flex flex-wrap gap-6 mb-6 pb-6 border-b border-[#E5E0D8]">
-                  <div className="flex items-center gap-2">
-                    <Clock className="text-[#8A8175]" size={20} />
-                    <div>
-                      <p className="text-sm text-[#8A8175] font-medium">Lost</p>
-                      <p className="font-semibold text-[#0A0A0A]">{alert.timeAgo}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="text-[#8A8175]" size={20} />
-                    <div>
-                      <p className="text-sm text-[#8A8175] font-medium">Last Seen</p>
-                      <p className="font-semibold text-[#0A0A0A]">{alert.lastSeenAddress}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="text-[#8A8175]" size={20} />
-                    <div>
-                      <p className="text-sm text-[#8A8175] font-medium">Breed</p>
-                      <p className="font-semibold text-[#0A0A0A]">{alert.breed}</p>
-                    </div>
-                  </div>
+              <p className="text-lg text-[var(--color-ink-soft)]">
+                {alert.notifiedNeighborsCount} neighbors notified within {alert.broadcastRadiusKm}km radius
+              </p>
+            </div>
+            {isOwner && (
+              <button 
+                onClick={handleResolve}
+                className="px-8 py-4 bg-[var(--color-alert-clay)] text-white font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-3 hover:bg-opacity-90 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-alert-clay)] shrink-0"
+              >
+                <CheckCircle size={18} />
+                Mark as Found
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+          <div className="lg:col-span-8 space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 fill-mode-both ease-out">
+            <div className="aspect-video sm:aspect-[4/3] relative bg-[var(--color-ink)]/5">
+              <img src={alert.photoUrl} alt={alert.petName} className="w-full h-full object-cover" />
+            </div>
+            
+            <div className="space-y-10">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 py-8 border-y border-[var(--color-ink)]/10">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-[var(--color-ink-soft)] font-semibold mb-2 flex items-center gap-2">
+                    <Clock size={14} /> Time Lost
+                  </p>
+                  <p className="text-lg font-serif text-[var(--color-ink)]">{alert.timeAgo}</p>
                 </div>
-                
-                <h3 className="text-xl font-bold text-[#0A0A0A] mb-3">Description & Additional Details</h3>
-                <p className="text-[#0A0A0A] leading-relaxed whitespace-pre-wrap">{alert.description}</p>
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-[var(--color-ink-soft)] font-semibold mb-2 flex items-center gap-2">
+                    <MapPin size={14} /> Last Seen
+                  </p>
+                  <p className="text-lg font-serif text-[var(--color-ink)]">{alert.lastSeenAddress}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-[var(--color-ink-soft)] font-semibold mb-2 flex items-center gap-2">
+                    <Users size={14} /> Breed
+                  </p>
+                  <p className="text-lg font-serif text-[var(--color-ink)]">{alert.breed}</p>
+                </div>
               </div>
+              
+              <article className="prose prose-lg prose-headings:font-serif prose-headings:text-[var(--color-ink)] prose-p:text-[var(--color-ink-soft)] max-w-none">
+                <h3 className="text-3xl font-serif font-bold text-[var(--color-ink)] mb-6">Description & Additional Details</h3>
+                <p className="leading-relaxed whitespace-pre-wrap text-xl">
+                  {alert.description}
+                </p>
+              </article>
             </div>
           </div>
           
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl border border-[#E5E0D8] p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-[#0A0A0A]">Sightings ({alertSightings.length})</h3>
-                <Link to="/sightings/new" className="text-sm font-semibold text-[#DE6828] hover:underline">
-                  Report Sighting
-                </Link>
-              </div>
-              
-              {alertSightings.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-[#8A8175]">No sightings reported yet.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {alertSightings.map(sighting => (
-                    <div key={sighting.id} className="p-4 border border-[#E5E0D8] rounded-xl bg-[#FAF6F0]">
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="font-bold text-[#0A0A0A]">{sighting.reporterName}</span>
-                        <span className="text-xs text-[#8A8175] font-medium">{sighting.time}</span>
-                      </div>
-                      <div className="flex items-start gap-2 mb-2 text-sm text-[#0A0A0A] font-medium">
-                        <MapPin size={16} className="text-[#DE6828] shrink-0 mt-0.5" />
-                        <span>{sighting.location}</span>
-                      </div>
-                      <p className="text-sm text-[#8A8175] italic">"{sighting.notes}"</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
+          <div className="lg:col-span-4 space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both ease-out">
             {alert.status === 'active' && (
-              <div className="bg-white rounded-2xl border border-[#E5E0D8] p-6 text-center">
-                <h3 className="font-bold text-[#0A0A0A] mb-2">Have information?</h3>
-                <p className="text-sm text-[#8A8175] mb-4">If you have seen this pet, please report a sighting immediately.</p>
+              <div className="bg-[var(--color-alert-clay)] p-8 text-white">
+                <h3 className="text-2xl font-serif font-bold mb-4">Have information?</h3>
+                <p className="text-white/80 mb-8 leading-relaxed">
+                  If you have seen this pet, please report a sighting immediately. Your information is critical.
+                </p>
                 <Link 
-                  to="/sightings/new" 
-                  className="block w-full py-3 rounded-xl font-bold text-white text-center hover:opacity-90 transition-opacity"
-                  style={{ backgroundColor: 'var(--color-alert-clay)' }}
+                  to={`/sightings/new?alertId=${alert.id}`} 
+                  className="block w-full py-4 bg-white text-[var(--color-alert-clay)] font-bold uppercase tracking-wider text-sm text-center hover:bg-opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:ring-offset-[var(--color-alert-clay)]"
                 >
                   Report Sighting
                 </Link>
               </div>
             )}
+            
+            <div>
+              <div className="flex items-end justify-between mb-8 pb-4 border-b border-[var(--color-ink)]/10">
+                <h3 className="text-2xl font-serif font-bold text-[var(--color-ink)]">
+                  Sightings <span className="text-[var(--color-ink-soft)] text-lg font-sans">({alertSightings.length})</span>
+                </h3>
+              </div>
+              
+              {alertSightings.length === 0 ? (
+                <p className="text-[var(--color-ink-soft)] text-lg italic">
+                  No sightings reported yet.
+                </p>
+              ) : (
+                <div className="space-y-8">
+                  {alertSightings.map((sighting, index) => (
+                    <div key={sighting.id} className="relative pl-6 border-l border-[var(--color-ink)]/20 pb-8 last:pb-0">
+                      <div className="absolute w-3 h-3 bg-[var(--color-bone)] border-2 border-[var(--color-alert-clay)] rounded-full -left-[6.5px] top-1.5" />
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="font-bold text-[var(--color-ink)] text-lg">{sighting.reporterName}</span>
+                        <span className="text-sm text-[var(--color-ink-soft)] font-medium bg-[var(--color-ink)]/5 px-3 py-1 rounded-full">{sighting.time}</span>
+                      </div>
+                      <div className="flex items-start gap-2 mb-4 text-[var(--color-ink)] font-medium">
+                        <MapPin size={18} className="text-[var(--color-alert-clay)] shrink-0 mt-0.5" />
+                        <span className="leading-snug">{sighting.location}</span>
+                      </div>
+                      <p className="text-[var(--color-ink-soft)] leading-relaxed italic">
+                        "{sighting.notes}"
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

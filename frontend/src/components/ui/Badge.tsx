@@ -11,7 +11,7 @@ export const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
       <div
         ref={ref}
         className={cn(
-          "inline-flex items-center rounded-full px-2.5 py-0.5 text-[length:var(--text-metadata)] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] focus:ring-offset-2",
+          "inline-flex items-center rounded-full px-2.5 py-0.5 text-[length:var(--text-metadata)] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
           {
             'bg-[var(--color-ink)] text-[var(--color-bone)] hover:bg-[var(--color-ink-soft)]': variant === 'default',
             'bg-[var(--color-success)] text-white': variant === 'success',

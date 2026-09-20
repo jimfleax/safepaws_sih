@@ -1,0 +1,7 @@
+{
+  "theme": "editorial", "description": "Type-led, reading-first. Modeled on By-Kin/Mat Voyce (research/awwwards/10-by-kin.md, 11-mat-voyce.md).",
+  "color": {"background": "#FBFAF7", "surface": "#FFFFFF", "text-primary": "#1A1A1A", "text-secondary": "#54514C", "border": "#E8E4DC", "accent-primary": "#8B2E2E", "success": "#2F6B3A", "warning": "#8A5A0A", "danger": "#8B2E2E"},
+  "typography": {"font-family-display": "serif or high-contrast display face", "font-family-body": "quiet humanist serif or sans, optimized for reading", "scale-ratio": 1.333, "line-length": "65ch max"},
+  "spacing-base": "8px, generous section padding (1.5x standard scale)", "radius": {"sm": "0px", "md": "2px", "lg": "4px"}, "shadow": "none to minimal",
+  "motion": {"voice": "weighted, unobtrusive, subordinate to reading rhythm", "duration-base": "300ms"}
+}

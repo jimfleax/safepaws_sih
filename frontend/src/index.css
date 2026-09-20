@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* BASE COLORS */
+  /* BASE COLORS - STAGE 2 */
   --color-ink: #1C1A17;
   --color-bone: #F6F1E7;
   --color-marigold: #E2811F;
@@ -20,7 +20,7 @@
   --color-accent-active: #B06317;
   --color-alert: var(--color-alert-clay);
   --color-success: #4C7A52;
-  --color-danger: var(--color-alert-clay);
+  --color-danger: #D32F2F; /* distinct destructive red */
   --color-focus: var(--color-marigold);
 
   /* TYPOGRAPHY */
@@ -79,9 +79,9 @@
   --radius-scan-frame: 24px;
 
   /* MOTION TOKENS */
-  --animate-duration-micro: 150ms; /* 120-180ms */
-  --animate-duration-dialog: 300ms; /* 250-350ms */
-  --animate-duration-page: 200ms; /* ~200ms */
+  --animate-duration-micro: 150ms;
+  --animate-duration-dialog: 300ms;
+  --animate-duration-page: 200ms;
 }
 
 @layer base {

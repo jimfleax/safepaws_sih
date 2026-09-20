@@ -48,10 +48,33 @@ export default function Scan() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center sm:relative sm:h-[calc(100vh-64px)] z-50">
-      {/* Mobile-primary: fills the experience */}
-      <div className="w-full h-full relative overflow-hidden max-w-md mx-auto sm:rounded-2xl sm:shadow-2xl sm:h-[800px] sm:max-h-[90vh] bg-black">
+    <div className="fixed inset-0 bg-[var(--color-ink)] z-50 flex flex-col">
+      <div className="w-full h-full relative overflow-hidden">
         
+        {/* Close Button */}
+        <button 
+          onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/dashboard'}
+          className="absolute top-6 right-6 z-50 p-4 rounded-full bg-[var(--color-ink)]/40 text-[var(--color-bone)] backdrop-blur-md border border-[var(--color-bone)]/10 hover:bg-[var(--color-bone)]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)]"
+          aria-label="Close scan"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <div aria-live="polite" className="sr-only">
+           {phase === 'SCAN' && 'Camera ready. Position nose within the frame.'}
+           {phase === 'ALIGN' && 'Hold still.'}
+           {phase === 'ANALYZE' && 'Reading the nose pattern.'}
+           {phase === 'COMPARE' && 'Comparing against registered pets.'}
+           {phase === 'RESULT' && result?.state === 'MATCH' && 'Match found.'}
+           {phase === 'RESULT' && result?.state === 'AMBIGUOUS' && 'Multiple similar profiles found.'}
+           {phase === 'RESULT' && result?.state === 'UNKNOWN' && 'No match found.'}
+           {phase === 'RESULT' && result?.state === 'QUALITY_FAILURE' && 'Scan unclear.'}
+           {phase === 'RESULT' && result?.state === 'SYSTEM_FAILURE' && 'System unavailable.'}
+        </div>
+
         {(phase === 'SCAN' || phase === 'ALIGN' || phase === 'CAPTURE') && (
           <CameraView 
             phase={phase} 

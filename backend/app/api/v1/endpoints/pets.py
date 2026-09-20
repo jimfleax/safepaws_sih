@@ -144,3 +144,40 @@ async def get_pet(
         status=pet.status,
         qr_tag_id=pet.qr_tag_id or ""
     )
+
+@router.get("/", response_model=list[PetResponse])
+async def list_pets(
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner)
+):
+    """
+    Get all pets belonging to the current owner.
+    """
+    stmt = select(Pet).where(Pet.owner_id == current_owner.id)
+    result = await db.execute(stmt)
+    pets = result.scalars().all()
+    
+    return [
+        PetResponse(
+            id=pet.id,
+            name=pet.name,
+            species=pet.species,
+            breed=pet.breed or "",
+            color=pet.color or "",
+            age=pet.age or "",
+            owner_name=current_owner.name,
+            owner_phone=current_owner.phone,
+            neighborhood=current_owner.neighborhood,
+            weight=pet.weight,
+            microchip_id=pet.microchip_id,
+            owner_email=current_owner.email,
+            medical_notes=pet.medical_notes,
+            diet_notes=pet.diet_notes,
+            reward=pet.reward,
+            distinctive_features=pet.distinctive_features or [],
+            consent_given=True,
+            photo_url=pet.photo_url or "",
+            status=pet.status,
+            qr_tag_id=pet.qr_tag_id or ""
+        ) for pet in pets
+    ]

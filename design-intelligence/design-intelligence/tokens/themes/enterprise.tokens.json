@@ -1,0 +1,7 @@
+{
+  "theme": "enterprise", "description": "Calm authority, segmented trust-building. Modeled on Stripe (research/awwwards/01-stripe.md).",
+  "color": {"background": "#FFFFFF", "surface": "#F6F9FC", "text-primary": "#0A2540", "text-secondary": "#425466", "border": "#E3E8EE", "accent-primary": "#635BFF", "success": "#0A8A3B", "warning": "#B76E00", "danger": "#DF1B41"},
+  "typography": {"font-family-display": "grotesk, one reserved italic/distinct cut for hero claims only", "font-family-body": "same family, regular cut", "scale-ratio": 1.25},
+  "spacing-base": "8px, two-track rhythm (narrow prose column / full-bleed proof blocks)", "radius": {"sm": "4px", "md": "8px", "lg": "16px"}, "shadow": "subtle, used for card elevation only",
+  "motion": {"voice": "soft, atmosphere-only gradients with static fallback; restrained elsewhere", "duration-base": "200ms"}
+}

@@ -19,10 +19,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           "min-h-[44px] min-w-[44px]", // Minimum touch target 44x44
           {
             'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] active:bg-[var(--color-accent-active)]': variant === 'primary',
-            'bg-[var(--color-surface)] text-[var(--color-ink)] border border-[var(--color-border)] hover:bg-[#F3EFE9]': variant === 'secondary',
+            'bg-[var(--color-surface)] text-[var(--color-ink)] border border-[var(--color-border)] hover:bg-[var(--color-bone)]': variant === 'secondary',
             'border-2 border-[var(--color-ink)] text-[var(--color-ink)] hover:bg-[var(--color-ink)] hover:text-[var(--color-bone)]': variant === 'outline',
-            'hover:bg-[#F3EFE9] text-[var(--color-ink)]': variant === 'ghost',
-            'bg-[var(--color-danger)] text-white hover:bg-red-800': variant === 'danger',
+            'hover:bg-[var(--color-bone)] text-[var(--color-ink)]': variant === 'ghost',
+            'bg-[var(--color-danger)] text-white hover:opacity-90': variant === 'danger',
             'h-11 px-4 py-2 text-[length:var(--text-label-button)]': size === 'default',
             'h-9 px-3 text-sm': size === 'sm',
             'h-14 px-8 text-lg': size === 'lg',

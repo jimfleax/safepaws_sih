@@ -1,0 +1,7 @@
+{
+  "theme": "brutalist", "description": "Raw, structural, deliberately unornamented restraint distinct from 'minimal' — visible grid, high contrast, honesty about structure.",
+  "color": {"background": "#FFFFFF", "surface": "#FFFFFF", "text-primary": "#000000", "text-secondary": "#000000", "border": "#000000", "accent-primary": "#0000FF", "success": "#008000", "warning": "#B8860B", "danger": "#FF0000"},
+  "typography": {"font-family-display": "monospace or unstyled system sans", "font-family-body": "monospace or unstyled system sans", "scale-ratio": 1.5, "notes": "deliberately un-refined; hierarchy via size/weight jumps, not optical polish"},
+  "spacing-base": "8px, visible grid lines/borders permitted as a design device", "radius": {"sm": "0px", "md": "0px", "lg": "0px"}, "shadow": "none — hard borders only",
+  "motion": {"voice": "abrupt, minimal easing, deliberately un-smoothed", "duration-base": "100ms"}
+}
