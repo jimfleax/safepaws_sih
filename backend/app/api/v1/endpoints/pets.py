@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, UploadFile, File, Depends
-from app.schemas.pet import PetCreate, PetResponse
+from app.schemas.pet import PetCreate, PetResponse, PetUpdate
 from typing import Dict, Any
 
 from app.services.registration_service import RegistrationService
@@ -214,3 +214,50 @@ async def delete_pet(
 
     await db.delete(pet)
     await db.commit()
+
+@router.put("/{pet_id}", response_model=PetResponse)
+async def update_pet(
+    pet_id: str,
+    update_data: PetUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner)
+):
+    """
+    Update a pet's details. Only the owning user may update their pet.
+    """
+    stmt = select(Pet).where(Pet.id == pet_id)
+    result = await db.execute(stmt)
+    pet = result.scalars().first()
+
+    if not pet:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pet not found")
+
+    if pet.owner_id != current_owner.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this pet")
+
+    update_dict = update_data.model_dump(exclude_unset=True)
+    for key, value in update_dict.items():
+        setattr(pet, key, value)
+        
+    await db.commit()
+    await db.refresh(pet)
+    
+    return PetResponse(
+        id=pet.id,
+        name=pet.name,
+        species=pet.species,
+        breed=pet.breed,
+        color=pet.color,
+        age=pet.age,
+        weight=pet.weight,
+        owner_name=pet.owner_name,
+        owner_phone=pet.owner_phone,
+        neighborhood=pet.neighborhood,
+        medical_notes=pet.medical_notes,
+        distinctive_features=pet.distinctive_features,
+        microchip_id=pet.microchip_id,
+        consent_given=True,
+        photo_url=pet.photo_url or "",
+        status=pet.status,
+        qr_tag_id=pet.qr_tag_id or ""
+    )

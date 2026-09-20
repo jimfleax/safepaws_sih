@@ -41,8 +41,9 @@ class Pet(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     owner = relationship("Owner", back_populates="pets")
-    photos = relationship("PetPhoto", back_populates="pet")
-    biometric_enrollments = relationship("PetBiometricEnrollment", back_populates="pet")
+    photos = relationship("PetPhoto", back_populates="pet", cascade="all, delete-orphan")
+    biometric_enrollments = relationship("PetBiometricEnrollment", back_populates="pet", cascade="all, delete-orphan")
+    alerts = relationship("Alert", back_populates="pet", cascade="all, delete-orphan")
 
     @property
     def owner_name(self) -> str:
@@ -105,8 +106,8 @@ class Alert(Base):
     description = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    pet = relationship("Pet", backref="alerts")
-    sightings = relationship("Sighting", back_populates="alert")
+    pet = relationship("Pet", back_populates="alerts")
+    sightings = relationship("Sighting", back_populates="alert", cascade="all, delete-orphan")
 
     @property
     def pet_name(self) -> str:

@@ -24,6 +24,44 @@ export default function PetDetail() {
   const [actionError, setActionError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<Partial<Pet>>({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  const startEdit = () => {
+    if (pet) {
+      setEditForm({
+        name: pet.name,
+        breed: pet.breed,
+        color: pet.color,
+        age: pet.age,
+        weight: pet.weight,
+        medicalNotes: pet.medicalNotes,
+        distinctiveFeatures: pet.distinctiveFeatures
+      });
+      setIsEditing(true);
+      setActionError('');
+      setSuccessMessage('');
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!petId) return;
+    try {
+      setIsSaving(true);
+      setActionError('');
+      const updatedPet = await ApiClient.updatePet(petId, editForm);
+      setPet(updatedPet);
+      await usePetStore.getState().hydrate();
+      setIsEditing(false);
+      setSuccessMessage('Identity record updated successfully.');
+    } catch (err: any) {
+      setActionError(err.message || 'Failed to update pet details');
+    } finally {
+      setIsSaving(false);
+    }
+  };
   useEffect(() => {
     async function loadPet() {
       if (!petId) return;
@@ -219,109 +257,176 @@ export default function PetDetail() {
 
           {/* RIGHT COLUMN: Quiet Metadata & Actions */}
           <div className="w-full md:w-1/2 flex flex-col gap-10 md:pt-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 ease-out fill-mode-both">
-            
-            {/* Owner Metadata */}
-            <section>
-              <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
-                Recovery Contact
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-baseline gap-4">
-                  <span className="w-24 text-[13px] text-[var(--color-trail)]">Primary</span>
-                  <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.ownerPhone || 'Not provided'}</span>
-                </div>
-                <div className="flex items-baseline gap-4">
-                  <span className="w-24 text-[13px] text-[var(--color-trail)]">Neighborhood</span>
-                  <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.neighborhood || 'Not provided'}</span>
-                </div>
-              </div>
-            </section>
+            {!isEditing ? (
+              <>
+                {/* Owner Metadata */}
+                <section>
+                  <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
+                    Recovery Contact
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-baseline gap-4">
+                      <span className="w-24 text-[13px] text-[var(--color-trail)]">Primary</span>
+                      <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.ownerPhone || 'Not provided'}</span>
+                    </div>
+                    <div className="flex items-baseline gap-4">
+                      <span className="w-24 text-[13px] text-[var(--color-trail)]">Neighborhood</span>
+                      <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.neighborhood || 'Not provided'}</span>
+                    </div>
+                  </div>
+                </section>
 
-            {/* Basic Info */}
-            <section>
-              <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
-                Physical Profile
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-baseline gap-4">
-                  <span className="w-24 text-[13px] text-[var(--color-trail)]">Age</span>
-                  <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.age || 'Unknown'}</span>
-                </div>
-                <div className="flex items-baseline gap-4">
-                  <span className="w-24 text-[13px] text-[var(--color-trail)]">Weight</span>
-                  <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.weight || 'Unknown'}</span>
-                </div>
-                <div className="flex items-baseline gap-4">
-                  <span className="w-24 text-[13px] text-[var(--color-trail)]">Microchip</span>
-                  <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.microchipId || 'None recorded'}</span>
-                </div>
-              </div>
-            </section>
+                {/* Basic Info */}
+                <section>
+                  <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
+                    Physical Profile
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-baseline gap-4">
+                      <span className="w-24 text-[13px] text-[var(--color-trail)]">Age</span>
+                      <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.age || 'Unknown'}</span>
+                    </div>
+                    <div className="flex items-baseline gap-4">
+                      <span className="w-24 text-[13px] text-[var(--color-trail)]">Weight</span>
+                      <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.weight || 'Unknown'}</span>
+                    </div>
+                    <div className="flex items-baseline gap-4">
+                      <span className="w-24 text-[13px] text-[var(--color-trail)]">Microchip</span>
+                      <span className="text-[15px] text-[var(--color-ink)] font-medium">{pet.microchipId || 'None recorded'}</span>
+                    </div>
+                  </div>
+                </section>
 
-            {/* Distinctive Features */}
-            {pet.distinctiveFeatures && pet.distinctiveFeatures.length > 0 && (
-              <section>
-                <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
-                  Distinctive Features
-                </h3>
-                <ul className="space-y-2">
-                  {pet.distinctiveFeatures.map((f, i) => (
-                    <li key={i} className="text-[15px] text-[var(--color-ink)] font-medium before:content-['—'] before:mr-3 before:text-[var(--color-trail)]">
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </section>
+                {/* Distinctive Features */}
+                {pet.distinctiveFeatures && pet.distinctiveFeatures.length > 0 && (
+                  <section>
+                    <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
+                      Distinctive Features
+                    </h3>
+                    <ul className="space-y-2">
+                      {pet.distinctiveFeatures.map((f, i) => (
+                        <li key={i} className="text-[15px] text-[var(--color-ink)] font-medium before:content-['—'] before:mr-3 before:text-[var(--color-trail)]">
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+
+                {/* Medical Notes */}
+                {pet.medicalNotes && (
+                  <section>
+                    <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
+                      Medical Notes
+                    </h3>
+                    <p className="text-[15px] text-[var(--color-ink)] leading-relaxed font-medium italic">
+                      {pet.medicalNotes}
+                    </p>
+                  </section>
+                )}
+
+                {/* Actions */}
+                <section className="mt-8 pt-8 border-t border-[var(--color-border)] space-y-4">
+                  {isSafe ? (
+                    <button
+                      onClick={handleLostAlert}
+                      className="w-full py-4 px-6 bg-[var(--color-alert-clay)] hover:opacity-90 text-white font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                    >
+                      <AlertCircle className="w-4 h-4" />
+                      Report Missing
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleResolveAlert}
+                      className="w-full py-4 px-6 bg-[var(--color-success)] hover:opacity-90 text-white font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                    >
+                      <ShieldCheck className="w-4 h-4" />
+                      Resolve Alert (Mark Safe)
+                    </button>
+                  )}
+                  
+                  <button
+                    onClick={startEdit}
+                    className="w-full py-4 px-6 bg-transparent hover:bg-[var(--color-border)] text-[var(--color-ink)] font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2 border border-[var(--color-ink-soft)]/30 hover:border-[var(--color-ink-soft)]"
+                  >
+                    Edit Identity Record
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="w-full py-4 px-6 bg-transparent hover:bg-[var(--color-border)] text-[var(--color-trail)] hover:text-[var(--color-alert-clay)] font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2 border border-transparent"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove Identity Record
+                  </button>
+                </section>
+              </>
+            ) : (
+              <form onSubmit={handleEditSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-[13px] font-bold text-[var(--color-trail)] uppercase tracking-wider mb-2">Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.name || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full bg-white border border-[var(--color-border)] p-4 text-[16px] text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-marigold)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-[var(--color-trail)] uppercase tracking-wider mb-2">Age</label>
+                  <input
+                    type="text"
+                    value={editForm.age || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, age: e.target.value }))}
+                    className="w-full bg-white border border-[var(--color-border)] p-4 text-[16px] text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-marigold)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-[var(--color-trail)] uppercase tracking-wider mb-2">Weight</label>
+                  <input
+                    type="text"
+                    value={editForm.weight || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, weight: e.target.value }))}
+                    className="w-full bg-white border border-[var(--color-border)] p-4 text-[16px] text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-marigold)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-[var(--color-trail)] uppercase tracking-wider mb-2">Distinctive Features (comma separated)</label>
+                  <input
+                    type="text"
+                    value={editForm.distinctiveFeatures?.join(', ') || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, distinctiveFeatures: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))}
+                    className="w-full bg-white border border-[var(--color-border)] p-4 text-[16px] text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-marigold)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-bold text-[var(--color-trail)] uppercase tracking-wider mb-2">Medical Notes</label>
+                  <textarea
+                    value={editForm.medicalNotes || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, medicalNotes: e.target.value }))}
+                    className="w-full bg-white border border-[var(--color-border)] p-4 text-[16px] text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-marigold)] min-h-[100px]"
+                  />
+                </div>
+                <div className="flex gap-4 pt-4">
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="flex-1 py-4 px-6 bg-[var(--color-marigold)] hover:bg-[var(--color-accent-hover)] text-white font-semibold text-[14px] uppercase tracking-widest transition-colors disabled:opacity-50"
+                  >
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    disabled={isSaving}
+                    className="flex-1 py-4 px-6 bg-transparent hover:bg-[var(--color-border)] text-[var(--color-ink)] font-semibold text-[14px] uppercase tracking-widest transition-colors border border-[var(--color-ink-soft)]/30 hover:border-[var(--color-ink-soft)] disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             )}
-
-            {/* Medical Notes */}
-            {pet.medicalNotes && (
-              <section>
-                <h3 className="text-[10px] font-bold text-[var(--color-trail)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-2">
-                  Medical Notes
-                </h3>
-                <p className="text-[15px] text-[var(--color-ink)] leading-relaxed font-medium italic">
-                  {pet.medicalNotes}
-                </p>
-              </section>
-            )}
-
-            {/* Actions */}
-            <section className="mt-8 pt-8 border-t border-[var(--color-border)] space-y-4">
-              {isSafe ? (
-                <button
-                  onClick={handleLostAlert}
-                  className="w-full py-4 px-6 bg-[var(--color-alert-clay)] hover:opacity-90 text-white font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
-                >
-                  <AlertCircle className="w-4 h-4" />
-                  Report Missing
-                </button>
-              ) : (
-                <button
-                  onClick={handleResolveAlert}
-                  className="w-full py-4 px-6 bg-[var(--color-success)] hover:opacity-90 text-white font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
-                >
-                  <ShieldCheck className="w-4 h-4" />
-                  Resolve Alert (Mark Safe)
-                </button>
-              )}
-              
-              <button
-                onClick={() => alert('Edit identity feature coming soon.')}
-                className="w-full py-4 px-6 bg-transparent hover:bg-[var(--color-border)] text-[var(--color-ink)] font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2 border border-[var(--color-ink-soft)]/30 hover:border-[var(--color-ink-soft)]"
-              >
-                Edit Identity Record
-              </button>
-              
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="w-full py-4 px-6 bg-transparent hover:bg-[var(--color-border)] text-[var(--color-trail)] hover:text-[var(--color-alert-clay)] font-semibold text-[14px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2 border border-transparent"
-              >
-                <Trash2 className="w-4 h-4" />
-                Remove Identity Record
-              </button>
-            </section>
-
           </div>
         </div>
       </main>
