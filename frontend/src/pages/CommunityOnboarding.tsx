@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardNav } from '../components/DashboardNav';
 import { Check } from 'lucide-react';
+import { ApiClient } from '../utils/apiClient';
 
 const INTERESTS = [
   "Lost & Found",
@@ -26,11 +27,7 @@ export default function CommunityOnboarding() {
 
   const handleComplete = async () => {
     try {
-      await fetch('/api/v1/community/preferences', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ interests: selected })
-      });
+      await ApiClient.updateCommunityPreferences(selected);
     } catch (e) {
       // Allow navigation even if it fails gracefully
     } finally {

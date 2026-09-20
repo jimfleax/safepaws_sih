@@ -2,34 +2,43 @@ import React, { useState } from 'react';
 import CameraView from '../components/scan/CameraView';
 import ProcessingView from '../components/scan/ProcessingView';
 import ResultView from '../components/scan/ResultView';
-import MockBackendController from '../components/scan/MockBackendController';
 import { ScanPhase, ScanResult } from '../components/scan/types';
+import { ApiClient } from '../utils/apiClient';
 
 export default function Scan() {
   const [phase, setPhase] = useState<ScanPhase>('SCAN');
   const [result, setResult] = useState<ScanResult | null>(null);
 
-  const handleCapture = (blob: Blob) => {
-    // We captured the image. In a real app, we'd send it to the backend here.
-    // For this implementation, we wait for the MockBackendController or immediately resolve if we don't have Dev controls.
-    // Since we are building the boundary cleanly, we advance to ANALYZE.
+  const handleCapture = async (blob: Blob) => {
     setPhase('ANALYZE');
     
-    // NOTE: To adhere to "Do not use fixed timers to pretend backend processing occurred",
-    // we do not automatically setTimeout here. The developer uses the MockBackendController
-    // to advance the states (ANALYZE -> COMPARE -> RESULT) manually, reflecting the true product stages
-    // without fake delays.
-    
-    // In production, this would be an API call like:
-    // try {
-    //   const apiResult = await backendApi.scanNose(blob, (progress) => setPhase(progress));
-    //   setResult(apiResult);
-    //   setPhase('RESULT');
-    // } catch (e) { ... }
+    try {
+      const file = new File([blob], 'scan.jpg', { type: 'image/jpeg' });
+      const apiResult = await ApiClient.identifyPet(file);
+      
+      setPhase('COMPARE');
+      
+      if (apiResult.matches && apiResult.matches.length > 0) {
+        if (apiResult.matches.length === 1 || apiResult.matches[0].confidence >= 0.85) {
+           setResult({ state: 'MATCH', petId: apiResult.matches[0].pet_id, qrTagId: apiResult.matches[0].qr_tag_id });
+        } else {
+           setResult({ state: 'AMBIGUOUS', candidates: apiResult.matches.map((m: any) => m.pet_id) });
+        }
+      } else {
+        setResult({ state: 'UNKNOWN' });
+      }
+      setPhase('RESULT');
+    } catch (e: any) {
+      if (e.message && (e.message.toLowerCase().includes('quality') || e.message.toLowerCase().includes('clear'))) {
+        setResult({ state: 'QUALITY_FAILURE', errorDetails: e.message });
+      } else {
+        setResult({ state: 'SYSTEM_FAILURE', errorDetails: e.message });
+      }
+      setPhase('RESULT');
+    }
   };
 
   const handleConfirmCandidate = (petId: string) => {
-    // If ambiguous, user selects one. This promotes it to a Match.
     setResult({ state: 'MATCH', petId });
   };
 
@@ -87,13 +96,6 @@ export default function Scan() {
         )}
         
       </div>
-      
-      <MockBackendController 
-        phase={phase}
-        onAdvancePhase={setPhase}
-        onResolveResult={(res) => { setResult(res); setPhase('RESULT'); }}
-        onReset={resetScan}
-      />
     </div>
   );
 }

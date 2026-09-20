@@ -125,6 +125,7 @@ class Sighting(Base):
     __tablename__ = 'sightings'
 
     id = Column(String, primary_key=True, default=generate_uuid)
+    pet_id = Column(String, ForeignKey("pets.id"), nullable=False, index=True)
     alert_id = Column(String, ForeignKey("alerts.id"), nullable=True, index=True)
     reporter_name = Column(String, nullable=False)
     location = Column(String, nullable=False)
@@ -133,6 +134,7 @@ class Sighting(Base):
     time = Column(DateTime, default=datetime.utcnow)
     confirmed = Column(Boolean, default=False)
 
+    pet = relationship("Pet", backref="sightings")
     alert = relationship("Alert", back_populates="sightings")
 
 class CommunityPost(Base):

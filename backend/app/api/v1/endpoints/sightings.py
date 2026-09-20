@@ -17,6 +17,7 @@ async def report_sighting(
     Report a new community sighting and persist to PostgreSQL.
     """
     new_sighting = Sighting(
+        pet_id=sighting_in.pet_id,
         alert_id=sighting_in.alert_id,
         reporter_name=sighting_in.reporter_name,
         location=sighting_in.location,
@@ -30,6 +31,7 @@ async def report_sighting(
     
     return SightingResponse(
         id=new_sighting.id,
+        pet_id=new_sighting.pet_id,
         reporter_name=new_sighting.reporter_name,
         location=new_sighting.location,
         notes=new_sighting.notes,
@@ -50,6 +52,7 @@ async def get_sighting(sighting_id: str, db: AsyncSession = Depends(get_db)):
         
     return SightingResponse(
         id=sighting.id,
+        pet_id=sighting.pet_id,
         reporter_name=sighting.reporter_name,
         location=sighting.location,
         notes=sighting.notes,
