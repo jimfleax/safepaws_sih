@@ -1,4 +1,4 @@
-# Logs
+﻿# Logs
 logs
 *.log
 npm-debug.log*
@@ -198,4 +198,5 @@ test-results/
 valid_dog.jpg
 lowq.jpg
 nodog.jpg
+
 
