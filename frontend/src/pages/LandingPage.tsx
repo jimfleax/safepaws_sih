@@ -58,7 +58,7 @@ export default function LandingPage() {
           if (!data.user.profileCompleted) {
             navigate('/setup-profile');
           } else {
-            navigate('/pets/new');
+            navigate('/dashboard');
           }
         }
       } catch (err) {

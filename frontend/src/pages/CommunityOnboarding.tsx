@@ -24,9 +24,18 @@ export default function CommunityOnboarding() {
     }
   };
 
-  const handleComplete = () => {
-    // In a full implementation, call apiClient.updatePreferences({ interests: selected })
-    navigate('/community');
+  const handleComplete = async () => {
+    try {
+      await fetch('/api/v1/community/preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interests: selected })
+      });
+    } catch (e) {
+      // Allow navigation even if it fails gracefully
+    } finally {
+      navigate('/community');
+    }
   };
 
   return (

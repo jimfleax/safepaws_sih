@@ -488,13 +488,8 @@ export default function Community() {
                 <X size={20} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center text-center">
-              {/* Using Empty state for mock since we don't have the real endpoint fully fetching yet */}
-              <Bell size={32} className="text-[var(--color-ink)]/20 mb-4" />
-              <p className="text-sm font-bold text-[var(--color-ink)] mb-2">No new alerts</p>
-              <p className="text-xs text-[var(--color-ink-soft)] max-w-[200px] leading-relaxed">
-                When a neighbor replies to your post or updates a recovery task, it will appear here.
-              </p>
+            <div className="flex-1 overflow-y-auto bg-white">
+              <NotificationList />
             </div>
           </div>
         </div>
@@ -502,6 +497,70 @@ export default function Community() {
     </div>
   );
 }
+
+// ── Notification List Component ─────────────────────────────────────────────
+const NotificationList = () => {
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNotifs = async () => {
+      try {
+        const res = await fetch('/api/v1/community/notifications');
+        if (res.ok) {
+          setNotifications(await res.json());
+        }
+      } catch (e) {
+        // fail silently
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNotifs();
+  }, []);
+
+  const markRead = async (id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    try {
+      await fetch(`/api/v1/community/notifications/${id}/read`, { method: 'PATCH' });
+    } catch (e) {}
+  };
+
+  if (loading) {
+    return <div className="p-8 text-center text-sm text-[var(--color-ink-soft)]">Syncing inbox...</div>;
+  }
+
+  if (notifications.length === 0) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center text-center h-full">
+        <Bell size={32} className="text-[var(--color-ink)]/20 mb-4" />
+        <p className="text-sm font-bold text-[var(--color-ink)] mb-2">No new alerts</p>
+        <p className="text-xs text-[var(--color-ink-soft)] max-w-[200px] leading-relaxed">
+          When a neighbor replies to your post or updates a recovery task, it will appear here.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="divide-y divide-[var(--color-ink)]/10">
+      {notifications.map(n => (
+        <div key={n.id} onClick={() => markRead(n.id)} className={`p-4 cursor-pointer transition-colors ${n.read ? 'bg-white opacity-60' : 'bg-[var(--color-bone)]/30 hover:bg-[var(--color-bone)]'}`}>
+          <div className="flex items-start gap-3">
+            {!n.read && <div className="w-2 h-2 rounded-full bg-[var(--color-alert-clay)] mt-1.5 shrink-0" />}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-ink)] mb-1">{n.title}</p>
+              <p className="text-sm text-[var(--color-ink)]/90">{n.content}</p>
+              <p className="text-[10px] font-mono text-[var(--color-ink-soft)] mt-2">
+                {new Date(n.created_at).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 // ── Post Row Component ──────────────────────────────────────────────────────
 const PostRow: React.FC<{ post: Post }> = ({ post }) => {

@@ -47,8 +47,16 @@ export const useAuthStore = create<AuthState>((set) => ({
       const response = await fetch('/api/auth/me', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
-        // Assuming backend returns the user object directly or { user: ... }
-        const user = data.user || data;
+        // /api/auth/me returns { id, name, email, phone, neighborhood, profileCompleted } directly
+        const user: User = {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          picture: data.picture || '',
+          profileCompleted: data.profileCompleted ?? false,
+          phone: data.phone,
+          neighborhood: data.neighborhood,
+        };
         set({ user, isAuthenticated: true, isInitializing: false });
       } else {
         set({ user: null, isAuthenticated: false, isInitializing: false });

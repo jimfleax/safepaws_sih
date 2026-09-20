@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 from app.api.dependencies import get_db, get_current_owner
 from app.db.models import Owner
-from app.schemas.user import GoogleLoginRequest
+from app.schemas.user import GoogleLoginRequest, OwnerUpdate
 
 router = APIRouter()
 SECRET_KEY = os.getenv('JWT_SECRET', 'supersecret')
@@ -114,3 +114,29 @@ async def logout(response: Response, current_owner: Owner = Depends(get_current_
         secure=os.getenv("NODE_ENV") == "production"
     )
     return {"success": True, "message": "Logged out successfully"}
+
+@router.put("/profile")
+async def update_profile(
+    update: OwnerUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner)
+):
+    """Update the authenticated owner's phone and neighborhood."""
+    if not update.phone or not update.phone.strip():
+        raise HTTPException(status_code=400, detail="Phone number is required")
+    if not update.neighborhood or not update.neighborhood.strip():
+        raise HTTPException(status_code=400, detail="Neighborhood is required")
+
+    current_owner.phone = update.phone.strip()
+    current_owner.neighborhood = update.neighborhood.strip()
+    await db.commit()
+    await db.refresh(current_owner)
+
+    return {
+        "id": current_owner.id,
+        "name": current_owner.name,
+        "email": current_owner.email,
+        "phone": current_owner.phone,
+        "neighborhood": current_owner.neighborhood,
+        "profileCompleted": True
+    }

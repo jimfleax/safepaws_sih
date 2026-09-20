@@ -183,3 +183,62 @@ async def search_community(
     result = await db.execute(stmt)
     posts = result.scalars().all()
     return posts
+
+@router.get("/notifications", response_model=List[Notification])
+async def get_notifications(
+    db: AsyncSession = Depends(dependencies.get_db),
+    current_user: models.Owner = Depends(dependencies.get_current_owner)
+) -> Any:
+    """Get current user's notifications."""
+    query = select(models.Notification).where(
+        models.Notification.user_id == current_user.id
+    ).order_by(models.Notification.created_at.desc()).limit(50)
+    result = await db.execute(query)
+    return result.scalars().all()
+
+@router.patch("/notifications/{notification_id}/read", response_model=Notification)
+async def mark_notification_read(
+    notification_id: str,
+    db: AsyncSession = Depends(dependencies.get_db),
+    current_user: models.Owner = Depends(dependencies.get_current_owner)
+) -> Any:
+    """Mark a notification as read."""
+    result = await db.execute(select(models.Notification).where(
+        models.Notification.id == notification_id,
+        models.Notification.user_id == current_user.id
+    ))
+    notif = result.scalars().first()
+    if not notif:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    notif.read = True
+    await db.commit()
+    await db.refresh(notif)
+    return notif
+
+@router.post("/tasks", response_model=RecoveryTask)
+async def create_recovery_task(
+    *,
+    db: AsyncSession = Depends(dependencies.get_db),
+    task_in: RecoveryTaskCreate,
+    alert_id: str,
+    current_user: models.Owner = Depends(dependencies.get_current_owner)
+) -> Any:
+    """Create a recovery task for an alert."""
+    task = models.RecoveryTask(
+        **task_in.model_dump(),
+        alert_id=alert_id
+    )
+    db.add(task)
+    await db.commit()
+    await db.refresh(task)
+    return task
+
+@router.get("/tasks/{alert_id}", response_model=List[RecoveryTask])
+async def get_recovery_tasks(
+    alert_id: str,
+    db: AsyncSession = Depends(dependencies.get_db)
+) -> Any:
+    """Get recovery tasks for an alert."""
+    query = select(models.RecoveryTask).where(models.RecoveryTask.alert_id == alert_id)
+    result = await db.execute(query)
+    return result.scalars().all()
