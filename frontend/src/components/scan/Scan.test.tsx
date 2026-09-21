@@ -21,11 +21,12 @@ vi.mock('../../utils/apiClient', () => ({
 }));
 
 // ── Auth store mock (default: unauthenticated) ───────────────────────────────
+// Use vi.fn() so individual tests can call .mockImplementation() to override.
 vi.mock('../../store/authStore', () => ({
   useAuthStore: vi.fn((sel: any) => sel({ isAuthenticated: false })),
 }));
 
-// ── Pet store mock (default: no pets owned) ──────────────────────────────────
+// ── Pet store mock (default: no owned pets) ──────────────────────────────────
 vi.mock('../../store/petStore', () => ({
   usePetStore: vi.fn((sel: any) => sel({ pets: [], hydrate: vi.fn() })),
 }));
@@ -39,7 +40,7 @@ Object.defineProperty(global.navigator, 'mediaDevices', {
   },
 });
 
-// Mock Canvas for testing capture
+// Mock Canvas for capture
 HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
   drawImage: vi.fn(),
 }) as any;
@@ -65,20 +66,19 @@ describe('Scan Page - States', () => {
   it('renders CameraView initially', async () => {
     renderWithRouter(<Scan />);
     expect(screen.getAllByText(/Position nose within the frame/i)[0]).toBeInTheDocument();
-    const captureBtn = screen.getByLabelText(/Capture photo/i);
-    expect(captureBtn).toBeInTheDocument();
+    expect(screen.getByLabelText(/Capture photo/i)).toBeInTheDocument();
   });
 
   it('handles MATCH state correctly', async () => {
     (ApiClient.identifyPet as any).mockResolvedValueOnce({
-      matches: [{ pet_id: 'pet-123', confidence: 0.95 }]
+      matches: [{ pet_id: 'pet-123', confidence: 0.95, qr_tag_id: 'tag-123' }]
     });
 
     renderWithRouter(<Scan />);
     await capturePhoto();
-    
+
     expect(screen.getByText('Reading the nose pattern...')).toBeInTheDocument();
-    
+
     await waitFor(() => {
       expect(screen.getByText('Match Found!')).toBeInTheDocument();
     });
@@ -92,10 +92,10 @@ describe('Scan Page - States', () => {
         { pet_id: 'pet-2', confidence: 0.75 }
       ]
     });
-    
+
     renderWithRouter(<Scan />);
     await capturePhoto();
-    
+
     await waitFor(() => {
       expect(screen.getByText('Multiple Similar Profiles')).toBeInTheDocument();
     });
@@ -103,13 +103,11 @@ describe('Scan Page - States', () => {
   });
 
   it('handles UNKNOWN state correctly', async () => {
-    (ApiClient.identifyPet as any).mockResolvedValueOnce({
-      matches: []
-    });
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({ matches: [] });
 
     renderWithRouter(<Scan />);
     await capturePhoto();
-    
+
     await waitFor(() => {
       expect(screen.getByText('No Match Found')).toBeInTheDocument();
     });
@@ -122,7 +120,7 @@ describe('Scan Page - States', () => {
 
     renderWithRouter(<Scan />);
     await capturePhoto();
-    
+
     await waitFor(() => {
       expect(screen.getByText('Scan Unclear')).toBeInTheDocument();
     });
@@ -136,7 +134,7 @@ describe('Scan Page - States', () => {
 
     renderWithRouter(<Scan />);
     await capturePhoto();
-    
+
     await waitFor(() => {
       expect(screen.getByText('Service Unavailable')).toBeInTheDocument();
     });
@@ -154,60 +152,51 @@ describe('Scan Page - States', () => {
 
     renderWithRouter(<Scan />);
     await capturePhoto();
-    
+
     await waitFor(() => {
       expect(screen.getByText('Reading the nose pattern...')).toBeInTheDocument();
     });
-    
+
     const processingContainer = screen.getByText('Reading the nose pattern...').parentElement;
     expect(processingContainer?.innerHTML).toContain('motion-reduce:hidden');
     resolveApi({ matches: [] });
   });
 });
 
-// ── MATCH routing regression ─────────────────────────────────────────────────
-// These tests verify the routing decision in ResultView.handleViewProfile:
-//   Unauthenticated finder  → /p/:qrTagId  (public profile)
-//   Unauthenticated, no tag → /p/:petId    (fallback, still public)
-//   Authenticated owner     → /pets/:petId (owner-authenticated route)
+// ── MATCH routing regression ──────────────────────────────────────────────────
+//
+// These tests verify the routing decision in ResultView.handleViewProfile():
+//
+//  Case 1: Unauthenticated finder + valid qrTagId   → /p/:qrTagId   (PUBLIC)
+//  Case 2: Authenticated owner + own pet            → /pets/:petId  (PRIVATE)
+//  Case 3: Authenticated user + another person's pet → /p/:qrTagId  (PUBLIC)
+//  Case 4: MATCH without qrTagId                    → error shown, never navigate to /pets/
+//
 describe('Scan MATCH → View Pet Profile routing', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockNavigate.mockClear();
   });
 
-  it('routes unauthenticated finder to /p/:qrTagId when qrTagId is present', async () => {
-    // Default mocks: isAuthenticated=false, no owned pets
+  // Case 1: Unauthenticated finder + qrTagId present → /p/:qrTagId
+  it('Case 1 — unauthenticated finder + qrTagId: navigates to /p/:qrTagId', async () => {
+    // Default mocks: isAuthenticated=false, pets=[]
     (ApiClient.identifyPet as any).mockResolvedValueOnce({
       matches: [{ pet_id: 'pet-abc', confidence: 0.95, qr_tag_id: 'tag-xyz' }],
     });
 
     renderWithRouter(<Scan />);
     await capturePhoto();
-
     await waitFor(() => expect(screen.getByText('Match Found!')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText(/View Pet Profile/i));
+
     expect(mockNavigate).toHaveBeenCalledWith('/p/tag-xyz');
     expect(mockNavigate).not.toHaveBeenCalledWith(expect.stringContaining('/pets/'));
   });
 
-  it('falls back to /p/:petId when qrTagId is absent and finder is unauthenticated', async () => {
-    (ApiClient.identifyPet as any).mockResolvedValueOnce({
-      matches: [{ pet_id: 'pet-abc', confidence: 0.95 }], // no qr_tag_id
-    });
-
-    renderWithRouter(<Scan />);
-    await capturePhoto();
-
-    await waitFor(() => expect(screen.getByText('Match Found!')).toBeInTheDocument());
-
-    fireEvent.click(screen.getByText(/View Pet Profile/i));
-    expect(mockNavigate).toHaveBeenCalledWith('/p/pet-abc');
-    expect(mockNavigate).not.toHaveBeenCalledWith(expect.stringContaining('/pets/'));
-  });
-
-  it('routes authenticated owner to /pets/:petId when matched pet is theirs', async () => {
+  // Case 2: Authenticated owner + matched pet is theirs → /pets/:petId
+  it('Case 2 — authenticated owner + own pet: navigates to /pets/:petId', async () => {
     const { useAuthStore } = await import('../../store/authStore');
     const { usePetStore } = await import('../../store/petStore');
 
@@ -224,11 +213,63 @@ describe('Scan MATCH → View Pet Profile routing', () => {
 
     renderWithRouter(<Scan />);
     await capturePhoto();
-
     await waitFor(() => expect(screen.getByText('Match Found!')).toBeInTheDocument());
 
     fireEvent.click(screen.getByText(/View Pet Profile/i));
+
     expect(mockNavigate).toHaveBeenCalledWith('/pets/pet-mine');
     expect(mockNavigate).not.toHaveBeenCalledWith(expect.stringContaining('/p/'));
+  });
+
+  // Case 3: Authenticated user + another person's pet → /p/:qrTagId (public, not /pets/)
+  it('Case 3 — authenticated user + another person\'s pet: navigates to /p/:qrTagId', async () => {
+    const { useAuthStore } = await import('../../store/authStore');
+    const { usePetStore } = await import('../../store/petStore');
+
+    // Authenticated but owns different pet
+    (useAuthStore as any).mockImplementation((sel: any) =>
+      sel({ isAuthenticated: true })
+    );
+    (usePetStore as any).mockImplementation((sel: any) =>
+      sel({ pets: [{ id: 'my-other-pet', name: 'Rex' }], hydrate: vi.fn() })
+    );
+
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      // Matched pet does NOT belong to current user
+      matches: [{ pet_id: 'someone-elses-pet', confidence: 0.95, qr_tag_id: 'tag-stranger' }],
+    });
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+    await waitFor(() => expect(screen.getByText('Match Found!')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText(/View Pet Profile/i));
+
+    // Must route to PUBLIC profile — not the private /pets/ route
+    expect(mockNavigate).toHaveBeenCalledWith('/p/tag-stranger');
+    expect(mockNavigate).not.toHaveBeenCalledWith(expect.stringContaining('/pets/'));
+  });
+
+  // Case 4: MATCH without qrTagId — controlled error, no navigation to /pets/
+  it('Case 4 — MATCH without qrTagId: shows error message, never navigates to /pets/', async () => {
+    // Default: unauthenticated, no owned pets
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      matches: [{ pet_id: 'pet-abc', confidence: 0.95 }], // no qr_tag_id field
+    });
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+    await waitFor(() => expect(screen.getByText('Match Found!')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText(/View Pet Profile/i));
+
+    // Error message must appear
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+    expect(screen.getByRole('alert').textContent).toMatch(/tag ID was returned|unavailable/i);
+
+    // Must NOT have navigated anywhere
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });
