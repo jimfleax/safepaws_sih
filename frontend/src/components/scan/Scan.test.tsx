@@ -22,12 +22,12 @@ vi.mock('../../utils/apiClient', () => ({
 
 // ── Auth store mock (default: unauthenticated) ───────────────────────────────
 vi.mock('../../store/authStore', () => ({
-  useAuthStore: (sel: any) => sel({ isAuthenticated: false }),
+  useAuthStore: vi.fn((sel: any) => sel({ isAuthenticated: false })),
 }));
 
 // ── Pet store mock (default: no pets owned) ──────────────────────────────────
 vi.mock('../../store/petStore', () => ({
-  usePetStore: (sel: any) => sel({ pets: [] }),
+  usePetStore: vi.fn((sel: any) => sel({ pets: [], hydrate: vi.fn() })),
 }));
 
 // Mock MediaDevices
@@ -48,28 +48,26 @@ HTMLCanvasElement.prototype.toBlob = function (callback) {
   callback(new Blob(['mock_image'], { type: 'image/jpeg' }));
 };
 
+const renderWithRouter = (component: React.ReactNode) =>
+  render(<BrowserRouter>{component}</BrowserRouter>);
+
+const capturePhoto = async () => {
+  fireEvent.click(screen.getByLabelText(/Capture photo/i));
+};
+
+// ── Scan state tests ─────────────────────────────────────────────────────────
 describe('Scan Page - States', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockNavigate.mockClear();
   });
-
-  const renderWithRouter = (component: React.ReactNode) => {
-    return render(<BrowserRouter>{component}</BrowserRouter>);
-  };
 
   it('renders CameraView initially', async () => {
     renderWithRouter(<Scan />);
     expect(screen.getAllByText(/Position nose within the frame/i)[0]).toBeInTheDocument();
-
-    // Check for the capture button
     const captureBtn = screen.getByLabelText(/Capture photo/i);
     expect(captureBtn).toBeInTheDocument();
   });
-
-  const capturePhoto = async () => {
-    const captureBtn = screen.getByLabelText(/Capture photo/i);
-    fireEvent.click(captureBtn);
-  };
 
   it('handles MATCH state correctly', async () => {
     (ApiClient.identifyPet as any).mockResolvedValueOnce({
@@ -147,7 +145,6 @@ describe('Scan Page - States', () => {
   });
 
   it('validates reduced motion classes are present for a11y', async () => {
-    // Keep it pending to inspect processing screen
     let resolveApi: any;
     (ApiClient.identifyPet as any).mockImplementationOnce(() => {
       return new Promise((resolve) => {
@@ -158,19 +155,29 @@ describe('Scan Page - States', () => {
     renderWithRouter(<Scan />);
     await capturePhoto();
     
-    render(<BrowserRouter>{component}</BrowserRouter>);
+    await waitFor(() => {
+      expect(screen.getByText('Reading the nose pattern...')).toBeInTheDocument();
+    });
+    
+    const processingContainer = screen.getByText('Reading the nose pattern...').parentElement;
+    expect(processingContainer?.innerHTML).toContain('motion-reduce:hidden');
+    resolveApi({ matches: [] });
+  });
+});
 
-  const capturePhoto = async () => {
-    fireEvent.click(screen.getByLabelText(/Capture photo/i));
-  };
-
+// ── MATCH routing regression ─────────────────────────────────────────────────
+// These tests verify the routing decision in ResultView.handleViewProfile:
+//   Unauthenticated finder  → /p/:qrTagId  (public profile)
+//   Unauthenticated, no tag → /p/:petId    (fallback, still public)
+//   Authenticated owner     → /pets/:petId (owner-authenticated route)
+describe('Scan MATCH → View Pet Profile routing', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockNavigate.mockClear();
   });
 
   it('routes unauthenticated finder to /p/:qrTagId when qrTagId is present', async () => {
-    // Default mocks have isAuthenticated=false and no owned pets
+    // Default mocks: isAuthenticated=false, no owned pets
     (ApiClient.identifyPet as any).mockResolvedValueOnce({
       matches: [{ pet_id: 'pet-abc', confidence: 0.95, qr_tag_id: 'tag-xyz' }],
     });
@@ -200,8 +207,7 @@ describe('Scan Page - States', () => {
     expect(mockNavigate).not.toHaveBeenCalledWith(expect.stringContaining('/pets/'));
   });
 
-  it('routes authenticated owner to /pets/:petId when pet is in their list', async () => {
-    // Override auth and pet store for this test only
+  it('routes authenticated owner to /pets/:petId when matched pet is theirs', async () => {
     const { useAuthStore } = await import('../../store/authStore');
     const { usePetStore } = await import('../../store/petStore');
 
@@ -209,7 +215,7 @@ describe('Scan Page - States', () => {
       sel({ isAuthenticated: true })
     );
     (usePetStore as any).mockImplementation((sel: any) =>
-      sel({ pets: [{ id: 'pet-mine', name: 'Buddy' }] })
+      sel({ pets: [{ id: 'pet-mine', name: 'Buddy' }], hydrate: vi.fn() })
     );
 
     (ApiClient.identifyPet as any).mockResolvedValueOnce({
