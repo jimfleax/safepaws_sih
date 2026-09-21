@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScanResult } from './types';
 import { CheckCircle2, AlertCircle, HelpCircle, AlertTriangle, ServerCrash, RefreshCw, Eye, PlusCircle, Megaphone } from 'lucide-react';
 import { usePetStore } from '../../store/petStore';
@@ -15,19 +15,40 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
   const navigate = useNavigate();
   const pets = usePetStore(state => state.pets);
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const [missingTagError, setMissingTagError] = useState(false);
 
-  // MATCH routing logic:
-  //   Authenticated owner viewing their own pet → /pets/:petId (owner-authenticated route)
-  //   Anyone else (unauthenticated finder, or authenticated user viewing someone else's pet)
-  //     → /p/:qrTagId (public finder profile), falling back to /p/:petId if no qrTagId
+  // MATCH routing — four cases:
+  //
+  //  Case 1 — Unauthenticated finder + qrTagId present
+  //    → navigate('/p/:qrTagId')   PUBLIC, no auth required
+  //
+  //  Case 2 — Authenticated owner whose pet matches (pet is in their owned list)
+  //    → navigate('/pets/:petId')  PRIVATE, owner-authenticated route
+  //
+  //  Case 3 — Authenticated user scanning another person's pet
+  //    → navigate('/p/:qrTagId')   Treat them as a finder — PUBLIC route
+  //
+  //  Case 4 — MATCH without qrTagId (backend did not return one)
+  //    → show inline error — do NOT route to /pets/:petId (private) or
+  //      fabricate a QR ID. Preserve a usable fallback state.
   const handleViewProfile = (petId: string, qrTagId?: string) => {
     const isMyPet = isAuthenticated && pets.some(p => p.id === petId);
+
     if (isMyPet) {
+      // Case 2: authenticated owner — private pet detail route
       navigate(`/pets/${petId}`);
-    } else {
-      // Public finder journey — always use the public QR tag route
-      navigate(qrTagId ? `/p/${qrTagId}` : `/p/${petId}`);
+      return;
     }
+
+    if (qrTagId) {
+      // Case 1 + 3: finder (authenticated or not) — public profile route
+      navigate(`/p/${qrTagId}`);
+      return;
+    }
+
+    // Case 4: MATCH but no qrTagId returned — controlled fallback
+    // Do not route to /pets/:petId (requires auth) or fabricate a tag ID.
+    setMissingTagError(true);
   };
 
   const handleRegister = () => {
@@ -59,6 +80,12 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
           We found a decisive match for <strong className="text-white font-medium">{pet.name}</strong>.
         </p>
         
+        {missingTagError && (
+          <p role="alert" className="text-sm text-[var(--color-alert-clay)] mb-4 max-w-xs">
+            Pet profile link unavailable — no tag ID was returned. Please try scanning again or contact the owner directly.
+          </p>
+        )}
+
         <div className="w-full max-w-sm flex flex-col gap-3 relative z-10">
           <button 
             onClick={() => handleViewProfile(result.petId!, result.qrTagId)}
@@ -76,6 +103,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
       </ViewWrapper>
     );
   }
+
 
   if (result.state === 'AMBIGUOUS' && result.candidates) {
     return (
