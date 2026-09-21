@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Fingerprint, Share2, Scan, ArrowUpRight } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface FeaturesSectionProps {
   onOpenBiometric: () => void;
@@ -12,18 +16,58 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({
   onOpenNetwork,
   onOpenQrTags,
 }) => {
+  const containerRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    const ctx = gsap.context(() => {
+      // Header entrance
+      gsap.from(headerRef.current, {
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top 85%',
+        },
+        opacity: 0,
+        y: 30,
+        duration: 0.8,
+        ease: 'back.out(1.2)'
+      });
+
+      // Cards staggered entrance with slight scale
+      if (cardsRef.current) {
+        gsap.from(cardsRef.current.children, {
+          scrollTrigger: {
+            trigger: cardsRef.current,
+            start: 'top 80%',
+          },
+          opacity: 0,
+          y: 60,
+          scale: 0.95,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power4.out',
+        });
+      }
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
   return (
-    <section className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-12 sm:py-16">
+    <section ref={containerRef} className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-12 sm:py-16">
       {/* Section Eyebrow */}
-      <div className="flex items-center gap-2 mb-8 sm:mb-10">
-        <span className="w-2.5 h-2.5 rounded-full bg-[#DE6828] inline-block" />
+      <div ref={headerRef} className="flex items-center gap-2 mb-8 sm:mb-10">
+        <span className="w-2.5 h-2.5 rounded-full bg-[#DE6828] inline-block animate-pulse" />
         <span className="text-[12px] sm:text-[13px] font-bold tracking-[0.12em] text-[#3F3127] uppercase">
           ONE PLACE TO KEEP THEM SAFE
         </span>
       </div>
 
       {/* Asymmetrical Feature Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+      <div ref={cardsRef} className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         
         {/* Primary Feature: Biometric AI */}
         <div

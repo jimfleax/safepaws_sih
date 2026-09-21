@@ -59,26 +59,38 @@ export const CustomCursor: React.FC = () => {
 
   return (
     <>
+      {/* Core Dot */}
       <motion.div
-        className="fixed top-0 left-0 w-3 h-3 bg-[#DE6828] rounded-full pointer-events-none z-[9999] mix-blend-difference"
+        className="fixed top-0 left-0 w-3 h-3 bg-[var(--color-accent)] rounded-full pointer-events-none z-[10000] mix-blend-exclusion"
         animate={{
           x: mousePosition.x - 6,
           y: mousePosition.y - 6,
           scale: isHovering ? 0 : 1,
           opacity: isHovering ? 0 : 1
         }}
-        transition={{ type: 'tween', ease: 'backOut', duration: 0.15 }}
+        transition={{ type: 'tween', ease: 'backOut', duration: 0.1 }}
       />
+      {/* Trailing Ring */}
       <motion.div
-        className="fixed top-0 left-0 w-10 h-10 border border-[#DE6828] rounded-full pointer-events-none z-[9998]"
+        className="fixed top-0 left-0 w-12 h-12 border-2 border-[var(--color-accent)] rounded-full pointer-events-none z-[9999] mix-blend-exclusion backdrop-invert-[0.1]"
         animate={{
-          x: mousePosition.x - 20,
-          y: mousePosition.y - 20,
-          scale: isHovering ? 1.5 : 1,
-          backgroundColor: isHovering ? 'rgba(222, 104, 40, 0.1)' : 'transparent',
-          borderColor: isHovering ? 'transparent' : '#DE6828'
+          x: mousePosition.x - 24,
+          y: mousePosition.y - 24,
+          scale: isHovering ? 1.8 : 1,
+          backgroundColor: isHovering ? 'var(--color-accent)' : 'transparent',
+          opacity: isHovering ? 0.2 : 0.8
         }}
-        transition={{ type: 'spring', stiffness: 150, damping: 15, mass: 0.5 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 25, mass: 1 }}
+      />
+      {/* Glow Trail */}
+      <motion.div
+        className="fixed top-0 left-0 w-32 h-32 bg-[var(--color-accent)] rounded-full pointer-events-none z-[9998] mix-blend-screen blur-3xl opacity-20"
+        animate={{
+          x: mousePosition.x - 64,
+          y: mousePosition.y - 64,
+          scale: isHovering ? 1.5 : 1,
+        }}
+        transition={{ type: 'spring', stiffness: 50, damping: 30, mass: 2 }}
       />
     </>
   );

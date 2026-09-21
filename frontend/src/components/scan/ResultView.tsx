@@ -7,16 +7,26 @@ import { useNavigate } from 'react-router-dom';
 interface ResultViewProps {
   result: ScanResult;
   onRetry: () => void;
-  onConfirmCandidate: (petId: string) => void;
+  onConfirmCandidate: (petId: string, qrTagId?: string) => void;
 }
 
 export default function ResultView({ result, onRetry, onConfirmCandidate }: ResultViewProps) {
   const navigate = useNavigate();
   const pets = usePetStore(state => state.pets);
   
-  const handleViewProfile = (petId: string) => {
-    usePetStore.getState().setSelectedPetId(petId);
-    navigate('/dashboard');
+  const handleViewProfile = (petId: string, qrTagId?: string) => {
+    // Check if current user is owner
+    const isOwner = pets.some(p => p.id === petId);
+    
+    if (isOwner) {
+      usePetStore.getState().setSelectedPetId(petId);
+      navigate(`/pets/${petId}`);
+    } else if (qrTagId) {
+      navigate(`/p/${qrTagId}`);
+    } else {
+      // Fallback
+      navigate('/dashboard');
+    }
   };
 
   const handleRegister = () => {
@@ -45,7 +55,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         
         <div className="w-full max-w-sm flex flex-col gap-3 relative z-10">
           <button 
-            onClick={() => handleViewProfile(result.petId!)}
+            onClick={() => handleViewProfile(result.petId!, result.qrTagId)}
             className="w-full bg-[var(--color-trail)] hover:bg-[var(--color-trail)]/90 text-white font-semibold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-trail)] min-h-[44px]"
           >
             <Eye className="w-5 h-5" /> View Pet Profile

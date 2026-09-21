@@ -115,6 +115,23 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* Custom minimal scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-ink-soft);
+    border-radius: 10px;
+    opacity: 0.5;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-ink);
+  }
 }
 
 /* Custom subtle animations */
