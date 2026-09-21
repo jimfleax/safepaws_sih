@@ -14,106 +14,18 @@ import { CtaSection } from '../components/CtaSection';
 import { Footer } from '../components/Footer';
 
 // Modals
-import { PetProfileModal } from '../components/modals/PetProfileModal';
-import { QrTagModal } from '../components/modals/QrTagModal';
-import { LostAlertModal } from '../components/modals/LostAlertModal';
-import { BiometricModal } from '../components/modals/BiometricModal';
-import { CommunityModal } from '../components/modals/CommunityModal';
-import { HowItWorksModal } from '../components/modals/HowItWorksModal';
 import { InfoModal } from '../components/modals/InfoModal';
 
 // Mock Data
-import { initialPets, sampleAlerts, sampleSightings } from '../data/mockData';
-import { Pet, NeighborhoodAlert, CommunitySighting } from '../types';
 
 import { usePetStore } from '../store/petStore';
-import { ApiClient } from '../utils/apiClient';
 
 export default function LandingPage() {
   // Always show the starting portal animation on every page refresh / load
   const [hasEntered, setHasEntered] = useState<boolean>(false);
-
-  const { 
-    pets, 
-    selectedPetId, 
-    alerts, 
-    sightings,
-    addPet: handleSavePet,
-    removePet: handleRemovePet,
-    setSelectedPetId,
-    triggerLostAlert,
-    addSighting: storeAddSighting,
-    resolveAlert: handleResolveAlert
-  } = usePetStore();
-
-  const handleAddSighting = async (newSighting: CommunitySighting) => {
-    try {
-      await ApiClient.reportSighting(newSighting);
-    } catch (e) {
-      console.error('Failed to report sighting to API', e);
-    }
-    storeAddSighting(newSighting);
-  };
-
-  // Modal Visibility States
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-  const [isLostAlertModalOpen, setIsLostAlertModalOpen] = useState(false);
-  const [isBiometricModalOpen, setIsBiometricModalOpen] = useState(false);
-  const [isCommunityModalOpen, setIsCommunityModalOpen] = useState(false);
-  const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
+  const navigate = useNavigate();
   const [infoModalType, setInfoModalType] = useState<'privacy' | 'guidelines' | 'contact' | null>(null);
-
-  const activePet = pets.find((p) => p.id === selectedPetId) || pets[0];
-  const activeAlert = alerts[0] || {
-    id: 'alert-default',
-    petId: activePet.id,
-    petName: activePet.name,
-    breed: activePet.breed,
-    photoUrl: activePet.photoUrl,
-    status: 'active',
-    broadcastRadiusKm: 2.5,
-    notifiedNeighborsCount: 138,
-    timeAgo: 'Just now',
-    lastSeenAddress: 'Oakridge Park near Elm St',
-    description: 'Slipped out the back gate.',
-    sightingsCount: sightings.length,
-  };
-
-  const handleOpenQrForPet = (pet: Pet) => {
-    setSelectedPetId(pet.id);
-    setIsProfileModalOpen(false);
-    setIsQrModalOpen(true);
-  };
-
-  const handleTriggerLostAlertForPet = (pet: Pet) => {
-    const newAlert: NeighborhoodAlert = {
-      id: `alert-${Date.now()}`,
-      petId: pet.id,
-      petName: pet.name,
-      breed: pet.breed,
-      photoUrl: pet.photoUrl,
-      status: 'active',
-      broadcastRadiusKm: 2.5,
-      notifiedNeighborsCount: 138,
-      timeAgo: 'Just now',
-      lastSeenAddress: 'Oakridge & Elm Hills',
-      description: `${pet.name} was marked missing. Broadcast activated to neighborhood radar.`,
-      sightingsCount: 0,
-    };
-    triggerLostAlert(pet, newAlert);
-    setIsProfileModalOpen(false);
-    setIsLostAlertModalOpen(true);
-  };
-
-  const isAnyModalOpen =
-    isProfileModalOpen ||
-    isQrModalOpen ||
-    isLostAlertModalOpen ||
-    isBiometricModalOpen ||
-    isCommunityModalOpen ||
-    isHowItWorksOpen ||
-    infoModalType !== null;
+  const { alerts } = usePetStore();
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#241812] selection:bg-[#DE6828]/20 selection:text-[#B54C14]">
@@ -128,44 +40,44 @@ export default function LandingPage() {
 
       {/* 1. Header Navigation */}
       <Header
-        onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
-        onOpenCommunity={() => setIsCommunityModalOpen(true)}
+        onOpenHowItWorks={() => {
+          const el = document.getElementById('feature-card-biometric');
+          el?.scrollIntoView({ behavior: 'smooth' });
+        }}
+        onOpenCommunity={() => navigate('/community')}
         onOpenFeatures={() => {
           const el = document.getElementById('feature-card-biometric');
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
-        onOpenProfile={() => setIsProfileModalOpen(true)}
-        onOpenAlerts={() => setIsLostAlertModalOpen(true)}
+        onOpenProfile={() => navigate('/dashboard')}
+        onOpenAlerts={() => navigate('/lost')}
         activeAlertCount={alerts.filter((a) => a.status === 'active').length}
       />
 
       {/* 2. Hero Section matching screenshot */}
       <main className="relative z-10 flex-1">
         <Hero
-          onJoinClick={() => setIsProfileModalOpen(true)}
-          onOpenOliveProfile={() => {
-            setSelectedPetId('pet-olive');
-            setIsProfileModalOpen(true);
-          }}
-          onOpenLostAlert={() => setIsLostAlertModalOpen(true)}
+          onJoinClick={() => navigate('/setup-profile')}
+          onOpenOliveProfile={() => navigate('/pets/pet-olive')}
+          onOpenLostAlert={() => navigate('/lost')}
         />
 
         {/* 3. Feature Bento Cards: "ONE PLACE TO KEEP THEM SAFE" */}
         <FeaturesSection
-          onOpenBiometric={() => setIsBiometricModalOpen(true)}
-          onOpenNetwork={() => setIsCommunityModalOpen(true)}
-          onOpenQrTags={() => setIsQrModalOpen(true)}
+          onOpenBiometric={() => navigate('/scan')}
+          onOpenNetwork={() => navigate('/community')}
+          onOpenQrTags={() => navigate('/scan')}
         />
 
         {/* 4. Espresso Dark Section: "SIMPLE FROM DAY ONE" */}
         <StepsDarkSection
-          onStep1Click={() => setIsProfileModalOpen(true)}
-          onStep2Click={() => setIsCommunityModalOpen(true)}
-          onStep3Click={() => setIsLostAlertModalOpen(true)}
+          onStep1Click={() => navigate('/setup-profile')}
+          onStep2Click={() => navigate('/community')}
+          onStep3Click={() => navigate('/lost')}
         />
 
         {/* 5. Bottom Call to Action: "YOUR NEIGHBORHOOD, CONNECTED" */}
-        <CtaSection onStartClick={() => setIsProfileModalOpen(true)} />
+        <CtaSection onStartClick={() => navigate('/setup-profile')} />
       </main>
 
       {/* 6. Footer matching screenshot */}

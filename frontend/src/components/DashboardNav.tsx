@@ -44,14 +44,25 @@ export const DashboardNav = () => {
             My pets
           </Link>
 
-          <button 
+          <Link 
+            to="/alerts"
             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors text-left focus:outline-none focus:ring-2 focus:ring-brand-orange ${
               isCurrent('/alerts') ? 'bg-safe-neutral text-brand-dark' : 'text-[#8B847B] hover:bg-[#F3EFE9] hover:text-brand-dark'
             }`}
           >
             <ShieldAlert size={20} />
             Alerts
-          </button>
+          </Link>
+
+          <Link 
+            to="/community"
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors text-left focus:outline-none focus:ring-2 focus:ring-brand-orange ${
+              isCurrent('/community') ? 'bg-safe-neutral text-brand-dark' : 'text-[#8B847B] hover:bg-[#F3EFE9] hover:text-brand-dark'
+            }`}
+          >
+            <User size={20} />
+            Community
+          </Link>
         </div>
 
         <div className="mt-auto flex flex-col gap-2">
