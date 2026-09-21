@@ -68,7 +68,7 @@ def test_invalid_consent(client: TestClient):
 def test_oversized_file(client: TestClient):
     large_file = io.BytesIO(b"0" * (6 * 1024 * 1024))
     response = client.post(
-        "/api/v1/pets/mock-pet-id-123/enroll-image",
+        "/api/v1/pets/identify",
         files={"file": ("large.jpg", large_file, "image/jpeg")},
     )
     assert response.status_code == 413

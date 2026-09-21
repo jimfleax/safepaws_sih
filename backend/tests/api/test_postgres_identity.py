@@ -1,9 +1,9 @@
 import pytest
 import asyncio
-from httpx import AsyncClient, ASGITransport
+from fastapi.testclient import TestClient
 from app.main import app
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import uuid
 import asyncpg
@@ -13,13 +13,13 @@ from app.api.dependencies import get_db
 SECRET_KEY = os.getenv('JWT_SECRET', 'supersecret')
 
 @pytest.mark.asyncio
-async def test_real_postgres_identity_persistence():
+async def test_real_postgres_identity_persistence(client: TestClient):
     # Remove conftest mock for this real test
     old_overrides = app.dependency_overrides.copy()
     if get_db in app.dependency_overrides:
         del app.dependency_overrides[get_db]
         
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as real_async_client:
+    try:
         # 1. Connect to Real DB
         conn = await asyncpg.connect(settings.DATABASE_URL.replace("+asyncpg", ""))
         
@@ -34,17 +34,17 @@ async def test_real_postgres_identity_persistence():
         
         # 3. Create a JWT for the owner
         token = jwt.encode(
-            {"userId": owner_id, "exp": datetime.utcnow() + timedelta(hours=1)},
+            {"userId": owner_id, "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
             SECRET_KEY,
             algorithm="HS256"
         )
         
         # 3.5 Test unauthenticated /me
-        res_me_unauth = await real_async_client.get("/api/auth/me")
+        res_me_unauth = client.get("/api/auth/me")
         assert res_me_unauth.status_code == 401
         
         # 3.6 Test authenticated /me
-        res_me = await real_async_client.get(
+        res_me = client.get(
             "/api/auth/me",
             cookies={"jwt": token}
         )
@@ -54,7 +54,7 @@ async def test_real_postgres_identity_persistence():
         assert data["name"] == owner_name
         
         # 4. Profile Update using real API (tests PUT /api/users/profile)
-        res_profile = await real_async_client.put(
+        res_profile = client.put(
             "/api/users/profile",
             json={"phone": "123-456", "neighborhood": "Real Hood"},
             cookies={"jwt": token}
@@ -75,14 +75,14 @@ async def test_real_postgres_identity_persistence():
         }
         
         # 5.1 Unauthenticated pet registration fails
-        res_pet_unauth = await real_async_client.post(
+        res_pet_unauth = client.post(
             "/api/v1/pets/register",
             json=pet_data
         )
         assert res_pet_unauth.status_code == 401
         
         # 5.2 Authenticated registration succeeds
-        res_pet = await real_async_client.post(
+        res_pet = client.post(
             "/api/v1/pets/register",
             json=pet_data,
             cookies={"jwt": token}
@@ -106,6 +106,6 @@ async def test_real_postgres_identity_persistence():
         await conn.execute("DELETE FROM pets WHERE id = $1", pet_id)
         await conn.execute("DELETE FROM owners WHERE id = $1", owner_id)
         await conn.close()
-    
-    app.dependency_overrides = old_overrides
+    finally:
+        app.dependency_overrides = old_overrides
 
