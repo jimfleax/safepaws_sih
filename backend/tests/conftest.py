@@ -28,6 +28,14 @@ async def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
+@pytest.fixture(autouse=True)
+def ensure_db_override():
+    # Save the original overrides before the test
+    original_overrides = app.dependency_overrides.copy()
+    yield
+    # Restore them exactly as they were
+    app.dependency_overrides = original_overrides
+
 @pytest.fixture(scope="module")
 def client() -> TestClient:
     with TestClient(app) as c:
