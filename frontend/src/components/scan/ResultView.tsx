@@ -16,16 +16,17 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
   const pets = usePetStore(state => state.pets);
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
-  // MATCH: if the found pet belongs to the current user → go to their pet detail
-  //        if found by a stranger (unauthenticated or different owner) → public profile page
-  const handleViewProfile = (petId: string) => {
-    const myPet = pets.find(p => p.id === petId);
-    if (myPet && isAuthenticated) {
+  // MATCH routing logic:
+  //   Authenticated owner viewing their own pet → /pets/:petId (owner-authenticated route)
+  //   Anyone else (unauthenticated finder, or authenticated user viewing someone else's pet)
+  //     → /p/:qrTagId (public finder profile), falling back to /p/:petId if no qrTagId
+  const handleViewProfile = (petId: string, qrTagId?: string) => {
+    const isMyPet = isAuthenticated && pets.some(p => p.id === petId);
+    if (isMyPet) {
       navigate(`/pets/${petId}`);
     } else {
-      // Pet found in a community scan — navigate to public tag profile if we have the QR id,
-      // otherwise fall back to the pet detail (which is public-readable)
-      navigate(`/pets/${petId}`);
+      // Public finder journey — always use the public QR tag route
+      navigate(qrTagId ? `/p/${qrTagId}` : `/p/${petId}`);
     }
   };
 
@@ -60,7 +61,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         
         <div className="w-full max-w-sm flex flex-col gap-3 relative z-10">
           <button 
-            onClick={() => handleViewProfile(result.petId!)}
+            onClick={() => handleViewProfile(result.petId!, result.qrTagId)}
             className="w-full bg-[var(--color-trail)] hover:bg-[var(--color-trail)]/90 text-white font-semibold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-trail)] min-h-[44px]"
           >
             <Eye className="w-5 h-5" /> View Pet Profile
