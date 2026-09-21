@@ -169,3 +169,75 @@ describe('Scan Page - States', () => {
     });
   });
 });
+
+// ── MATCH routing regression ─────────────────────────────────────────────────
+describe('Scan MATCH → View Pet Profile routing', () => {
+  const renderWithRouter = (component: React.ReactNode) =>
+    render(<BrowserRouter>{component}</BrowserRouter>);
+
+  const capturePhoto = async () => {
+    fireEvent.click(screen.getByLabelText(/Capture photo/i));
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockNavigate.mockClear();
+  });
+
+  it('routes unauthenticated finder to /p/:qrTagId when qrTagId is present', async () => {
+    // Default mocks have isAuthenticated=false and no owned pets
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      matches: [{ pet_id: 'pet-abc', confidence: 0.95, qr_tag_id: 'tag-xyz' }],
+    });
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+
+    await waitFor(() => expect(screen.getByText('Match Found!')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText(/View Pet Profile/i));
+    expect(mockNavigate).toHaveBeenCalledWith('/p/tag-xyz');
+    expect(mockNavigate).not.toHaveBeenCalledWith(expect.stringContaining('/pets/'));
+  });
+
+  it('falls back to /p/:petId when qrTagId is absent and finder is unauthenticated', async () => {
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      matches: [{ pet_id: 'pet-abc', confidence: 0.95 }], // no qr_tag_id
+    });
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+
+    await waitFor(() => expect(screen.getByText('Match Found!')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText(/View Pet Profile/i));
+    expect(mockNavigate).toHaveBeenCalledWith('/p/pet-abc');
+    expect(mockNavigate).not.toHaveBeenCalledWith(expect.stringContaining('/pets/'));
+  });
+
+  it('routes authenticated owner to /pets/:petId when pet is in their list', async () => {
+    // Override auth and pet store for this test only
+    const { useAuthStore } = await import('../../store/authStore');
+    const { usePetStore } = await import('../../store/petStore');
+
+    (useAuthStore as any).mockImplementation((sel: any) =>
+      sel({ isAuthenticated: true })
+    );
+    (usePetStore as any).mockImplementation((sel: any) =>
+      sel({ pets: [{ id: 'pet-mine', name: 'Buddy' }] })
+    );
+
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      matches: [{ pet_id: 'pet-mine', confidence: 0.95, qr_tag_id: 'tag-mine' }],
+    });
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+
+    await waitFor(() => expect(screen.getByText('Match Found!')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText(/View Pet Profile/i));
+    expect(mockNavigate).toHaveBeenCalledWith('/pets/pet-mine');
+    expect(mockNavigate).not.toHaveBeenCalledWith(expect.stringContaining('/p/'));
+  });
+});
