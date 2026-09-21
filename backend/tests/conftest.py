@@ -30,11 +30,11 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(autouse=True)
 def ensure_db_override():
-    old = app.dependency_overrides.copy()
-    if get_db not in app.dependency_overrides:
-        app.dependency_overrides[get_db] = override_get_db
+    # Save the original overrides before the test
+    original_overrides = app.dependency_overrides.copy()
     yield
-    app.dependency_overrides = old
+    # Restore them exactly as they were
+    app.dependency_overrides = original_overrides
 
 @pytest.fixture(scope="module")
 def client() -> TestClient:
