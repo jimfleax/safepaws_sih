@@ -16,8 +16,6 @@ const LostDogs = lazy(() => import('./pages/LostDogs'));
 const ReportLost = lazy(() => import('./pages/ReportLost'));
 const AlertDetail = lazy(() => import('./pages/AlertDetail'));
 const Community = lazy(() => import('./pages/Community'));
-const CommunityPostDetail = lazy(() => import('./pages/CommunityPostDetail'));
-const CommunityOnboarding = lazy(() => import('./pages/CommunityOnboarding'));
 const ReportSighting = lazy(() => import('./pages/ReportSighting'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -46,21 +44,22 @@ const DashboardRoute = ({ children }: { children: React.ReactNode }) => {
 
 // A fallback loader for Suspense boundaries
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-[var(--color-bone)]">
-    <div className="w-8 h-8 border-4 border-[var(--color-marigold)] border-t-transparent rounded-full animate-spin"></div>
+  <div className="min-h-screen flex items-center justify-center bg-[#FAF6F0]">
+    <div className="w-8 h-8 border-4 border-[#DE6828] border-t-transparent rounded-full animate-spin"></div>
   </div>
 );
 
 export default function App() {
   const hydrate = usePetStore(state => state.hydrate);
   const { isInitializing, checkSession } = useAuthStore();
+  
+  React.useEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
   React.useEffect(() => {
-    // Check session first, then hydrate store so getAllPets has auth cookie
-    checkSession().then(() => {
-      hydrate();
-    });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    checkSession();
+  }, [checkSession]);
 
   if (isInitializing) {
     return <PageLoader />;
@@ -68,7 +67,6 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <CustomCursor />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public / Marketing */}
@@ -85,15 +83,11 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardRoute><Dashboard /></DashboardRoute>} />
           <Route path="/pets/new" element={<DashboardRoute><NewPet /></DashboardRoute>} />
           <Route path="/pets/:petId" element={<DashboardRoute><PetDetail /></DashboardRoute>} />
+          <Route path="/lost" element={<DashboardRoute><LostDogs /></DashboardRoute>} />
           <Route path="/lost/new" element={<DashboardRoute><ReportLost /></DashboardRoute>} />
-          
-          {/* Public Community & Recovery */}
-          <Route path="/community" element={<Community />} />
-          <Route path="/community/post/:postId" element={<CommunityPostDetail />} />
-          <Route path="/community/onboarding" element={<DashboardRoute><CommunityOnboarding /></DashboardRoute>} />
-          <Route path="/lost" element={<LostDogs />} />
-          <Route path="/alerts/:alertId" element={<AlertDetail />} />
-          <Route path="/sightings/new" element={<ReportSighting />} />
+          <Route path="/alerts/:alertId" element={<DashboardRoute><AlertDetail /></DashboardRoute>} />
+          <Route path="/community" element={<DashboardRoute><Community /></DashboardRoute>} />
+          <Route path="/sightings/new" element={<DashboardRoute><ReportSighting /></DashboardRoute>} />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
@@ -102,4 +96,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-

@@ -7,7 +7,12 @@ export const DashboardNav = () => {
   const { user, logout } = useAuthStore();
   const location = useLocation();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch (e) {
+      console.error('Logout failed:', e);
+    }
     logout();
   };
 
@@ -32,7 +37,7 @@ export const DashboardNav = () => {
           <Link 
             to="/dashboard" 
             className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] min-h-[44px] ${
-              isCurrent('/dashboard') ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-sm' : 'text-[var(--color-ink-soft)] hover:bg-black/5 hover:text-[var(--color-ink)]'
+              isCurrent('/dashboard') ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-sm' : 'text-[var(--color-ink-soft)] hover:bg-[#F3EFE9] hover:text-[var(--color-ink)]'
             }`}
           >
             <List size={20} />
@@ -42,7 +47,7 @@ export const DashboardNav = () => {
           <Link 
             to="/lost"
             className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium transition-colors text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] min-h-[44px] ${
-              isCurrent('/lost') ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-sm' : 'text-[var(--color-ink-soft)] hover:bg-black/5 hover:text-[var(--color-ink)]'
+              isCurrent('/lost') ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-sm' : 'text-[var(--color-ink-soft)] hover:bg-[#F3EFE9] hover:text-[var(--color-ink)]'
             }`}
           >
             <ShieldAlert size={20} />
@@ -73,7 +78,7 @@ export const DashboardNav = () => {
           </div>
           <button 
             onClick={handleLogout} 
-            className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium text-[var(--color-danger)] hover:bg-black/5 transition-colors text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-danger)] min-h-[44px]"
+            className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium text-[var(--color-danger)] hover:bg-red-50 transition-colors text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-danger)] min-h-[44px]"
           >
             <LogOut size={20} />
             Logout

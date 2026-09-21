@@ -15,9 +15,9 @@ export const Footer: React.FC<FooterProps> = ({
   return (
     <footer className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pb-12 pt-8">
       {/* Subtle top divider line matching the design */}
-      <div className="w-full h-px bg-[var(--color-border)] mb-8" />
+      <div className="w-full h-px bg-[#E5D7C7] mb-8" />
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-[14px] text-[var(--color-trail)]">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-[14px] text-[#4A3B31]">
         {/* Left: Brand */}
         <div
           id="footer-brand-logo"
@@ -25,8 +25,8 @@ export const Footer: React.FC<FooterProps> = ({
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           title="SafePaws"
         >
-          <PawIcon className="w-5 h-5 text-[var(--color-ink)] transition-transform group-hover:scale-105" />
-          <span className="font-semibold text-[17px] tracking-tight text-[var(--color-ink)]">
+          <PawIcon className="w-5 h-5 text-[#241812] transition-transform group-hover:scale-105" />
+          <span className="font-semibold text-[17px] tracking-tight text-[#241812]">
             SafePaws
           </span>
         </div>
@@ -36,32 +36,31 @@ export const Footer: React.FC<FooterProps> = ({
           <button
             id="footer-privacy-btn"
             onClick={onOpenPrivacy}
-            className="hover:text-[var(--color-marigold)] transition-colors cursor-pointer text-[var(--color-trail)]"
+            className="hover:text-[#DE6828] transition-colors cursor-pointer text-[#4A3B31]"
           >
             Privacy
           </button>
           <button
             id="footer-guidelines-btn"
             onClick={onOpenGuidelines}
-            className="hover:text-[var(--color-marigold)] transition-colors cursor-pointer text-[var(--color-trail)]"
+            className="hover:text-[#DE6828] transition-colors cursor-pointer text-[#4A3B31]"
           >
             Community guidelines
           </button>
           <button
             id="footer-contact-btn"
             onClick={onOpenContact}
-            className="hover:text-[var(--color-marigold)] transition-colors cursor-pointer text-[var(--color-trail)]"
+            className="hover:text-[#DE6828] transition-colors cursor-pointer text-[#4A3B31]"
           >
             Contact
           </button>
         </div>
 
         {/* Right: Copyright */}
-        <div className="text-[var(--color-trail)] text-[13px] sm:text-[14px] font-normal">
+        <div className="text-[#6E5C52] text-[13px] sm:text-[14px] font-normal">
           © 2026 SafePaws
         </div>
       </div>
     </footer>
   );
 };
-

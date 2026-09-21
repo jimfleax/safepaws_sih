@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { EnterScreen } from '../components/EnterScreen';
 import { Header } from '../components/Header';
@@ -17,7 +18,6 @@ import { Footer } from '../components/Footer';
 import { InfoModal } from '../components/modals/InfoModal';
 
 // Mock Data
-
 import { usePetStore } from '../store/petStore';
 
 export default function LandingPage() {
@@ -29,8 +29,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#241812] selection:bg-[#DE6828]/20 selection:text-[#B54C14]">
-      {/* Clean Custom Cursor: inner dot follows immediately, outer circle lags smoothly with no blur */}
-
       {/* Entry Screen Overlay */}
       <AnimatePresence>
         {!hasEntered && (
@@ -88,70 +86,6 @@ export default function LandingPage() {
           onOpenContact={() => setInfoModalType('contact')}
         />
       </div>
-
-      {/* Interactive Modals */}
-      <PetProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        pets={pets}
-        selectedPetId={selectedPetId}
-        onSelectPet={(id) => setSelectedPetId(id)}
-        onSavePet={handleSavePet}
-        onRemovePet={handleRemovePet}
-        onOpenQrTag={handleOpenQrForPet}
-        onTriggerLostAlert={handleTriggerLostAlertForPet}
-      />
-
-      <QrTagModal
-        isOpen={isQrModalOpen}
-        onClose={() => setIsQrModalOpen(false)}
-        pet={activePet}
-        onReportSighting={(loc, note) => {
-          handleAddSighting({
-            id: `sight-${Date.now()}`,
-            alertId: activeAlert.id,
-            reporterName: 'Good Samaritan (QR Tag Scan)',
-            location: loc,
-            time: 'Just now',
-            notes: note,
-            confirmed: true,
-          });
-        }}
-      />
-
-      <LostAlertModal
-        isOpen={isLostAlertModalOpen}
-        onClose={() => setIsLostAlertModalOpen(false)}
-        pet={activePet}
-        alert={activeAlert}
-        sightings={sightings}
-        onAddSighting={handleAddSighting}
-        onResolveAlert={handleResolveAlert}
-      />
-
-      <BiometricModal
-        isOpen={isBiometricModalOpen}
-        onClose={() => setIsBiometricModalOpen(false)}
-        pet={activePet}
-      />
-
-      <CommunityModal
-        isOpen={isCommunityModalOpen}
-        onClose={() => setIsCommunityModalOpen(false)}
-        alerts={alerts}
-        pets={pets}
-        onOpenAlert={(al) => {
-          setSelectedPetId(al.petId);
-          setIsCommunityModalOpen(false);
-          setIsLostAlertModalOpen(true);
-        }}
-      />
-
-      <HowItWorksModal
-        isOpen={isHowItWorksOpen}
-        onClose={() => setIsHowItWorksOpen(false)}
-        onGetStarted={() => setIsProfileModalOpen(true)}
-      />
 
       <InfoModal
         isOpen={infoModalType !== null}
