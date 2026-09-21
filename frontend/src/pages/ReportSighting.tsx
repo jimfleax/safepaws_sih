@@ -149,9 +149,9 @@ export default function ReportSighting() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full md:w-auto px-10 py-5 bg-[var(--color-alert-clay)] text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-opacity-90 transition-all focus:outline-none focus:ring-4 focus:ring-[var(--color-alert-clay)]/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full md:w-auto px-10 py-5 bg-[var(--color-alert-clay)] text-white font-bold text-[15px] uppercase tracking-wide rounded-full flex items-center justify-center gap-3 hover:bg-[#9A3926] transition-all hover:-translate-y-0.5 shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-bone)] focus:ring-[var(--color-alert-clay)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
-              <Eye size={24} />
+              <Eye size={22} />
               {isSubmitting ? 'Recording Sighting...' : 'Submit Sighting'}
             </button>
           </div>

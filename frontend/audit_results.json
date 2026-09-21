@@ -1,0 +1,258 @@
+{
+  "landing": {
+    "status": 200,
+    "finalUrl": "http://localhost:3000/",
+    "heading": "A community safety net for your pet.",
+    "logs": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "networkErrors": [
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/"
+    ],
+    "redirected": false
+  },
+  "setup_profile": {
+    "status": 200,
+    "finalUrl": "http://localhost:3000/",
+    "heading": "A community safety net for your pet.",
+    "logs": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "networkErrors": [
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/"
+    ],
+    "redirected": true
+  },
+  "dashboard": {
+    "status": 200,
+    "finalUrl": "http://localhost:3000/",
+    "heading": "A community safety net for your pet.",
+    "logs": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch sightings\n    at ApiClient.getAllSightings (http://localhost:3000/src/utils/apiClient.ts:234:24)\n    at async Promise.all (index 1)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "networkErrors": [
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/v1/alerts/"
+    ],
+    "redirected": true
+  },
+  "scan": {
+    "status": 200,
+    "finalUrl": "http://localhost:3000/scan",
+    "heading": null,
+    "logs": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "networkErrors": [
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/"
+    ],
+    "redirected": false
+  },
+  "public_profile": {
+    "status": 200,
+    "finalUrl": "http://localhost:3000/p/tag123",
+    "heading": null,
+    "logs": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "networkErrors": [
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/v1/pets/tag/tag123",
+      "500 http://localhost:3000/api/v1/pets/tag/tag123"
+    ],
+    "redirected": false
+  },
+  "lost": {
+    "status": 200,
+    "finalUrl": "http://localhost:3000/",
+    "heading": "A community safety net for your pet.",
+    "logs": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch sightings\n    at ApiClient.getAllSightings (http://localhost:3000/src/utils/apiClient.ts:234:24)\n    at async Promise.all (index 1)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch sightings\n    at ApiClient.getAllSightings (http://localhost:3000/src/utils/apiClient.ts:234:24)\n    at async Promise.all (index 1)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "networkErrors": [
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/v1/alerts/"
+    ],
+    "redirected": true
+  },
+  "community": {
+    "status": 200,
+    "finalUrl": "http://localhost:3000/",
+    "heading": "A community safety net for your pet.",
+    "logs": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "networkErrors": [
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/"
+    ],
+    "redirected": true
+  },
+  "dashboard_auth": {
+    "status": 200,
+    "finalUrl": "http://localhost:3000/",
+    "heading": "A community safety net for your pet.",
+    "logs": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "networkErrors": [
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/"
+    ],
+    "redirected": true
+  },
+  "community_auth": {
+    "status": 200,
+    "finalUrl": "http://localhost:3000/",
+    "heading": "A community safety net for your pet.",
+    "logs": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to hydrate store from API Error: Failed to fetch alerts\n    at ApiClient.getAllAlerts (http://localhost:3000/src/utils/apiClient.ts:229:24)\n    at async Promise.all (index 0)\n    at async hydrate (http://localhost:3000/src/store/petStore.ts:24:35)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "networkErrors": [
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/pets/",
+      "500 http://localhost:3000/api/auth/me",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/",
+      "500 http://localhost:3000/api/v1/alerts/",
+      "500 http://localhost:3000/api/v1/sightings/"
+    ],
+    "redirected": true
+  }
+}

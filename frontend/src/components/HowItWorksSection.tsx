@@ -68,17 +68,17 @@ export const HowItWorksSection: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="w-full bg-white text-[#1C1A17] py-16 sm:py-20 lg:py-28"
+      className="w-full bg-[var(--color-surface)] text-[var(--color-ink)] py-16 sm:py-20 lg:py-28"
       id="how-it-works"
     >
       <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
         {/* Header */}
         <div ref={headerRef} className="flex flex-col items-start mb-14 sm:mb-16">
-          <span className="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.14em] text-[#63684B] uppercase mb-5">
-            <span className="w-5 h-px bg-[#63684B] inline-block" />
+          <span className="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.2em] text-[var(--color-trail)] uppercase mb-5">
+            <span className="w-6 h-px bg-[var(--color-trail)] inline-block" />
             How it works
           </span>
-          <h2 className="font-serif text-[32px] sm:text-[42px] text-[#1C1A17] tracking-tight leading-[1.1] max-w-xl">
+          <h2 className="font-serif text-[38px] sm:text-[48px] text-[var(--color-ink)] tracking-tight leading-[1.1] max-w-2xl">
             From nose to neighborhood — a complete safety system.
           </h2>
         </div>
@@ -92,30 +92,30 @@ export const HowItWorksSection: React.FC = () => {
             >
               {/* Number and Icon column */}
               <div className="flex items-center md:flex-col md:items-start gap-4 md:w-32 shrink-0">
-                <span className="font-serif text-[#1C1A17] text-[32px] sm:text-[48px] leading-none">
+                <span className="font-serif text-[var(--color-ink)] text-[40px] sm:text-[56px] leading-none">
                   {number}
                 </span>
-                <div className="hidden md:flex w-12 h-12 rounded-full bg-[#F6F1E7] text-[#1C1A17] items-center justify-center transition-transform group-hover:scale-110">
-                  <Icon className="w-5 h-5 stroke-[1.5]" />
+                <div className="hidden md:flex w-14 h-14 rounded-full bg-[var(--color-background)] text-[var(--color-ink)] border border-[var(--color-border)] shadow-inner items-center justify-center transition-transform group-hover:scale-110">
+                  <Icon className="w-6 h-6 stroke-[1.5]" />
                 </div>
               </div>
 
               {/* Text column */}
-              <div className="flex-1 border-t border-[#1C1A17] pt-6 mt-2 md:mt-0 md:border-t-0 md:border-l md:pl-10 md:pt-0">
+              <div className="flex-1 border-t border-[var(--color-ink)] pt-6 mt-2 md:mt-0 md:border-t-0 md:border-l md:pl-12 md:pt-0">
                 <div className="flex items-center gap-3 md:hidden mb-4">
-                  <div className="w-10 h-10 rounded-full bg-[#F6F1E7] text-[#1C1A17] flex items-center justify-center">
-                    <Icon className="w-4 h-4 stroke-[1.5]" />
+                  <div className="w-12 h-12 rounded-full bg-[var(--color-background)] text-[var(--color-ink)] border border-[var(--color-border)] shadow-inner flex items-center justify-center">
+                    <Icon className="w-5 h-5 stroke-[1.5]" />
                   </div>
-                  <h3 className="font-sans font-semibold text-[20px] text-[#1C1A17]">
+                  <h3 className="font-sans font-bold text-[22px] text-[var(--color-ink)]">
                     {title}
                   </h3>
                 </div>
                 
-                <h3 className="hidden md:block font-sans font-semibold text-[24px] text-[#1C1A17] mb-4">
+                <h3 className="hidden md:block font-sans font-bold text-[28px] text-[var(--color-ink)] mb-4">
                   {title}
                 </h3>
                 
-                <p className="text-[#55463D] text-[16px] sm:text-[18px] leading-relaxed">
+                <p className="text-[var(--color-ink-soft)] text-[16px] sm:text-[18px] leading-relaxed">
                   {body}
                 </p>
               </div>

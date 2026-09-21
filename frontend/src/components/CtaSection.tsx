@@ -41,26 +41,26 @@ export const CtaSection: React.FC<CtaSectionProps> = ({ onStartClick }) => {
     >
       <div ref={contentRef} className="max-w-3xl">
         {/* Eyebrow */}
-        <span className="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.14em] text-[#63684B] uppercase mb-7">
-          <span className="w-5 h-px bg-[#63684B] inline-block" />
+        <span className="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.2em] text-[var(--color-trail)] uppercase mb-7">
+          <span className="w-6 h-px bg-[var(--color-trail)] inline-block" />
           Your neighborhood, connected
         </span>
 
-        {/* Big serif heading — NO encoding corruption */}
-        <h2 className="font-serif text-[36px] sm:text-[52px] lg:text-[60px] leading-[1.08] tracking-[-0.02em] text-[#1C1A17] font-normal mb-10">
+        {/* Big serif heading */}
+        <h2 className="font-serif text-[40px] sm:text-[56px] lg:text-[68px] leading-[1.08] tracking-tight text-[var(--color-ink)] font-normal mb-10">
           Because the best search party is the one{' '}
-          <em className="not-italic text-[#E2811F]">that's already there.</em>
+          <em className="not-italic text-[var(--color-accent)]">that's already there.</em>
         </h2>
 
         {/* CTA Button */}
         <button
           id="cta-start-safepaws-btn"
           onClick={onStartClick}
-          className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#E2811F] hover:bg-[#CA721A] active:bg-[#B06317] text-white font-semibold text-[16px] shadow-[0_6px_22px_rgba(226,129,31,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(226,129,31,0.38)] active:translate-y-0 cursor-none"
+          className="group inline-flex items-center gap-3 px-10 py-5 rounded-full bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] active:bg-[var(--color-accent-active)] text-white font-bold text-[15px] uppercase tracking-wide shadow-[0_8px_24px_rgba(226,129,31,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(226,129,31,0.4)] active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-background)] focus:ring-[var(--color-accent)] cursor-pointer"
           aria-label="Get started with SafePaws"
         >
           <span>Start with SafePaws</span>
-          <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
+          <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
         </button>
       </div>
     </section>

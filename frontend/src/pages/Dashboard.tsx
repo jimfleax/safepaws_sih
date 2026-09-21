@@ -17,63 +17,70 @@ export default function Dashboard() {
       <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-10 md:py-12 md:pb-12 pb-32">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
-          <div>
-            <h1 className="font-serif text-[36px] sm:text-[44px] text-[#1C1A17] leading-tight tracking-tight mb-2">
-              Your Pets
+        <header className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 pb-8 border-b border-[var(--color-border)]">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-[var(--color-success)] animate-pulse" />
+              <span className="text-[11px] font-bold text-[var(--color-ink-soft)] uppercase tracking-widest">Network Active</span>
+            </div>
+            <h1 className="font-serif text-[42px] sm:text-[52px] text-[var(--color-ink)] leading-none tracking-tight">
+              Dashboard
             </h1>
-            <p className="text-[#63684B] text-[16px]">Manage your companions and their safety profiles.</p>
+            <p className="text-[var(--color-ink-soft)] text-[16px] sm:text-[18px] max-w-lg leading-relaxed">
+              Manage your companions and their biometric safety profiles.
+            </p>
           </div>
           <Link 
             to="/pets/new" 
-            className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#1C1A17] hover:bg-[#2A2723] text-white rounded-full font-semibold text-[14px] shadow-sm transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#F6F1E7] focus:ring-[#1C1A17]"
+            className="group inline-flex items-center justify-center gap-2 px-7 py-4 bg-[var(--color-ink)] hover:bg-[#2A2723] text-white rounded-full font-bold text-[14px] uppercase tracking-wide shadow-md transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-background)] focus:ring-[var(--color-ink)]"
           >
             <Plus size={18} />
             Register Pet
           </Link>
-        </div>
+        </header>
 
         {/* Active Alerts Banner */}
         {lostPets.length > 0 && (
           <div 
-            className="mb-12 p-6 sm:p-8 rounded-[1.5rem] bg-[#B3452F]/10 border border-[#B3452F]/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+            className="mb-16 p-6 sm:p-8 rounded-[var(--radius-24)] bg-[var(--color-alert)]/10 border border-[var(--color-alert)]/20 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative overflow-hidden"
             role="alert" 
             aria-live="polite"
           >
-            <div className="flex items-start gap-5">
-              <div className="w-12 h-12 rounded-full bg-[#B3452F]/20 flex items-center justify-center shrink-0 mt-1 sm:mt-0">
-                <ShieldAlert className="text-[#B3452F]" size={24} />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-alert)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="flex items-start gap-5 relative z-10">
+              <div className="w-14 h-14 rounded-full bg-[var(--color-alert)]/20 border border-[var(--color-alert)]/10 flex items-center justify-center shrink-0 mt-1 sm:mt-0 shadow-inner">
+                <ShieldAlert className="text-[var(--color-alert)]" size={26} />
               </div>
-              <div>
-                <h2 className="text-[18px] font-bold text-[#B3452F] mb-1">Active Missing Alert</h2>
-                <p className="text-[#1C1A17] text-[15px] max-w-md">
+              <div className="space-y-1.5">
+                <h2 className="text-[18px] font-bold text-[var(--color-alert)]">Active Missing Alert</h2>
+                <p className="text-[var(--color-ink)] text-[15px] max-w-md leading-relaxed">
                   Your pet is currently reported as lost. The local SafePaws network has been notified.
                 </p>
               </div>
             </div>
             <Link 
               to="/lost" 
-              className="group flex-shrink-0 inline-flex items-center gap-2 px-5 py-3 bg-[#B3452F] hover:bg-[#9A3926] text-white font-semibold text-[14px] rounded-full transition-colors"
+              className="relative z-10 group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3.5 bg-[var(--color-alert)] hover:bg-[#9A3926] text-white font-bold text-[14px] uppercase tracking-wide rounded-full transition-all hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-alert)]"
             >
               Manage Alert
-              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+              <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
         )}
 
         {/* Empty State */}
         {pets.length === 0 ? (
-          <div className="bg-white rounded-[2rem] p-12 sm:p-16 text-center border border-[#E5E0D8] shadow-sm flex flex-col items-center">
-            <div className="w-24 h-24 bg-[#F6F1E7] rounded-full flex items-center justify-center mb-6">
-              <Plus className="text-[#E2811F]" size={40} />
+          <div className="bg-[var(--color-surface)] rounded-[var(--radius-28)] p-12 sm:p-20 text-center border border-[var(--color-border)] shadow-sm flex flex-col items-center">
+            <div className="w-24 h-24 bg-[var(--color-background)] border border-[var(--color-border)] rounded-[var(--radius-24)] flex items-center justify-center mb-8 shadow-inner shadow-[var(--color-ink)]/5">
+              <Plus className="text-[var(--color-accent)]" size={40} />
             </div>
-            <h2 className="font-serif text-[28px] text-[#1C1A17] mb-3">No pets registered yet</h2>
-            <p className="text-[#63684B] mb-8 max-w-md mx-auto text-[15px] leading-relaxed">
+            <h2 className="font-serif text-[32px] text-[var(--color-ink)] mb-4">No pets registered yet</h2>
+            <p className="text-[var(--color-ink-soft)] mb-10 max-w-md mx-auto text-[16px] leading-relaxed">
               Register your first pet to generate their biometric profile and secure them within the SafePaws network.
             </p>
             <Link 
               to="/pets/new" 
-              className="inline-flex items-center justify-center px-8 py-4 bg-[#E2811F] text-white rounded-full font-semibold hover:bg-[#CA721A] hover:-translate-y-0.5 transition-all shadow-[0_4px_14px_rgba(226,129,31,0.25)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-[#E2811F]"
+              className="inline-flex items-center justify-center px-8 py-4 bg-[var(--color-accent)] text-white rounded-full font-bold text-[14px] uppercase tracking-wide hover:bg-[var(--color-accent-hover)] hover:-translate-y-0.5 transition-all shadow-[0_8px_20px_rgba(226,129,31,0.25)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-surface)] focus:ring-[var(--color-accent)]"
             >
               Register your first pet
             </Link>

@@ -120,25 +120,30 @@ export const Hero: React.FC<HeroProps> = ({
           {/* Eyebrow */}
           <span
             ref={eyebrowRef}
-            className="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.14em] text-[#63684B] uppercase mb-5"
+            className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] text-[var(--color-trail)] uppercase mb-6"
           >
-            <span className="w-5 h-px bg-[#63684B] inline-block" />
+            <span className="w-6 h-px bg-[var(--color-trail)] inline-block" />
             Nose-print biometric identification
           </span>
 
           {/* Headline */}
           <h1
             ref={headingRef}
-            className="font-serif text-[42px] sm:text-[56px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] text-[#1C1A17] font-normal"
+            className="font-serif text-[44px] sm:text-[60px] lg:text-[76px] leading-[1.05] tracking-tight text-[var(--color-ink)] font-normal"
           >
             Your dog's nose is their{' '}
-            <em className="not-italic text-[#E2811F]">return ticket.</em>
+            <em className="not-italic text-[var(--color-accent)] relative inline-block">
+              return ticket.
+              <svg className="absolute -bottom-2 left-0 w-full text-[var(--color-accent)]/20" viewBox="0 0 100 12" preserveAspectRatio="none">
+                <path d="M0,10 Q50,0 100,10" fill="none" stroke="currentColor" strokeWidth="4" />
+              </svg>
+            </em>
           </h1>
 
           {/* Body */}
           <p
             ref={bodyRef}
-            className="mt-6 sm:mt-7 text-[16px] sm:text-[18px] leading-[1.7] text-[#55463D] max-w-[480px]"
+            className="mt-6 sm:mt-8 text-[16px] sm:text-[18px] leading-relaxed text-[var(--color-ink-soft)] max-w-[480px]"
           >
             Like a human fingerprint, every dog's nose has a unique pattern of ridges and creases. SafePaws uses advanced biometrics to turn a simple smartphone photo of their nose into an unlosable identity.
           </p>
@@ -146,11 +151,11 @@ export const Hero: React.FC<HeroProps> = ({
           {/* CTAs */}
           <div
             ref={ctaRef}
-            className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto"
+            className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto"
           >
             <button
               onClick={onIdentifyClick}
-              className="group relative w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-[#1C1A17] text-white font-semibold text-[14px] tracking-wide uppercase transition-colors duration-200 hover:bg-[#3A352F] cursor-none"
+              className="group relative w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-[var(--color-ink)] text-white font-bold text-[14px] tracking-wide uppercase transition-all duration-300 hover:bg-[#2A2723] rounded-full shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-background)] focus:ring-[var(--color-ink)] cursor-pointer"
               aria-label="Scan a found dog's nose to identify them"
             >
               <Camera className="w-5 h-5 flex-shrink-0" />
@@ -158,7 +163,7 @@ export const Hero: React.FC<HeroProps> = ({
             </button>
             <button
               onClick={onJoinClick}
-              className="group w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-transparent text-[#1C1A17] font-semibold text-[14px] tracking-wide uppercase border border-[#1C1A17] transition-colors duration-200 hover:bg-[#1C1A17] hover:text-white cursor-none"
+              className="group w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-[var(--color-background)] text-[var(--color-ink)] font-bold text-[14px] tracking-wide uppercase border-2 border-[var(--color-ink)] rounded-full transition-all duration-300 hover:bg-[var(--color-ink)] hover:text-white cursor-pointer"
               aria-label="Register your pet with SafePaws"
             >
               <Plus className="w-5 h-5 flex-shrink-0" />

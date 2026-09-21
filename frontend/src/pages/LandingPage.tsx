@@ -121,7 +121,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#241812] selection:bg-[#DE6828]/20 selection:text-[#B54C14]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-background)] text-[var(--color-ink)] selection:bg-[var(--color-accent)]/20 selection:text-[var(--color-ink)] transition-colors duration-[var(--animate-duration-page)]">
       {/* Entry Screen Overlay */}
       <AnimatePresence>
         {!hasEntered && (

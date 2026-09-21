@@ -29,7 +29,8 @@ export default function Scan() {
       }
       setPhase('RESULT');
     } catch (e: any) {
-      if (e.message && (e.message.toLowerCase().includes('quality') || e.message.toLowerCase().includes('clear'))) {
+      const msg = (e.message || '').toLowerCase();
+      if (msg.includes('no dog detected') || msg.includes('multiple dogs') || msg.includes('quality') || msg.includes('clear')) {
         setResult({ state: 'QUALITY_FAILURE', errorDetails: e.message });
       } else {
         setResult({ state: 'SYSTEM_FAILURE', errorDetails: e.message });

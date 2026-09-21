@@ -60,7 +60,7 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
           <p className="mb-4 font-medium">{error}</p>
           <div className="w-full max-w-sm mx-auto border border-dashed border-[var(--color-marigold)]/50 rounded-[2rem] p-8 flex flex-col items-center justify-center bg-[var(--color-ink)] shadow-sm focus-within:ring-2 focus-within:ring-[var(--color-marigold)] relative">
              <Camera className="w-12 h-12 text-[var(--color-marigold)]/60 mb-3" />
-             <span className="text-[var(--color-bone)]/90 text-sm font-medium">Tap to select photo fallback</span>
+             <span className="text-[var(--color-bone)]/90 text-sm font-medium">Use a photo instead</span>
              <input 
                type="file" 
                accept="image/*" 

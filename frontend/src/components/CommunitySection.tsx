@@ -64,20 +64,20 @@ export const CommunitySection: React.FC = () => {
   return (
     <section
       ref={containerRef}
-      className="w-full bg-[#1C1A17] text-[#F6F1E7] py-20 sm:py-24 lg:py-32"
+      className="w-full bg-[var(--color-ink)] text-[var(--color-bone)] py-20 sm:py-24 lg:py-32"
       id="community-section"
     >
       <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
         {/* Header */}
-        <div ref={headerRef} className="mb-14 sm:mb-16 max-w-2xl">
-          <span className="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.14em] text-[#8A8175] uppercase mb-5">
-            <span className="w-5 h-px bg-[#8A8175] inline-block" />
+        <div ref={headerRef} className="mb-14 sm:mb-20 max-w-2xl">
+          <span className="inline-flex items-center gap-2 text-[12px] font-bold tracking-[0.2em] text-[var(--color-ink-soft)] uppercase mb-6">
+            <span className="w-6 h-px bg-[var(--color-ink-soft)] inline-block" />
             Community &amp; Recovery
           </span>
-          <h2 className="font-serif text-[34px] sm:text-[46px] leading-tight text-white mb-4">
+          <h2 className="font-serif text-[38px] sm:text-[52px] leading-[1.05] tracking-tight text-white mb-6">
             A neighborhood that looks out for each other.
           </h2>
-          <p className="text-[17px] text-[#8A8175] leading-relaxed">
+          <p className="text-[18px] text-[var(--color-ink-soft)] leading-relaxed">
             When a pet goes missing, a fast response is everything. SafePaws
             connects you to people nearby who can help — no exaggerated claims,
             just real people working together.
@@ -85,19 +85,19 @@ export const CommunitySection: React.FC = () => {
         </div>
 
         {/* Feature cards */}
-        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {features.map(({ icon: Icon, title, body }) => (
             <div
               key={title}
-              className="group flex flex-col bg-white/[0.04] border border-white/[0.08] rounded-3xl p-7 sm:p-8 transition-all duration-200 hover:bg-white/[0.07] hover:-translate-y-1 hover:border-white/[0.14]"
+              className="group flex flex-col bg-[var(--color-surface)]/[0.04] border border-[var(--color-surface)]/[0.08] rounded-[var(--radius-28)] p-8 sm:p-10 transition-all duration-300 hover:bg-[var(--color-surface)]/[0.08] hover:-translate-y-1 hover:border-[var(--color-surface)]/[0.15] hover:shadow-lg"
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#E2811F]/15 flex items-center justify-center mb-6 transition-colors group-hover:bg-[#E2811F]/22">
-                <Icon className="w-6 h-6 text-[#E2811F]" />
+              <div className="w-14 h-14 rounded-[var(--radius-16)] bg-[var(--color-accent)]/15 border border-[var(--color-accent)]/10 flex items-center justify-center mb-8 transition-colors group-hover:bg-[var(--color-accent)]/25">
+                <Icon className="w-7 h-7 text-[var(--color-accent)]" />
               </div>
-              <h3 className="text-[19px] font-semibold text-white mb-3 leading-snug">
+              <h3 className="text-[22px] font-bold text-white mb-4 leading-snug">
                 {title}
               </h3>
-              <p className="text-[#8A8175] text-[15px] leading-relaxed flex-1">
+              <p className="text-[var(--color-ink-soft)] text-[16px] leading-relaxed flex-1">
                 {body}
               </p>
             </div>
