@@ -1,16 +1,33 @@
 import React from 'react';
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Scan from '../../pages/Scan';
 import { BrowserRouter } from 'react-router-dom';
 import { ApiClient } from '../../utils/apiClient';
 
-// Mock ApiClient
+// ── Routing spy ──────────────────────────────────────────────────────────────
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return { ...actual, useNavigate: () => mockNavigate };
+});
+
+// ── ApiClient mock ───────────────────────────────────────────────────────────
 vi.mock('../../utils/apiClient', () => ({
   ApiClient: {
     identifyPet: vi.fn(),
   }
+}));
+
+// ── Auth store mock (default: unauthenticated) ───────────────────────────────
+vi.mock('../../store/authStore', () => ({
+  useAuthStore: (sel: any) => sel({ isAuthenticated: false }),
+}));
+
+// ── Pet store mock (default: no pets owned) ──────────────────────────────────
+vi.mock('../../store/petStore', () => ({
+  usePetStore: (sel: any) => sel({ pets: [] }),
 }));
 
 // Mock MediaDevices

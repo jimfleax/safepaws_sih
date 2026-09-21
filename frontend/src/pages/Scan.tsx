@@ -20,7 +20,7 @@ export default function Scan() {
       
       if (apiResult.matches && apiResult.matches.length > 0) {
         if (apiResult.matches.length === 1 || apiResult.matches[0].confidence >= 0.85) {
-           setResult({ state: 'MATCH', petId: apiResult.matches[0].pet_id });
+           setResult({ state: 'MATCH', petId: apiResult.matches[0].pet_id, qrTagId: apiResult.matches[0].qr_tag_id });
         } else {
            setResult({ state: 'AMBIGUOUS', candidates: apiResult.matches.map(m => m.pet_id) });
         }

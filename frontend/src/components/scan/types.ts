@@ -4,7 +4,8 @@ export type ScanResultState = 'MATCH' | 'AMBIGUOUS' | 'UNKNOWN' | 'QUALITY_FAILU
 
 export interface ScanResult {
   state: ScanResultState;
-  petId?: string; // For MATCH
+  petId?: string;     // For MATCH
+  qrTagId?: string;   // For MATCH — used to route finder to public profile
   candidates?: string[]; // For AMBIGUOUS (array of petIds)
   errorDetails?: string; // For failures
 }
