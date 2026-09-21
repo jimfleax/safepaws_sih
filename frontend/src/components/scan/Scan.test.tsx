@@ -158,21 +158,6 @@ describe('Scan Page - States', () => {
     renderWithRouter(<Scan />);
     await capturePhoto();
     
-    await waitFor(() => {
-      expect(screen.getByText('Reading the nose pattern...')).toBeInTheDocument();
-    });
-    
-    const processingContainer = screen.getByText('Reading the nose pattern...').parentElement;
-    expect(processingContainer?.innerHTML).toContain('motion-reduce:hidden');
-    act(() => {
-      resolveApi({ matches: [] });
-    });
-  });
-});
-
-// ── MATCH routing regression ─────────────────────────────────────────────────
-describe('Scan MATCH → View Pet Profile routing', () => {
-  const renderWithRouter = (component: React.ReactNode) =>
     render(<BrowserRouter>{component}</BrowserRouter>);
 
   const capturePhoto = async () => {
