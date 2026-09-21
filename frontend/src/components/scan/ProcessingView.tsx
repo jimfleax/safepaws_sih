@@ -10,11 +10,11 @@ export default function ProcessingView({ phase }: ProcessingViewProps) {
   let message = '';
   
   if (phase === 'ANALYZE') {
-    message = 'Reading the nose pattern…';
+    message = 'Reading the nose pattern...';
   } else if (phase === 'COMPARE') {
-    message = 'Comparing against registered pets…';
+    message = 'Comparing against registered pets...';
   } else {
-    message = 'Processing…';
+    message = 'Processing...';
   }
 
   return (

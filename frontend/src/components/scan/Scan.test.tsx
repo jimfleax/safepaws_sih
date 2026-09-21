@@ -48,7 +48,7 @@ describe('Scan Page - States', () => {
     
     const analyzeBtn = screen.getByText('Backend: Start Analyze');
     fireEvent.click(analyzeBtn);
-    expect(screen.getByText('Reading the nose pattern…')).toBeInTheDocument();
+    expect(screen.getByText('Reading the nose pattern...')).toBeInTheDocument();
     
     const compareBtn = screen.getByText('Backend: Start Compare');
     fireEvent.click(compareBtn);
@@ -117,7 +117,7 @@ describe('Scan Page - States', () => {
     const analyzeBtn = screen.getByText('Backend: Start Analyze');
     fireEvent.click(analyzeBtn);
     
-    const processingContainer = screen.getByText('Reading the nose pattern…').parentElement;
+    const processingContainer = screen.getByText('Reading the nose pattern...').parentElement;
     expect(processingContainer?.innerHTML).toContain('motion-reduce:hidden');
     expect(processingContainer?.innerHTML).toContain('motion-reduce:animate-none');
   });
