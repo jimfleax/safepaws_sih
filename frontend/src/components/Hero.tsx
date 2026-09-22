@@ -93,6 +93,7 @@ export const Hero: React.FC<HeroProps> = ({
         <div className="w-full lg:w-5/12 order-1 lg:order-2">
           <div
             ref={imageRef}
+            data-cursor="paw"
             className="relative w-full aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-3xl overflow-hidden shadow-[0_24px_80px_rgba(26,17,7,0.22)] bg-[#E8D5BF]"
           >
             {/* Subtle vignette */}

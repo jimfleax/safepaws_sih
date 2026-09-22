@@ -1,22 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
+import React, { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { PawPrint } from 'lucide-react';
 
 export const CustomCursor: React.FC = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const followerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  
   const [isVisible, setIsVisible] = useState(false);
+  const [cursorText, setCursorText] = useState('');
+  const [cursorMode, setCursorMode] = useState<'default' | 'hover' | 'text' | 'paw' | 'hidden'>('default');
 
   useEffect(() => {
-    // Only use custom cursor if reduced motion is not preferred
-    // and it's a pointer device (not touch)
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
     
     if (prefersReducedMotion || isTouchDevice) return;
 
-    const updateMousePosition = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+    const cursor = cursorRef.current;
+    const follower = followerRef.current;
+    if (!cursor || !follower) return;
+
+    // Use GSAP quickTo for buttery smooth 120fps performance bypassing React render cycle
+    const xToCursor = gsap.quickTo(cursor, "x", { duration: 0.1, ease: "power3" });
+    const yToCursor = gsap.quickTo(cursor, "y", { duration: 0.1, ease: "power3" });
+    
+    const xToFollower = gsap.quickTo(follower, "x", { duration: 0.6, ease: "elastic.out(1, 0.4)" });
+    const yToFollower = gsap.quickTo(follower, "y", { duration: 0.6, ease: "elastic.out(1, 0.4)" });
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+
+    const onMouseMove = (e: MouseEvent) => {
       if (!isVisible) setIsVisible(true);
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      
+      xToCursor(mouseX);
+      yToCursor(mouseY);
+      xToFollower(mouseX);
+      yToFollower(mouseY);
     };
 
     const handleMouseLeave = () => setIsVisible(false);
@@ -24,30 +47,42 @@ export const CustomCursor: React.FC = () => {
 
     const handleHoverStart = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (
-        target.tagName.toLowerCase() === 'button' ||
-        target.tagName.toLowerCase() === 'a' ||
-        target.closest('button') ||
-        target.closest('a') ||
-        target.closest('[role="button"]') ||
-        target.dataset.cursor === 'pointer'
-      ) {
-        setIsHovering(true);
+      const closestInteractive = target.closest('button, a, [role="button"], input, select, textarea');
+      const dataCursor = target.closest('[data-cursor]')?.getAttribute('data-cursor');
+      const dataCursorText = target.closest('[data-cursor-text]')?.getAttribute('data-cursor-text');
+
+      if (dataCursorText) {
+        setCursorText(dataCursorText);
+        setCursorMode('text');
+      } else if (dataCursor === 'paw') {
+        setCursorMode('paw');
+      } else if (dataCursor === 'hidden') {
+        setCursorMode('hidden');
+      } else if (closestInteractive) {
+        setCursorMode('hover');
+      } else {
+        setCursorMode('default');
+        setCursorText('');
       }
     };
 
     const handleHoverEnd = () => {
-      setIsHovering(false);
+      setCursorMode('default');
+      setCursorText('');
     };
 
-    window.addEventListener('mousemove', updateMousePosition);
+    window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('mouseenter', handleMouseEnter);
     window.addEventListener('mouseover', handleHoverStart);
     window.addEventListener('mouseout', handleHoverEnd);
 
+    // Initial position
+    gsap.set(cursor, { x: mouseX, y: mouseY, xPercent: -50, yPercent: -50 });
+    gsap.set(follower, { x: mouseX, y: mouseY, xPercent: -50, yPercent: -50 });
+
     return () => {
-      window.removeEventListener('mousemove', updateMousePosition);
+      window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('mouseenter', handleMouseEnter);
       window.removeEventListener('mouseover', handleHoverStart);
@@ -55,43 +90,128 @@ export const CustomCursor: React.FC = () => {
     };
   }, [isVisible]);
 
-  if (!isVisible) return null;
+  // Handle mode animations
+  useEffect(() => {
+    const follower = followerRef.current;
+    const cursor = cursorRef.current;
+    if (!follower || !cursor) return;
+
+    const tl = gsap.timeline();
+
+    switch (cursorMode) {
+      case 'hover':
+        tl.to(follower, {
+          scale: 2.5,
+          backgroundColor: 'transparent',
+          borderWidth: '1px',
+          borderColor: 'var(--color-accent)',
+          opacity: 0.5,
+          duration: 0.4,
+          ease: 'power3.out'
+        }, 0).to(cursor, {
+          scale: 0,
+          opacity: 0,
+          duration: 0.2
+        }, 0);
+        break;
+      case 'text':
+        tl.to(follower, {
+          scale: 4.5,
+          backgroundColor: 'var(--color-ink)',
+          borderWidth: '0px',
+          opacity: 1,
+          duration: 0.4,
+          ease: 'back.out(1.5)'
+        }, 0).to(cursor, {
+          scale: 0,
+          opacity: 0,
+          duration: 0.2
+        }, 0);
+        break;
+      case 'paw':
+        tl.to(follower, {
+          scale: 3.5,
+          backgroundColor: 'var(--color-accent)',
+          borderWidth: '0px',
+          opacity: 1,
+          duration: 0.5,
+          ease: 'elastic.out(1, 0.4)'
+        }, 0).to(cursor, {
+          scale: 0,
+          opacity: 0,
+          duration: 0.2
+        }, 0);
+        break;
+      case 'hidden':
+        tl.to([follower, cursor], {
+          scale: 0,
+          opacity: 0,
+          duration: 0.3,
+          ease: 'power2.in'
+        }, 0);
+        break;
+      default:
+        tl.to(follower, {
+          scale: 1,
+          backgroundColor: 'transparent',
+          borderWidth: '2px',
+          borderColor: 'var(--color-accent)',
+          opacity: 0.8,
+          duration: 0.4,
+          ease: 'power3.out'
+        }, 0).to(cursor, {
+          scale: 1,
+          opacity: 1,
+          duration: 0.3,
+          ease: 'power2.out'
+        }, 0);
+        break;
+    }
+  }, [cursorMode]);
 
   return (
-    <>
-      {/* Core Dot */}
-      <motion.div
-        className="fixed top-0 left-0 w-3 h-3 bg-[var(--color-accent)] rounded-full pointer-events-none z-[10000] mix-blend-exclusion"
-        animate={{
-          x: mousePosition.x - 6,
-          y: mousePosition.y - 6,
-          scale: isHovering ? 0 : 1,
-          opacity: isHovering ? 0 : 1
-        }}
-        transition={{ type: 'tween', ease: 'backOut', duration: 0.1 }}
-      />
-      {/* Trailing Ring */}
-      <motion.div
-        className="fixed top-0 left-0 w-12 h-12 border-2 border-[var(--color-accent)] rounded-full pointer-events-none z-[9999] mix-blend-exclusion backdrop-invert-[0.1]"
-        animate={{
-          x: mousePosition.x - 24,
-          y: mousePosition.y - 24,
-          scale: isHovering ? 1.8 : 1,
-          backgroundColor: isHovering ? 'var(--color-accent)' : 'transparent',
-          opacity: isHovering ? 0.2 : 0.8
-        }}
-        transition={{ type: 'spring', stiffness: 100, damping: 25, mass: 1 }}
-      />
-      {/* Glow Trail */}
-      <motion.div
-        className="fixed top-0 left-0 w-32 h-32 bg-[var(--color-accent)] rounded-full pointer-events-none z-[9998] mix-blend-screen blur-3xl opacity-20"
-        animate={{
-          x: mousePosition.x - 64,
-          y: mousePosition.y - 64,
-          scale: isHovering ? 1.5 : 1,
-        }}
-        transition={{ type: 'spring', stiffness: 50, damping: 30, mass: 2 }}
-      />
-    </>
+    <div className={`fixed inset-0 pointer-events-none z-[10000] transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+      
+      {/* Glow Filter for Gooey Effect */}
+      <svg className="hidden">
+        <defs>
+          <filter id="gooey">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="gooey" />
+            <feComposite in="SourceGraphic" in2="gooey" operator="atop" />
+          </filter>
+        </defs>
+      </svg>
+
+      <div style={{ filter: 'url(#gooey)' }} className="absolute inset-0">
+        {/* Trailing Ring / Morphing Shape */}
+        <div 
+          ref={followerRef}
+          className="absolute top-0 left-0 w-10 h-10 rounded-full flex items-center justify-center overflow-hidden mix-blend-difference will-change-transform"
+          style={{ transformOrigin: 'center' }}
+        >
+          {/* Custom Text Content inside cursor */}
+          <div 
+            ref={textRef}
+            className={`text-white text-[8px] font-bold tracking-widest uppercase absolute transition-opacity duration-300 ${cursorMode === 'text' ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
+          >
+            {cursorText}
+          </div>
+          
+          {/* Paw Icon inside cursor */}
+          <PawPrint 
+            className={`w-4 h-4 text-white absolute transition-all duration-400 ease-out ${cursorMode === 'paw' ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`} 
+            strokeWidth={2.5}
+          />
+        </div>
+        
+        {/* Core Dot */}
+        <div 
+          ref={cursorRef}
+          className="absolute top-0 left-0 w-2.5 h-2.5 bg-[var(--color-accent)] rounded-full mix-blend-difference will-change-transform"
+          style={{ transformOrigin: 'center' }}
+        />
+      </div>
+    </div>
   );
 };

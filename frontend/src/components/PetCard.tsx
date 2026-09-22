@@ -14,6 +14,7 @@ export const PetCard: React.FC<PetCardProps> = ({ pet, onClick }) => {
   return (
     <Link
       to={`/pets/${pet.id}`}
+      data-cursor-text="VIEW"
       onClick={(e) => {
         if (onClick) onClick();
       }}
