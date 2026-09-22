@@ -13,9 +13,9 @@ export const CustomCursor: React.FC = () => {
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+    const isTouchOnly = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     
-    if (prefersReducedMotion || isTouchDevice) return;
+    if (prefersReducedMotion || isTouchOnly) return;
 
     const cursor = cursorRef.current;
     const follower = followerRef.current;
@@ -32,7 +32,7 @@ export const CustomCursor: React.FC = () => {
     let mouseY = window.innerHeight / 2;
 
     const onMouseMove = (e: MouseEvent) => {
-      if (!isVisible) setIsVisible(true);
+      setIsVisible(true);
       mouseX = e.clientX;
       mouseY = e.clientY;
       
@@ -88,7 +88,7 @@ export const CustomCursor: React.FC = () => {
       window.removeEventListener('mouseover', handleHoverStart);
       window.removeEventListener('mouseout', handleHoverEnd);
     };
-  }, [isVisible]);
+  }, []); // Run once on mount
 
   // Handle mode animations
   useEffect(() => {
@@ -173,7 +173,7 @@ export const CustomCursor: React.FC = () => {
     <div className={`fixed inset-0 pointer-events-none z-[10000] transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
       
       {/* Glow Filter for Gooey Effect */}
-      <svg className="hidden">
+      <svg style={{ position: 'absolute', width: 0, height: 0, pointerEvents: 'none' }}>
         <defs>
           <filter id="gooey">
             <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
