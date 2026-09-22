@@ -74,7 +74,7 @@ export const SetupProfile: React.FC = () => {
         phone: updatedUser.phone, 
         neighborhood: updatedUser.neighborhood 
       });
-      navigate('/pets/new');
+      navigate('/dashboard');
     } catch (err) {
       console.error(err);
       setError('Failed to save profile. Please try again.');

@@ -58,7 +58,7 @@ export default function LandingPage() {
           if (!data.user.profileCompleted) {
             navigate('/setup-profile');
           } else {
-            navigate('/pets/new');
+            navigate('/dashboard');
           }
         }
       } catch (err) {
@@ -71,7 +71,7 @@ export default function LandingPage() {
   const handleJoinClick = () => {
     if (isAuthenticated) {
       if (user?.profileCompleted) {
-        navigate('/pets/new');
+        navigate('/dashboard');
       } else {
         navigate('/setup-profile');
       }

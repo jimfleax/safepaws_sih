@@ -8,7 +8,7 @@ import { CustomCursor } from './components/CustomCursor';
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const SetupProfile = lazy(() => import('./pages/SetupProfile').then(module => ({ default: module.SetupProfile })));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
-const NewPet = lazy(() => import('./pages/pets/NewPet'));
+
 const PetDetail = lazy(() => import('./pages/pets/PetDetail'));
 const PublicTagProfile = lazy(() => import('./pages/PublicTagProfile'));
 const Scan = lazy(() => import('./pages/Scan'));
@@ -84,7 +84,7 @@ export default function App() {
           
           {/* Authenticated App Shell */}
           <Route path="/dashboard" element={<DashboardRoute><Dashboard /></DashboardRoute>} />
-          <Route path="/pets/new" element={<DashboardRoute><NewPet /></DashboardRoute>} />
+          <Route path="/pets/new" element={<Navigate to="/dashboard" replace />} />
           <Route path="/pets/:petId" element={<DashboardRoute><PetDetail /></DashboardRoute>} />
           <Route path="/lost/new" element={<DashboardRoute><ReportLost /></DashboardRoute>} />
           

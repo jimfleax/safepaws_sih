@@ -1,12 +1,14 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { DashboardNav } from '../components/DashboardNav';
 import { PetCard } from '../components/PetCard';
 import { usePetStore } from '../store/petStore';
 import { Link } from 'react-router-dom';
 import { Plus, ShieldAlert, ArrowRight } from 'lucide-react';
+import { AddPetModal } from '../components/modals/AddPetModal';
 
 export default function Dashboard() {
-  const { pets } = usePetStore();
+  const { pets, alerts } = usePetStore();
+  const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
 
   const lostPets = useMemo(() => pets.filter(p => p.status === 'lost'), [pets]);
   const safePets = useMemo(() => pets.filter(p => p.status !== 'lost'), [pets]);
@@ -30,13 +32,13 @@ export default function Dashboard() {
               Manage your companions and their biometric safety profiles.
             </p>
           </div>
-          <Link 
-            to="/pets/new" 
+          <button 
+            onClick={() => setIsAddPetModalOpen(true)}
             className="group inline-flex items-center justify-center gap-2 px-7 py-4 bg-[var(--color-ink)] hover:bg-[#2A2723] text-white rounded-full font-bold text-[14px] uppercase tracking-wide shadow-md transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-background)] focus:ring-[var(--color-ink)]"
           >
             <Plus size={18} />
             Register Pet
-          </Link>
+          </button>
         </header>
 
         {/* Active Alerts Banner */}
@@ -59,7 +61,7 @@ export default function Dashboard() {
               </div>
             </div>
             <Link 
-              to="/lost" 
+              to={alerts.find(a => a.petId === lostPets[0].id) ? `/alerts/${alerts.find(a => a.petId === lostPets[0].id)?.id}` : '/community'} 
               className="relative z-10 group flex-shrink-0 inline-flex items-center gap-2 px-6 py-3.5 bg-[var(--color-alert)] hover:bg-[#9A3926] text-white font-bold text-[14px] uppercase tracking-wide rounded-full transition-all hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-alert)]"
             >
               Manage Alert
@@ -78,12 +80,12 @@ export default function Dashboard() {
             <p className="text-[var(--color-ink-soft)] mb-10 max-w-md mx-auto text-[16px] leading-relaxed">
               Register your first pet to generate their biometric profile and secure them within the SafePaws network.
             </p>
-            <Link 
-              to="/pets/new" 
+            <button 
+              onClick={() => setIsAddPetModalOpen(true)}
               className="inline-flex items-center justify-center px-8 py-4 bg-[var(--color-accent)] text-white rounded-full font-bold text-[14px] uppercase tracking-wide hover:bg-[var(--color-accent-hover)] hover:-translate-y-0.5 transition-all shadow-[0_8px_20px_rgba(226,129,31,0.25)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-surface)] focus:ring-[var(--color-accent)]"
             >
               Register your first pet
-            </Link>
+            </button>
           </div>
         ) : (
           <div className="space-y-16">
@@ -124,6 +126,7 @@ export default function Dashboard() {
 
           </div>
         )}
+        <AddPetModal isOpen={isAddPetModalOpen} onClose={() => setIsAddPetModalOpen(false)} />
       </main>
     </div>
   );

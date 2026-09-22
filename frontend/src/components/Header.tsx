@@ -43,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeAlertCount = 1,
 }) => {
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, user, setAuth, logout } = useAuthStore();
   const navigate = useNavigate();
   const googleLogin = useGoogleLogin({
@@ -209,22 +210,77 @@ export const Header: React.FC<HeaderProps> = ({
               <button onClick={handleLogout} className="hidden sm:block text-[length:var(--text-label-button)] font-medium text-[var(--color-danger)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded px-2 py-1 min-h-[44px]">Logout</button>
             </div>
           ) : (
-            <button onClick={() => googleLogin()} className="px-4 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white rounded-[var(--radius-12)] text-[length:var(--text-label-button)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] focus:ring-offset-2 min-h-[44px] transition-colors">Sign In</button>
+            <div className="flex gap-2 items-center">
+              {import.meta.env.VITE_ENABLE_DEV_AUTH === 'true' && (
+                <button
+                  onClick={async () => {
+                    const res = await fetch('/api/auth/dev-login', { method: 'POST', credentials: 'include' });
+                    if (res.ok) {
+                      const data = await res.json();
+                      setAuth({
+                        id: data.user.id,
+                        email: data.user.email,
+                        name: data.user.name,
+                        picture: data.user.picture,
+                        profileCompleted: data.user.profileCompleted
+                      });
+                      if (!data.user.profileCompleted) navigate('/setup-profile');
+                    }
+                  }}
+                  className="px-4 py-2 bg-[var(--color-ink-soft)] hover:bg-[var(--color-ink)] text-white rounded-[var(--radius-12)] text-[length:var(--text-label-button)] shadow-sm focus:outline-none min-h-[44px] transition-colors"
+                >
+                  Development Sign In
+                </button>
+              )}
+              <button onClick={() => googleLogin()} className="px-4 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white rounded-[var(--radius-12)] text-[length:var(--text-label-button)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] focus:ring-offset-2 min-h-[44px] transition-colors">Sign In</button>
+            </div>
           )}
 
           {/* Mobile Menu Affordance */}
           <button 
-            className="md:hidden p-2 rounded-[var(--radius-12)] border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)]"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 rounded-[var(--radius-12)] border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] transition-colors hover:bg-[var(--color-surface-raised)]"
             aria-label="Menu"
+            aria-expanded={isMobileMenuOpen}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="4" x2="20" y1="12" y2="12"/>
-              <line x1="4" x2="20" y1="6" y2="6"/>
-              <line x1="4" x2="20" y1="18" y2="18"/>
-            </svg>
+            {isMobileMenuOpen ? (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            ) : (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" x2="20" y1="12" y2="12"/>
+                <line x1="4" x2="20" y1="6" y2="6"/>
+                <line x1="4" x2="20" y1="18" y2="18"/>
+              </svg>
+            )}
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 right-0 mt-2 mx-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-16)] shadow-xl overflow-hidden animate-in slide-in-from-top-2 fade-in duration-200">
+          <nav className="flex flex-col py-2">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  item.action();
+                }}
+                className="flex items-center justify-between px-6 py-4 text-[var(--color-ink)] hover:bg-black/5 active:bg-black/10 transition-colors text-left font-medium focus:outline-none focus:bg-black/5"
+              >
+                {item.label}
+                {item.hasBadge && activeAlertCount > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
+                )}
+              </button>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
