@@ -198,6 +198,23 @@ export default function PublicTagProfile() {
                 </button>
               </div>
 
+              {isLost && (
+                <button
+                  onClick={() => {
+                    const activeAlert = usePetStore.getState().alerts.find(a => a.petId === pet.id && a.status === 'active');
+                    if (activeAlert) {
+                      navigate(`/sightings/new?alertId=${activeAlert.id}`);
+                    } else {
+                      navigate(`/sightings/new`);
+                    }
+                  }}
+                  className="w-full mt-4 flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-alert-clay)] text-white font-bold tracking-wide transition-transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[var(--color-alert-clay)] focus:ring-offset-2"
+                >
+                  <AlertCircle size={20} />
+                  File Detailed Sighting
+                </button>
+              )}
+
               {actionError && (
                 <div className="p-4 bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] text-sm text-center font-medium">
                   {actionError}

@@ -12,14 +12,6 @@ export const CustomCursor: React.FC = () => {
   const [cursorMode, setCursorMode] = useState<'default' | 'hover' | 'text' | 'paw' | 'hidden'>('default');
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isTouchOnly = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    
-    if (prefersReducedMotion || isTouchOnly) {
-      if (containerRef.current) containerRef.current.style.display = 'none';
-      return;
-    }
-
     const cursor = cursorRef.current;
     const follower = followerRef.current;
     const container = containerRef.current;
@@ -31,14 +23,7 @@ export const CustomCursor: React.FC = () => {
     const xToFollower = gsap.quickTo(follower, "x", { duration: 0.5, ease: "power3.out" });
     const yToFollower = gsap.quickTo(follower, "y", { duration: 0.5, ease: "power3.out" });
 
-    let isVisible = false;
-
     const onMouseMove = (e: MouseEvent) => {
-      if (!isVisible) {
-        isVisible = true;
-        gsap.to(container, { opacity: 1, duration: 0.3 });
-      }
-      
       xToCursor(e.clientX);
       yToCursor(e.clientY);
       xToFollower(e.clientX);
@@ -46,13 +31,10 @@ export const CustomCursor: React.FC = () => {
     };
 
     const handleMouseLeave = () => {
-      isVisible = false;
-      gsap.to(container, { opacity: 0, duration: 0.3 });
+      // Optional: shrink or hide when leaving window, but let's keep it robust
     };
 
     const handleMouseEnter = () => {
-      isVisible = true;
-      gsap.to(container, { opacity: 1, duration: 0.3 });
     };
 
     const handleHoverStart = (e: MouseEvent) => {
@@ -90,7 +72,6 @@ export const CustomCursor: React.FC = () => {
     // Initial position
     gsap.set(cursor, { x: window.innerWidth / 2, y: window.innerHeight / 2, xPercent: -50, yPercent: -50 });
     gsap.set(follower, { x: window.innerWidth / 2, y: window.innerHeight / 2, xPercent: -50, yPercent: -50 });
-    gsap.set(container, { opacity: 0 }); // Hidden until first mouse move
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
@@ -155,7 +136,7 @@ export const CustomCursor: React.FC = () => {
   }, [cursorMode]);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 pointer-events-none z-[999999]">
+    <div ref={containerRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 999999 }}>
       
       {/* Trailing Ring / Morphing Shape */}
       <div 

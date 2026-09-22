@@ -114,3 +114,57 @@ async def logout(response: Response, current_owner: Owner = Depends(get_current_
         secure=os.getenv("NODE_ENV") == "production"
     )
     return {"success": True, "message": "Logged out successfully"}
+
+@router.post("/dev-login")
+async def dev_login(response: Response, db: AsyncSession = Depends(get_db)):
+    from dotenv import dotenv_values
+    env = dotenv_values(".env")
+    if env.get("ENABLE_DEV_AUTH", "False").lower() not in ("true", "1", "t"):
+        raise HTTPException(status_code=403, detail="Development auth is disabled")
+    
+    # Create or load dev owner
+    dev_id = "dev-owner-1234"
+    stmt = select(Owner).where(Owner.id == dev_id)
+    result = await db.execute(stmt)
+    owner = result.scalars().first()
+    
+    if not owner:
+        owner = Owner(
+            id=dev_id,
+            name="Developer Account",
+            email="dev@safepaws.local",
+            phone="555-0199",
+            neighborhood="Development Zone"
+        )
+        db.add(owner)
+        await db.commit()
+        await db.refresh(owner)
+        
+    # Generate JWT
+    exp = datetime.utcnow() + timedelta(days=30)
+    jwt_payload = {
+        "userId": owner.id,
+        "tokenVersion": 0,
+        "exp": exp
+    }
+    jwt_token = jwt.encode(jwt_payload, SECRET_KEY, algorithm="HS256")
+    
+    response.set_cookie(
+        key="jwt",
+        value=jwt_token,
+        httponly=True,
+        max_age=30 * 24 * 60 * 60,
+        samesite="lax",
+        secure=os.getenv("NODE_ENV") == "production"
+    )
+    
+    return {
+        "success": True,
+        "user": {
+            "id": owner.id,
+            "name": owner.name,
+            "email": owner.email,
+            "picture": "",
+            "profileCompleted": True
+        }
+    }

@@ -20,9 +20,15 @@ export default function Scan() {
       
       if (apiResult.matches && apiResult.matches.length > 0) {
         if (apiResult.matches.length === 1 || apiResult.matches[0].confidence >= 0.85) {
-           setResult({ state: 'MATCH', petId: apiResult.matches[0].pet_id, qrTagId: apiResult.matches[0].qr_tag_id });
+           setResult({ state: 'MATCH', petId: apiResult.matches[0].pet_id, petName: apiResult.matches[0].name, qrTagId: apiResult.matches[0].qr_tag_id });
         } else {
-           setResult({ state: 'AMBIGUOUS', candidates: apiResult.matches.map(m => ({ pet_id: m.pet_id, qr_tag_id: m.qr_tag_id })) });
+           setResult({ state: 'AMBIGUOUS', candidates: apiResult.matches.map(m => ({ 
+             pet_id: m.pet_id, 
+             qr_tag_id: m.qr_tag_id,
+             name: m.name,
+             breed: m.breed,
+             photo_url: m.photo_url
+           })) });
         }
       } else {
         setResult({ state: 'UNKNOWN' });
@@ -39,8 +45,8 @@ export default function Scan() {
     }
   };
 
-  const handleConfirmCandidate = (petId: string, qrTagId?: string) => {
-    setResult({ state: 'MATCH', petId, qrTagId });
+  const handleConfirmCandidate = (petId: string, qrTagId?: string, petName?: string) => {
+    setResult({ state: 'MATCH', petId, qrTagId, petName });
   };
 
   const resetScan = () => {

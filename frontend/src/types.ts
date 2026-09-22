@@ -55,6 +55,9 @@ export interface CommunitySighting {
 export interface SearchResultMatch {
   pet_id: string;
   qr_tag_id?: string;
+  name?: string;
+  breed?: string;
+  photo_url?: string;
   confidence: number;
 }
 

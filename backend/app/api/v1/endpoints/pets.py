@@ -103,12 +103,14 @@ async def get_pet_by_tag(
 @router.get("/{pet_id}", response_model=PetResponse)
 async def get_pet(
     pet_id: str,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner)
 ):
     """
     Get a public-safe pet profile by ID from the database.
     """
-    stmt = select(Pet).where(Pet.id == pet_id)
+    from sqlalchemy.orm import selectinload
+    stmt = select(Pet).options(selectinload(Pet.photos)).where(Pet.id == pet_id)
     result = await db.execute(stmt)
     pet = result.scalars().first()
     
@@ -118,10 +120,12 @@ async def get_pet(
             detail=f"Pet '{pet_id}' not found."
         )
         
-    owner_stmt = select(Owner).where(Owner.id == pet.owner_id)
-    owner_result = await db.execute(owner_stmt)
-    owner = owner_result.scalars().first()
-    
+    if pet.owner_id != current_owner.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to access this pet."
+        )
+        
     return PetResponse(
         id=pet.id,
         name=pet.name,
@@ -129,18 +133,18 @@ async def get_pet(
         breed=pet.breed or "",
         color=pet.color or "",
         age=pet.age or "",
-        owner_name=owner.name if owner else "",
-        owner_phone=owner.phone if owner else "",
-        neighborhood=owner.neighborhood if owner else "",
+        owner_name=current_owner.name,
+        owner_phone=current_owner.phone,
+        neighborhood=current_owner.neighborhood,
         weight=pet.weight,
         microchip_id=pet.microchip_id,
-        owner_email=owner.email if owner else None,
+        owner_email=current_owner.email,
         medical_notes=pet.medical_notes,
         diet_notes=pet.diet_notes,
         reward=pet.reward,
         distinctive_features=pet.distinctive_features or [],
         consent_given=True,
-        photo_url="",
+        photo_url=pet.photo_url or "",
         status=pet.status,
         qr_tag_id=pet.qr_tag_id or ""
     )
@@ -153,7 +157,8 @@ async def list_pets(
     """
     Get all pets belonging to the current owner.
     """
-    stmt = select(Pet).where(Pet.owner_id == current_owner.id)
+    from sqlalchemy.orm import selectinload
+    stmt = select(Pet).options(selectinload(Pet.photos)).where(Pet.owner_id == current_owner.id)
     result = await db.execute(stmt)
     pets = result.scalars().all()
     
@@ -181,3 +186,72 @@ async def list_pets(
             qr_tag_id=pet.qr_tag_id or ""
         ) for pet in pets
     ]
+from app.schemas.pet import PetUpdate
+
+@router.put("/{pet_id}", response_model=PetResponse)
+async def update_pet(
+    pet_id: str,
+    pet_update: PetUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner)
+):
+    from sqlalchemy.orm import selectinload
+    stmt = select(Pet).options(selectinload(Pet.photos)).where(Pet.id == pet_id)
+    result = await db.execute(stmt)
+    pet = result.scalars().first()
+    
+    if not pet:
+        raise HTTPException(status_code=404, detail="Pet not found")
+        
+    if pet.owner_id != current_owner.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    update_data = pet_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(pet, key, value)
+        
+    await db.commit()
+    await db.refresh(pet)
+    
+    return PetResponse(
+        id=pet.id,
+        name=pet.name,
+        species=pet.species,
+        breed=pet.breed or "",
+        color=pet.color or "",
+        age=pet.age or "",
+        owner_name=current_owner.name,
+        owner_phone=current_owner.phone,
+        neighborhood=current_owner.neighborhood,
+        weight=pet.weight,
+        microchip_id=pet.microchip_id,
+        owner_email=current_owner.email,
+        medical_notes=pet.medical_notes,
+        diet_notes=pet.diet_notes,
+        reward=pet.reward,
+        distinctive_features=pet.distinctive_features or [],
+        consent_given=True,
+        photo_url=pet.photo_url or "",
+        status=pet.status,
+        qr_tag_id=pet.qr_tag_id or ""
+    )
+
+@router.delete("/{pet_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_pet(
+    pet_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner)
+):
+    stmt = select(Pet).where(Pet.id == pet_id)
+    result = await db.execute(stmt)
+    pet = result.scalars().first()
+    
+    if not pet:
+        raise HTTPException(status_code=404, detail="Pet not found")
+        
+    if pet.owner_id != current_owner.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    await db.delete(pet)
+    await db.commit()
+    return None

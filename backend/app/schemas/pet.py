@@ -4,23 +4,17 @@ from pydantic import BaseModel, ConfigDict, Field
 class PetBase(BaseModel):
     name: str
     species: str
-    breed: str
-    color: str
-    age: str
-    owner_name: str
-    owner_phone: str
-    neighborhood: str
+    breed: Optional[str] = ""
+    color: Optional[str] = ""
+    age: Optional[str] = ""
     
     weight: Optional[str] = None
     microchip_id: Optional[str] = None
-    owner_email: Optional[str] = None
     medical_notes: Optional[str] = None
     diet_notes: Optional[str] = None
     reward: Optional[str] = None
-    distinctive_features: List[str] = []
+    distinctive_features: Optional[List[str]] = []
     
-    consent_given: bool = Field(default=False, description="User must explicitly give consent to store biometric data")
-
     from pydantic import field_validator
     
     @field_validator("microchip_id", mode="before")
@@ -39,4 +33,24 @@ class PetResponse(PetBase):
     status: str
     qr_tag_id: str
     
+    owner_name: Optional[str] = ""
+    owner_phone: Optional[str] = ""
+    neighborhood: Optional[str] = ""
+    owner_email: Optional[str] = ""
+    consent_given: bool = False
+    
     model_config = ConfigDict(from_attributes=True)
+
+class PetUpdate(BaseModel):
+    name: Optional[str] = None
+    species: Optional[str] = None
+    breed: Optional[str] = None
+    color: Optional[str] = None
+    age: Optional[str] = None
+    weight: Optional[str] = None
+    microchip_id: Optional[str] = None
+    medical_notes: Optional[str] = None
+    diet_notes: Optional[str] = None
+    reward: Optional[str] = None
+    distinctive_features: Optional[List[str]] = None
+    status: Optional[str] = None

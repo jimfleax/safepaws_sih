@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 interface ResultViewProps {
   result: ScanResult;
   onRetry: () => void;
-  onConfirmCandidate: (petId: string, qrTagId?: string) => void;
+  onConfirmCandidate: (petId: string, qrTagId?: string, petName?: string) => void;
 }
 
 export default function ResultView({ result, onRetry, onConfirmCandidate }: ResultViewProps) {
@@ -41,7 +41,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
   );
 
   if (result.state === 'MATCH' && result.petId) {
-    const pet = pets.find(p => p.id === result.petId) || { name: 'Unknown Pet' };
+    const petName = pets.find(p => p.id === result.petId)?.name || result.petName || 'Unknown Pet';
     return (
       <ViewWrapper>
         <div className="relative mb-6">
@@ -50,7 +50,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         </div>
         <h2 className="text-3xl font-serif font-bold text-white mb-2 tracking-wide">Match Found!</h2>
         <p className="text-lg text-[var(--color-bone)]/70 mb-8 max-w-md font-light">
-          We found a decisive match for <strong className="text-white font-medium">{pet.name}</strong>.
+          We found a decisive match for <strong className="text-white font-medium">{petName}</strong>.
         </p>
         
         <div className="w-full max-w-sm flex flex-col gap-3 relative z-10">
@@ -87,14 +87,17 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         </p>
         
         <div className="w-full max-w-md flex flex-col gap-4 mb-8 relative z-10">
-          {result.candidates.map(candidateId => {
-            const pet = pets.find(p => p.id === candidateId);
-            if (!pet) return null;
+          {result.candidates.map(candidate => {
+            const pet = pets.find(p => p.id === candidate.pet_id) || {
+              name: candidate.name || 'Unknown Pet',
+              breed: candidate.breed || 'Unknown Breed',
+              photoUrl: candidate.photo_url || ''
+            };
             return (
-              <div key={candidateId} className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-xl flex items-center justify-between gap-4 transition-transform hover:scale-[1.02]">
+              <div key={candidate.pet_id} className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-xl flex items-center justify-between gap-4 transition-transform hover:scale-[1.02]">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-full bg-black overflow-hidden shrink-0 border border-white/10">
-                    <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
+                    {pet.photoUrl && <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />}
                   </div>
                   <div className="text-left">
                     <h3 className="font-semibold text-white tracking-wide">{pet.name}</h3>
@@ -102,7 +105,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
                   </div>
                 </div>
                 <button 
-                  onClick={() => onConfirmCandidate(candidateId)}
+                  onClick={() => onConfirmCandidate(candidate.pet_id, candidate.qr_tag_id, pet.name)}
                   className="bg-[var(--color-marigold)]/10 hover:bg-[var(--color-marigold)]/20 text-[var(--color-marigold)] border border-[var(--color-marigold)]/20 px-5 py-2.5 rounded-xl font-medium transition-colors text-sm whitespace-nowrap min-h-[44px] focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)]"
                 >
                   Confirm

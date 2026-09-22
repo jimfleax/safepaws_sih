@@ -41,8 +41,8 @@ class Pet(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     owner = relationship("Owner", back_populates="pets")
-    photos = relationship("PetPhoto", back_populates="pet")
-    biometric_enrollments = relationship("PetBiometricEnrollment", back_populates="pet")
+    photos = relationship("PetPhoto", back_populates="pet", cascade="all, delete-orphan")
+    biometric_enrollments = relationship("PetBiometricEnrollment", back_populates="pet", cascade="all, delete-orphan")
 
     @property
     def owner_name(self) -> str:
