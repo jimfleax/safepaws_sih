@@ -56,7 +56,7 @@ export default function Scan() {
 
   return (
     <div className="fixed inset-0 bg-[var(--color-ink)] z-50 flex flex-col">
-      <div className="w-full h-full relative overflow-hidden">
+      <div className="w-full h-full relative overflow-hidden" data-cursor="scan">
         
         {/* Close Button */}
         <button 
