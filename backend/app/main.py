@@ -23,6 +23,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+async def startup_event():
+    if settings.USE_SQLITE_DEV:
+        from app.db.session import engine
+        from app.db.base_class import Base
+        # Ensure all models are imported so metadata knows about them
+        import app.db.models
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
 app.add_exception_handler(DomainException, domain_exception_handler)
 
 @app.exception_handler(SQLAlchemyError)

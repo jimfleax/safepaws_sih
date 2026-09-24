@@ -1,23 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { DashboardNav } from '../components/DashboardNav';
 import { usePetStore } from '../store/petStore';
 import { useAuthStore } from '../store/authStore';
 import {
   Search, Plus, MapPin, Clock, AlertTriangle, Heart, Users,
-  MessageSquare, Eye, Bell, ChevronRight, ArrowRight, Flag, X
+  MessageSquare, Eye, Bell, ChevronRight, ArrowRight, Flag, X, Hash, Send, Image as ImageIcon, Smile
 } from 'lucide-react';
 
 const CHANNELS = [
-  { id: 'all', label: 'All Community' },
-  { id: 'lost-found', label: 'Lost & Found' },
-  { id: 'sightings', label: 'Sightings' },
-  { id: 'urgent', label: 'Urgent' },
-  { id: 'general', label: 'General' },
-  { id: 'pet-care', label: 'Pet Care' },
-  { id: 'rescue', label: 'Rescue & Shelters' },
-  { id: 'adoption', label: 'Adoption' },
-  { id: 'tips', label: 'Tips' },
+  { id: 'lost-found', label: 'lost-and-found', desc: 'Emergency coordination for lost pets' },
+  { id: 'sightings', label: 'sightings', desc: 'Report any wandering pets you spot' },
+  { id: 'general', label: 'general', desc: 'Community chat & general discussion' },
+  { id: 'pet-care', label: 'pet-care', desc: 'Advice and help with pet care' },
+  { id: 'rescue', label: 'rescue-shelters', desc: 'Local shelters and rescue operations' },
+  { id: 'adoption', label: 'adoption', desc: 'Pets looking for their forever home' },
 ];
 
 type Post = {
@@ -29,57 +26,58 @@ type Post = {
   created_at: string;
   reply_count?: number;
   associated_alert_id?: string | null;
-  neighborhood?: string;
 };
 
-type ApiState = 'idle' | 'loading' | 'success' | 'error';
-
 export default function Community() {
-  const { alerts, sightings } = usePetStore();
+  const { alerts } = usePetStore();
   const { isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const activeChannel = searchParams.get('channel') || 'all';
+  const activeChannelId = searchParams.get('channel') || 'general';
+  const activeChannel = CHANNELS.find(c => c.id === activeChannelId) || CHANNELS[2];
+  
   const [posts, setPosts] = useState<Post[]>([]);
-  const [apiState, setApiState] = useState<ApiState>('loading');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showNewPostForm, setShowNewPostForm] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', content: '', channel: 'general' });
+  const [apiState, setApiState] = useState<'loading' | 'success' | 'error'>('loading');
+  const [messageContent, setMessageContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
-
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
   const activeAlerts = alerts.filter(a => a.status === 'active');
 
   const fetchPosts = useCallback(async () => {
     setApiState('loading');
     try {
-      const channel = activeChannel !== 'all' ? activeChannel : undefined;
-      const query = searchQuery.trim();
-      const base = '/api/v1/community';
-      const url = query
-        ? `${base}/search?query=${encodeURIComponent(query)}`
-        : channel
-          ? `${base}/posts?channel=${encodeURIComponent(channel)}`
-          : `${base}/posts`;
-
-      const res = await fetch(url);
+      const res = await fetch(`/api/v1/community/posts?channel=${encodeURIComponent(activeChannelId)}`);
       if (!res.ok) throw new Error('Network error');
       const data = await res.json();
-      setPosts(data);
+      setPosts(data.reverse()); // Discord displays oldest top, newest bottom (we append to bottom)
       setApiState('success');
     } catch {
-      // API not yet wired to a live server — surface placeholder content
       setPosts([]);
       setApiState('success');
     }
-  }, [activeChannel, searchQuery]);
+  }, [activeChannelId]);
 
   useEffect(() => { fetchPosts(); }, [fetchPosts]);
 
-  const handleSubmitPost = async (e: React.FormEvent) => {
+  // Scroll to bottom when messages load
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [posts]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) { navigate('/'); return; }
+    if (!messageContent.trim()) return;
+    
     setSubmitting(true);
+    // Create a title from first 5 words
+    const words = messageContent.trim().split(/\s+/);
+    const title = words.slice(0, 5).join(' ') + (words.length > 5 ? '...' : '');
+
+    const newPost = { title, content: messageContent, channel: activeChannelId };
+    
     try {
       const res = await fetch('/api/v1/community/posts', {
         method: 'POST',
@@ -88,457 +86,246 @@ export default function Community() {
       });
       if (!res.ok) throw new Error();
       const created = await res.json();
-      setPosts(prev => [created, ...prev]);
-      setShowNewPostForm(false);
-      setNewPost({ title: '', content: '', channel: 'general' });
+      setPosts(prev => [...prev, created]);
+      setMessageContent('');
     } catch {
-      // optimistic UI when API unavailable
+      // Optimistic
       const optimistic: Post = {
         id: Math.random().toString(36).slice(2),
         ...newPost,
         author_name: user?.name || 'You',
         created_at: new Date().toISOString(),
-        reply_count: 0,
       };
-      setPosts(prev => [optimistic, ...prev]);
-      setShowNewPostForm(false);
-      setNewPost({ title: '', content: '', channel: 'general' });
+      setPosts(prev => [...prev, optimistic]);
+      setMessageContent('');
     } finally {
       setSubmitting(false);
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e);
+    }
+  };
+
+  const getInitials = (name: string) => name.substring(0, 2).toUpperCase();
+
   return (
-    <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
+    <div className="h-screen bg-[var(--color-surface)] flex overflow-hidden text-[var(--color-ink)] font-sans">
+      {/* 1. Left Sidebar (Dashboard Nav) */}
       <DashboardNav />
 
-      <div className="flex-1 flex flex-col md:flex-row min-w-0">
-        {/* ── Left: Channel Nav ── */}
-        <aside className="w-full md:w-56 lg:w-64 border-b md:border-b-0 md:border-r border-[var(--color-ink)]/10 bg-white/30 flex-shrink-0">
-          <div className="px-6 pt-10 pb-4 border-b border-[var(--color-ink)]/10">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--color-ink-soft)]">Channels</h2>
-          </div>
-          <nav className="py-2">
-            {CHANNELS.map(ch => (
-              <button
-                key={ch.id}
-                onClick={() => setSearchParams(ch.id === 'all' ? {} : { channel: ch.id })}
-                className={`w-full text-left px-6 py-3 text-sm font-medium transition-colors flex items-center justify-between group ${
-                  activeChannel === ch.id
-                    ? 'bg-[var(--color-ink)] text-[var(--color-bone)]'
-                    : 'text-[var(--color-ink)] hover:bg-[var(--color-ink)]/5'
-                }`}
-              >
-                <span>{ch.label}</span>
-                {ch.id === 'urgent' && activeAlerts.length > 0 && (
-                  <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${activeChannel === ch.id ? 'bg-[var(--color-bone)]/20 text-[var(--color-bone)]' : 'bg-[var(--color-alert-clay)] text-white'}`}>
-                    {activeAlerts.length}
-                  </span>
-                )}
-              </button>
-            ))}
-          </nav>
-
-          {/* Mobile: quick links */}
-          <div className="px-6 py-4 border-t border-[var(--color-ink)]/10 md:hidden">
-            <Link to="/sightings/new" className="text-sm font-bold uppercase tracking-widest text-[var(--color-alert-clay)]">
-              + Report Sighting
-            </Link>
-          </div>
-        </aside>
-
-        {/* ── Main Feed ── */}
-        <main className="flex-1 min-w-0 px-6 py-10 max-w-3xl mx-auto w-full pb-32 md:pb-10">
-
-          {/* Header */}
-          <div className="flex items-start justify-between mb-8 gap-4">
-            <div>
-              <h1 className="font-serif text-4xl font-bold text-[var(--color-ink)]">
-                {CHANNELS.find(c => c.id === activeChannel)?.label || 'Community'}
-              </h1>
-              <p className="text-[var(--color-ink-soft)] mt-1 text-sm">Recovery network · neighborhood coordination</p>
-            </div>
-            {isAuthenticated && (
-              <button
-                onClick={() => setShowNewPostForm(true)}
-                className="flex items-center gap-2 px-5 py-3 bg-[var(--color-ink)] text-[var(--color-bone)] text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shrink-0"
-              >
-                <Plus size={16} /> Post
-              </button>
-            )}
-          </div>
-
-          {/* Search */}
-          <form
-            onSubmit={e => { e.preventDefault(); fetchPosts(); }}
-            className="flex gap-3 mb-10"
-          >
-            <div className="flex-1 relative">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-ink-soft)]" />
-              <input
-                type="text"
-                placeholder="Search community..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full bg-white/60 border border-[var(--color-ink)]/15 pl-11 pr-4 py-3 text-[var(--color-ink)] placeholder-[var(--color-ink-soft)] focus:outline-none focus:border-[var(--color-ink)]/40 transition-colors"
-              />
-            </div>
-            <button type="submit" className="px-5 py-3 bg-[var(--color-ink)] text-[var(--color-bone)] text-sm font-bold uppercase tracking-widest">
-              Search
-            </button>
-          </form>
-
-          {/* Pinned: Active Local Alerts */}
-          {activeAlerts.length > 0 && (activeChannel === 'all' || activeChannel === 'urgent' || activeChannel === 'lost-found') && (
-            <section className="mb-10">
-              <div className="flex items-center gap-2 mb-4">
-                <AlertTriangle size={16} className="text-[var(--color-alert-clay)]" />
-                <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--color-alert-clay)]">
-                  Active Nearby Alerts
-                </h2>
-              </div>
-              <div className="space-y-3">
-                {activeAlerts.slice(0, 3).map(alert => (
-                  <Link
-                    key={alert.id}
-                    to={`/alerts/${alert.id}`}
-                    className="group flex items-center gap-4 p-4 bg-[var(--color-alert-clay)]/5 border border-[var(--color-alert-clay)]/20 hover:border-[var(--color-alert-clay)]/50 transition-colors"
-                  >
-                    <div className="w-12 h-12 bg-[var(--color-ink)]/5 overflow-hidden flex-shrink-0">
-                      {alert.photoUrl
-                        ? <img src={alert.photoUrl} alt={alert.petName} className="w-full h-full object-cover" />
-                        : <div className="w-full h-full flex items-center justify-center text-[var(--color-ink-soft)]"><Heart size={20}/></div>
-                      }
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-alert-clay)] animate-pulse flex-shrink-0" />
-                        <span className="font-bold text-[var(--color-ink)] truncate">{alert.petName}</span>
-                        <span className="text-xs text-[var(--color-ink-soft)] flex-shrink-0">· {alert.breed}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-[var(--color-ink-soft)] truncate">
-                        <MapPin size={11} />
-                        <span className="truncate">{alert.lastSeenAddress}</span>
-                      </div>
-                    </div>
-                    <ChevronRight size={16} className="text-[var(--color-alert-clay)] flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                ))}
-                {activeAlerts.length > 3 && (
-                  <Link to="/lost" className="block text-center py-2 text-sm font-bold uppercase tracking-widest text-[var(--color-alert-clay)] hover:underline">
-                    View all {activeAlerts.length} active alerts →
-                  </Link>
-                )}
-              </div>
-            </section>
-          )}
-
-          {/* New Post Form */}
-          {showNewPostForm && (
-            <div className="mb-10 bg-white/60 border border-[var(--color-ink)]/15 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-serif text-xl font-bold">New Post</h3>
-                <button onClick={() => setShowNewPostForm(false)} className="text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]">
-                  <X size={20} />
-                </button>
-              </div>
-              <form onSubmit={handleSubmitPost} className="space-y-4">
-                <select
-                  value={newPost.channel}
-                  onChange={e => setNewPost(p => ({ ...p, channel: e.target.value }))}
-                  className="w-full bg-transparent border border-[var(--color-ink)]/20 px-4 py-3 focus:outline-none focus:border-[var(--color-ink)]/50 text-sm"
-                >
-                  {CHANNELS.filter(c => c.id !== 'all').map(c => (
-                    <option key={c.id} value={c.id}>{c.label}</option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  placeholder="Title"
-                  value={newPost.title}
-                  onChange={e => setNewPost(p => ({ ...p, title: e.target.value }))}
-                  required
-                  className="w-full bg-transparent border-b border-[var(--color-ink)]/20 focus:border-[var(--color-ink)] outline-none py-3 font-serif text-xl placeholder-[var(--color-ink-soft)] transition-colors"
-                />
-                <textarea
-                  placeholder="What's on your mind?"
-                  value={newPost.content}
-                  onChange={e => setNewPost(p => ({ ...p, content: e.target.value }))}
-                  required
-                  rows={4}
-                  className="w-full bg-transparent border-b border-[var(--color-ink)]/20 focus:border-[var(--color-ink)] outline-none py-3 resize-none placeholder-[var(--color-ink-soft)] leading-relaxed transition-colors"
-                />
-                <div className="flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPostForm(false)}
-                    className="px-5 py-2.5 text-sm font-bold uppercase tracking-widest text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting || !newPost.title.trim() || !newPost.content.trim()}
-                    className="px-6 py-2.5 bg-[var(--color-ink)] text-[var(--color-bone)] text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-opacity"
-                  >
-                    {submitting ? 'Posting…' : 'Post'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* Feed */}
-          {apiState === 'loading' && (
-            <div className="flex flex-col items-center justify-center py-24 gap-4">
-              <div className="w-8 h-8 border-4 border-[var(--color-ink)] border-t-transparent rounded-full animate-spin" />
-              <p className="text-[var(--color-ink-soft)] text-sm">Loading community…</p>
-            </div>
-          )}
-
-          {apiState === 'error' && (
-            <div className="text-center py-24">
-              <p className="text-[var(--color-alert-clay)] font-bold mb-4">Failed to load posts</p>
-              <button
-                onClick={fetchPosts}
-                className="px-6 py-3 bg-[var(--color-ink)] text-[var(--color-bone)] text-sm font-bold uppercase tracking-widest"
-              >
-                Retry
-              </button>
-            </div>
-          )}
-
-          {apiState === 'success' && posts.length === 0 && (
-            <div className="text-center py-24 flex flex-col items-center">
-              <div className="w-16 h-16 bg-[var(--color-ink)]/5 flex items-center justify-center mb-6">
-                <MessageSquare size={28} className="text-[var(--color-ink-soft)]" />
-              </div>
-              <h3 className="font-serif text-2xl mb-3">No posts yet</h3>
-              <p className="text-[var(--color-ink-soft)] max-w-sm mb-8">
-                {searchQuery
-                  ? `No results for "${searchQuery}". Try a different search.`
-                  : 'Be the first to post in this channel.'}
-              </p>
-              {isAuthenticated && !showNewPostForm && (
+      {/* 2. Channels Sidebar (Discord-style) */}
+      <div className="w-60 bg-[var(--color-surface-raised)] border-r border-[var(--color-border)] flex flex-col flex-shrink-0 z-10 hidden md:flex">
+        <div className="h-16 px-4 flex items-center border-b border-[var(--color-border)] shadow-sm">
+          <h2 className="font-bold text-[var(--color-ink)] text-lg">SafePaws Hub</h2>
+        </div>
+        <div className="flex-1 overflow-y-auto py-4 px-2 space-y-6">
+          <div>
+            <h3 className="px-2 text-xs font-bold uppercase tracking-wider text-[var(--color-ink-soft)] mb-1">Text Channels</h3>
+            <div className="space-y-0.5">
+              {CHANNELS.map(ch => (
                 <button
-                  onClick={() => setShowNewPostForm(true)}
-                  className="px-6 py-3 bg-[var(--color-ink)] text-[var(--color-bone)] text-sm font-bold uppercase tracking-widest"
+                  key={ch.id}
+                  onClick={() => setSearchParams({ channel: ch.id })}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors text-left ${
+                    activeChannelId === ch.id 
+                      ? 'bg-[var(--color-accent)]/10 text-[var(--color-accent)] font-semibold' 
+                      : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-ink)]/5 hover:text-[var(--color-ink)]'
+                  }`}
                 >
-                  + Create First Post
-                </button>
-              )}
-            </div>
-          )}
-
-          {apiState === 'success' && posts.length > 0 && (
-            <div className="space-y-0 border-t border-[var(--color-ink)]/15 divide-y divide-[var(--color-ink)]/10">
-              {posts.map(post => (
-                <PostRow key={post.id} post={post as Post} />
-              ))}
-            </div>
-          )}
-
-          {/* Recent Sightings snapshot */}
-          {sightings.length > 0 && (activeChannel === 'all' || activeChannel === 'sightings') && apiState === 'success' && (
-            <section className="mt-12 border-t border-[var(--color-ink)]/15 pt-10">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-serif text-2xl font-bold">Recent Sightings</h2>
-                <Link to="/sightings/new" className="text-xs font-bold uppercase tracking-widest text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors">
-                  Report one →
-                </Link>
-              </div>
-              <div className="space-y-6">
-                {sightings.slice(0, 3).map(s => (
-                  <div key={s.id} className="flex gap-4">
-                    <div className="w-1 bg-[var(--color-trail)]/40 flex-shrink-0" />
-                    <div>
-                      <div className="flex items-center gap-2 mb-1 text-sm">
-                        <MapPin size={13} className="text-[var(--color-alert-clay)]" />
-                        <span className="font-medium text-[var(--color-ink)]">{s.location}</span>
-                        <span className="text-[var(--color-ink-soft)]">·</span>
-                        <span className="text-[var(--color-ink-soft)]">{s.time}</span>
-                      </div>
-                      <p className="text-[var(--color-ink)] leading-relaxed italic text-sm">"{s.notes}"</p>
-                      {s.alertId && (
-                        <Link to={`/alerts/${s.alertId}`} className="text-xs font-bold uppercase tracking-widest text-[var(--color-alert-clay)] mt-2 inline-block hover:underline">
-                          Related alert →
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-        </main>
-
-        {/* ── Right: Context Panel (desktop only) ── */}
-        <aside className="hidden lg:block w-72 xl:w-80 border-l border-[var(--color-ink)]/10 bg-white/20 flex-shrink-0 px-6 py-10 space-y-10">
-          {/* Quick actions */}
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--color-ink-soft)] mb-4">Quick Actions</h3>
-            <div className="space-y-2">
-              <Link to="/sightings/new" className="flex items-center gap-3 p-3 bg-[var(--color-alert-clay)]/8 border border-[var(--color-alert-clay)]/20 hover:border-[var(--color-alert-clay)]/40 transition-colors group">
-                <Eye size={16} className="text-[var(--color-alert-clay)]" />
-                <span className="text-sm font-bold text-[var(--color-ink)]">Report a Sighting</span>
-              </Link>
-              <Link to="/lost/new" className="flex items-center gap-3 p-3 border border-[var(--color-ink)]/15 hover:border-[var(--color-ink)]/30 transition-colors">
-                <AlertTriangle size={16} className="text-[var(--color-ink-soft)]" />
-                <span className="text-sm font-medium text-[var(--color-ink)]">Report Lost Pet</span>
-              </Link>
-              <Link to="/community/onboarding" className="flex items-center gap-3 p-3 border border-[var(--color-ink)]/15 hover:border-[var(--color-ink)]/30 transition-colors">
-                <Users size={16} className="text-[var(--color-ink-soft)]" />
-                <span className="text-sm font-medium text-[var(--color-ink)]">Edit My Interests</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Nearby active alerts */}
-          {activeAlerts.length > 0 && (
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--color-alert-clay)] mb-4">
-                Active Alerts ({activeAlerts.length})
-              </h3>
-              <div className="space-y-3">
-                {activeAlerts.slice(0, 4).map(a => (
-                  <Link key={a.id} to={`/alerts/${a.id}`} className="flex items-center gap-3 group">
-                    <div className="w-9 h-9 bg-[var(--color-ink)]/5 overflow-hidden flex-shrink-0">
-                      {a.photoUrl
-                        ? <img src={a.photoUrl} alt={a.petName} className="w-full h-full object-cover" />
-                        : <div className="w-full h-full flex items-center justify-center"><Heart size={14} className="text-[var(--color-ink-soft)]" /></div>
-                      }
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-[var(--color-ink)] truncate group-hover:text-[var(--color-alert-clay)] transition-colors">{a.petName}</p>
-                      <p className="text-xs text-[var(--color-ink-soft)] truncate">{a.breed}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Community Guidelines */}
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--color-ink-soft)] mb-4">Guidelines</h3>
-            <ul className="space-y-2 text-xs text-[var(--color-ink-soft)] leading-relaxed">
-              <li>Be kind and accurate — this is for real emergencies.</li>
-              <li>Only share information you personally observed or can verify.</li>
-              <li>Do not share private owner contact info publicly.</li>
-              <li>Report posts that may cause harm using the flag icon.</li>
-            </ul>
-          </div>
-        </aside>
-      </div>
-    </div>
-  );
-}
-
-// ── Post Row component ──────────────────────────────────────────────────────
-const PostRow: React.FC<{ post: Post }> = ({ post }) => {
-  const [showReport, setShowReport] = useState(false);
-  const [reported, setReported] = useState(false);
-
-  const channelLabel = CHANNELS.find(c => c.id === post.channel)?.label || post.channel;
-  const isUrgent = post.channel === 'urgent' || post.channel === 'lost-found';
-
-  const handleReport = async (reason: string) => {
-    try {
-      await fetch('/api/v1/community/reports', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: post.id, reason }),
-      });
-    } finally {
-      setReported(true);
-      setShowReport(false);
-    }
-  };
-
-  return (
-    <article className="py-7 group">
-      <div className="flex items-start gap-4">
-        <div className="flex-1 min-w-0">
-          {/* Meta row */}
-          <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <span className={`text-xs font-bold uppercase tracking-widest px-2 py-0.5 ${
-              isUrgent
-                ? 'bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)]'
-                : 'bg-[var(--color-ink)]/5 text-[var(--color-ink-soft)]'
-            }`}>
-              {channelLabel}
-            </span>
-            <span className="text-xs text-[var(--color-ink-soft)] font-medium">{post.author_name}</span>
-            <span className="text-[var(--color-ink)]/20">·</span>
-            <span className="text-xs text-[var(--color-ink-soft)] flex items-center gap-1">
-              <Clock size={11} />
-              {new Date(post.created_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
-            </span>
-          </div>
-
-          {/* Title */}
-          <Link to={`/community/post/${post.id}`}>
-            <h3 className="font-serif text-xl font-bold text-[var(--color-ink)] group-hover:text-[var(--color-alert-clay)] transition-colors leading-snug mb-2">
-              {post.title}
-            </h3>
-          </Link>
-
-          {/* Excerpt */}
-          <p className="text-sm text-[var(--color-ink-soft)] leading-relaxed line-clamp-2 mb-4">
-            {post.content}
-          </p>
-
-          {/* Alert Link */}
-          {post.associated_alert_id && (
-            <Link
-              to={`/alerts/${post.associated_alert_id}`}
-              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[var(--color-alert-clay)] hover:underline mb-4"
-            >
-              <AlertTriangle size={11} /> View Related Alert
-            </Link>
-          )}
-
-          {/* Footer */}
-          <div className="flex items-center gap-5 text-xs text-[var(--color-ink-soft)]">
-            <Link to={`/community/post/${post.id}`} className="flex items-center gap-1.5 hover:text-[var(--color-ink)] transition-colors">
-              <MessageSquare size={13} />
-              <span>{post.reply_count ?? 0} replies</span>
-            </Link>
-            <Link to={`/community/post/${post.id}`} className="flex items-center gap-1.5 hover:text-[var(--color-ink)] transition-colors">
-              <ArrowRight size={13} />
-              <span>Read thread</span>
-            </Link>
-            <div className="ml-auto relative">
-              {reported ? (
-                <span className="text-[var(--color-ink-soft)]">Reported</span>
-              ) : (
-                <>
-                  <button
-                    onClick={() => setShowReport(r => !r)}
-                    className="flex items-center gap-1 hover:text-[var(--color-alert-clay)] transition-colors"
-                    title="Report this post"
-                  >
-                    <Flag size={13} />
-                  </button>
-                  {showReport && (
-                    <div className="absolute right-0 bottom-6 bg-white border border-[var(--color-ink)]/15 shadow-lg z-10 min-w-[160px]">
-                      {['spam', 'harassment', 'scam', 'inappropriate', 'misinformation'].map(r => (
-                        <button
-                          key={r}
-                          onClick={() => handleReport(r)}
-                          className="block w-full text-left px-4 py-2 text-xs capitalize hover:bg-[var(--color-bone)] transition-colors"
-                        >
-                          {r}
-                        </button>
-                      ))}
-                    </div>
+                  <Hash size={18} className="opacity-70" />
+                  <span className="truncate text-[0.95rem]">{ch.label}</span>
+                  {ch.id === 'lost-found' && activeAlerts.length > 0 && (
+                    <span className="ml-auto flex items-center justify-center w-5 h-5 bg-[var(--color-danger)] text-white text-[10px] font-bold rounded-full">
+                      {activeAlerts.length}
+                    </span>
                   )}
-                </>
-              )}
+                </button>
+              ))}
             </div>
           </div>
         </div>
+        
+        {/* User Mini Profile */}
+        <div className="p-3 bg-[var(--color-background)] border-t border-[var(--color-border)] flex items-center gap-3">
+          {isAuthenticated ? (
+            <>
+              <img src={user?.picture || 'https://via.placeholder.com/40'} alt="avatar" className="w-8 h-8 rounded-full border border-[var(--color-border)]" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold truncate">{user?.name}</p>
+                <p className="text-xs text-[var(--color-ink-soft)] truncate">Online</p>
+              </div>
+            </>
+          ) : (
+            <div className="w-full">
+              <p className="text-xs text-[var(--color-ink-soft)] mb-2">Join community to chat</p>
+              <button onClick={() => navigate('/')} className="w-full py-1.5 bg-[var(--color-accent)] text-white text-xs font-bold rounded-md hover:bg-[var(--color-accent-hover)] transition-colors">Sign In</button>
+            </div>
+          )}
+        </div>
       </div>
-    </article>
+
+      {/* 3. Main Chat Area */}
+      <div className="flex-1 flex flex-col min-w-0 bg-[var(--color-background)] relative">
+        {/* Chat Header */}
+        <div className="h-16 px-4 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-background)] shadow-sm z-10 shrink-0">
+          <div className="flex items-center gap-2">
+            <Hash size={24} className="text-[var(--color-ink-soft)]" />
+            <h2 className="font-bold text-lg">{activeChannel.label}</h2>
+            <div className="hidden sm:block w-px h-6 bg-[var(--color-border)] mx-2" />
+            <p className="hidden sm:block text-sm text-[var(--color-ink-soft)] truncate max-w-md">{activeChannel.desc}</p>
+          </div>
+          
+          <div className="flex items-center gap-3 lg:hidden">
+            <button className="p-2 text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]">
+              <Users size={20} />
+            </button>
+          </div>
+        </div>
+
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+          {/* Welcome Banner */}
+          <div className="mb-8 mt-12 pb-4 border-b border-[var(--color-border)]">
+            <div className="w-16 h-16 bg-[var(--color-surface-raised)] rounded-full flex items-center justify-center mb-4">
+              <Hash size={36} className="text-[var(--color-ink-soft)]" />
+            </div>
+            <h1 className="text-3xl font-bold mb-2">Welcome to #{activeChannel.label}!</h1>
+            <p className="text-[var(--color-ink-soft)]">{activeChannel.desc}. This is the start of the channel.</p>
+          </div>
+
+          {apiState === 'loading' ? (
+            <div className="flex justify-center py-10">
+              <div className="w-8 h-8 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : posts.length === 0 ? (
+             <div className="py-4 text-[var(--color-ink-soft)] text-sm">No messages here yet. Break the ice!</div>
+          ) : (
+            posts.map(post => (
+              <div key={post.id} className="flex gap-4 group hover:bg-[var(--color-ink)]/5 p-2 -mx-2 rounded-lg transition-colors">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-[#f9a826] text-white flex items-center justify-center font-bold flex-shrink-0 shadow-sm mt-0.5">
+                  {getInitials(post.author_name)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="font-bold text-[15px] hover:underline cursor-pointer">{post.author_name}</span>
+                    <span className="text-xs text-[var(--color-ink-soft)] font-medium">
+                      {new Date(post.created_at).toLocaleString('en-IN', { hour: 'numeric', minute: 'numeric', day: 'numeric', month: 'short' })}
+                    </span>
+                  </div>
+                  <div className="text-[15px] leading-relaxed text-[var(--color-ink)]/90 break-words whitespace-pre-wrap">
+                    {post.content}
+                  </div>
+                  {post.associated_alert_id && (
+                    <Link to={`/alerts/${post.associated_alert_id}`} className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-[var(--color-danger)]/10 text-[var(--color-danger)] text-xs font-bold rounded-md hover:bg-[var(--color-danger)]/20 transition-colors">
+                      <AlertTriangle size={14} /> Related Alert Attached
+                    </Link>
+                  )}
+                </div>
+                {/* Message Hover Actions */}
+                <div className="opacity-0 group-hover:opacity-100 flex items-center gap-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md shadow-sm absolute right-4 -translate-y-4 px-1 py-1 transition-opacity">
+                  <button className="p-1.5 text-[var(--color-ink-soft)] hover:text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 rounded" title="Report message">
+                    <Flag size={16} />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Chat Input */}
+        <div className="p-4 bg-[var(--color-background)] shrink-0">
+          <form onSubmit={handleSendMessage} className="relative">
+            <div className="absolute left-3 top-3 text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] cursor-pointer p-1 rounded-full hover:bg-[var(--color-ink)]/5 transition-colors">
+              <ImageIcon size={20} />
+            </div>
+            <textarea
+              value={messageContent}
+              onChange={e => setMessageContent(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={submitting || !isAuthenticated}
+              placeholder={isAuthenticated ? `Message #${activeChannel.label}` : 'You must be signed in to chat.'}
+              className="w-full bg-[var(--color-surface-raised)] border border-[var(--color-border)] rounded-xl pl-12 pr-24 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] resize-none text-[15px]"
+              rows={1}
+              style={{ minHeight: '52px', maxHeight: '50vh' }}
+            />
+            <div className="absolute right-3 top-2.5 flex items-center gap-1">
+              <div className="p-1.5 text-[var(--color-ink-soft)] hover:text-[#fbbf24] cursor-pointer rounded-full hover:bg-[var(--color-ink)]/5 transition-colors hidden sm:block">
+                <Smile size={20} />
+              </div>
+              <button
+                type="submit"
+                disabled={submitting || !messageContent.trim() || !isAuthenticated}
+                className="p-1.5 bg-[var(--color-accent)] text-white rounded-lg hover:bg-[var(--color-accent-hover)] disabled:opacity-50 disabled:hover:bg-[var(--color-accent)] transition-colors shadow-sm ml-1 flex items-center justify-center w-8 h-8"
+              >
+                <Send size={16} className="-ml-0.5" />
+              </button>
+            </div>
+          </form>
+          <div className="text-center mt-2 text-[11px] text-[var(--color-ink-soft)]">
+            <strong>ProTip:</strong> Shift + Enter to add a new line. Please follow our community guidelines.
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Right Sidebar (Members & Info) */}
+      <div className="w-72 bg-[var(--color-surface-raised)] border-l border-[var(--color-border)] flex-col flex-shrink-0 hidden xl:flex">
+        <div className="h-16 px-4 flex items-center border-b border-[var(--color-border)] shadow-sm">
+          <h2 className="font-bold text-[var(--color-ink)]">Community Actions</h2>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-8">
+          
+          {/* Quick Actions */}
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-ink-soft)] mb-3">Quick Actions</h3>
+            <div className="space-y-2">
+              <Link to="/lost/new" className="flex items-center gap-3 p-3 bg-[var(--color-danger)] text-white rounded-lg hover:bg-[var(--color-danger)]/90 transition-colors shadow-sm">
+                <AlertTriangle size={18} />
+                <span className="text-sm font-semibold">Report Lost Pet</span>
+              </Link>
+              <Link to="/sightings/new" className="flex items-center gap-3 p-3 bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-ink)] rounded-lg hover:bg-[var(--color-background)] transition-colors shadow-sm">
+                <Eye size={18} className="text-[var(--color-accent)]" />
+                <span className="text-sm font-medium">Log a Sighting</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Active Alerts */}
+          {activeAlerts.length > 0 && (
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-ink-soft)] mb-3">
+                Active Alerts — {activeAlerts.length}
+              </h3>
+              <div className="space-y-2">
+                {activeAlerts.slice(0, 4).map(a => (
+                  <Link key={a.id} to={`/alerts/${a.id}`} className="flex items-center gap-3 p-2 rounded-md hover:bg-[var(--color-ink)]/5 transition-colors group">
+                    <div className="w-8 h-8 rounded bg-[var(--color-surface)] overflow-hidden border border-[var(--color-border)] flex-shrink-0 relative">
+                      {a.photoUrl ? (
+                        <img src={a.photoUrl} alt={a.petName} className="w-full h-full object-cover" />
+                      ) : (
+                        <Heart size={14} className="m-auto mt-2 text-[var(--color-ink-soft)]" />
+                      )}
+                      <div className="absolute top-0 right-0 w-2 h-2 bg-[var(--color-danger)] rounded-bl-sm" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-[var(--color-ink)] truncate group-hover:text-[var(--color-accent)] transition-colors">{a.petName}</p>
+                      <p className="text-[11px] text-[var(--color-ink-soft)] truncate flex items-center gap-1">
+                        <MapPin size={10} /> {a.lastSeenAddress}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
   );
 }

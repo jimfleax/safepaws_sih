@@ -1,9 +1,29 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Float, ForeignKey, DateTime, Boolean, ARRAY
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, DateTime, Boolean, JSON
 from sqlalchemy.orm import relationship
-from geoalchemy2 import Geography
 from app.db.base_class import Base
+from app.core.config import settings
+
+# --- Polyfill for Postgres Types in SQLite Dev Mode ---
+if settings.USE_SQLITE_DEV:
+    # Fallback to JSON for arrays in SQLite
+    def ArrayType(item_type):
+        return JSON
+    
+    # Fallback to String for Geography in SQLite
+    def GeoType(*args, **kwargs):
+        return String
+else:
+    from sqlalchemy import ARRAY
+    from geoalchemy2 import Geography
+    
+    def ArrayType(item_type):
+        return ARRAY(item_type)
+        
+    def GeoType(*args, **kwargs):
+        return Geography(*args, **kwargs)
+# --------------------------------------------------------
 
 def generate_uuid():
     return str(uuid.uuid4())
@@ -36,7 +56,7 @@ class Pet(Base):
     medical_notes = Column(String, nullable=True)
     diet_notes = Column(String, nullable=True)
     reward = Column(String, nullable=True)
-    distinctive_features = Column(ARRAY(String), nullable=True)
+    distinctive_features = Column(ArrayType(String), nullable=True)
     qr_tag_id = Column(String, nullable=True, unique=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -86,7 +106,7 @@ class PetBiometricEnrollment(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     pet_id = Column(String, ForeignKey("pets.id"), nullable=False)
     photo_id = Column(String, ForeignKey("pet_photos.id"), nullable=False)
-    embedding = Column(ARRAY(Float), nullable=False)
+    embedding = Column(ArrayType(Float), nullable=False)
     model_version = Column(String, nullable=False)
     dimension = Column(Integer, nullable=False)
     normalization = Column(String, nullable=False)
@@ -127,7 +147,7 @@ class Sighting(Base):
     alert_id = Column(String, ForeignKey("alerts.id"), nullable=True, index=True)
     reporter_name = Column(String, nullable=False)
     location = Column(String, nullable=False)
-    location_geom = Column(Geography(geometry_type='POINT', srid=4326), nullable=True)
+    location_geom = Column(GeoType(geometry_type='POINT', srid=4326), nullable=True)
     notes = Column(String, nullable=True)
     time = Column(DateTime, default=datetime.utcnow)
     confirmed = Column(Boolean, default=False)
@@ -197,7 +217,7 @@ class CommunityPreference(Base):
 
     id = Column(String, primary_key=True, default=generate_uuid)
     user_id = Column(String, ForeignKey("owners.id"), nullable=False, unique=True)
-    interests = Column(ARRAY(String), default=list) # e.g. ["Lost & Found", "Rescue"]
+    interests = Column(ArrayType(String), default=list) # e.g. ["Lost & Found", "Rescue"]
     created_at = Column(DateTime, default=datetime.utcnow)
     
     user = relationship("Owner", backref="community_preference")

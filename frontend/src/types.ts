@@ -14,6 +14,7 @@ export interface Pet {
   ownerPhone?: string;
   ownerEmail?: string;
   neighborhood?: string;
+  consentGiven?: boolean;
   medicalNotes?: string;
   dietNotes?: string;
   reward?: string;

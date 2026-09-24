@@ -25,7 +25,7 @@ class PetBase(BaseModel):
         return v
 
 class PetCreate(PetBase):
-    pass
+    consent_given: bool = False
 
 class PetResponse(PetBase):
     id: str

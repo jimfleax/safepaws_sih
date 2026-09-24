@@ -10,6 +10,7 @@ const SetupProfile = lazy(() => import('./pages/SetupProfile').then(module => ({
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 const PetDetail = lazy(() => import('./pages/pets/PetDetail'));
+const NewPet = lazy(() => import('./pages/pets/NewPet'));
 const PublicTagProfile = lazy(() => import('./pages/PublicTagProfile'));
 const Scan = lazy(() => import('./pages/Scan'));
 const LostDogs = lazy(() => import('./pages/LostDogs'));
@@ -84,7 +85,7 @@ export default function App() {
           
           {/* Authenticated App Shell */}
           <Route path="/dashboard" element={<DashboardRoute><Dashboard /></DashboardRoute>} />
-          <Route path="/pets/new" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/pets/new" element={<DashboardRoute><NewPet /></DashboardRoute>} />
           <Route path="/pets/:petId" element={<DashboardRoute><PetDetail /></DashboardRoute>} />
           <Route path="/lost/new" element={<DashboardRoute><ReportLost /></DashboardRoute>} />
           
@@ -92,8 +93,8 @@ export default function App() {
           <Route path="/community" element={<Community />} />
           <Route path="/community/post/:postId" element={<CommunityPostDetail />} />
           <Route path="/community/onboarding" element={<DashboardRoute><CommunityOnboarding /></DashboardRoute>} />
-          <Route path="/lost" element={<LostDogs />} />
-          <Route path="/alerts/:alertId" element={<AlertDetail />} />
+          <Route path="/lost" element={<DashboardRoute><LostDogs /></DashboardRoute>} />
+          <Route path="/alerts/:alertId" element={<DashboardRoute><AlertDetail /></DashboardRoute>} />
           <Route path="/sightings/new" element={<ReportSighting />} />
 
           {/* Fallback */}

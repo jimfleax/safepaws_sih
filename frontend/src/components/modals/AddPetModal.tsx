@@ -15,6 +15,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ isOpen, onClose }) => 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [consentGiven, setConsentGiven] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -275,13 +276,19 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ isOpen, onClose }) => 
                       </label>
 
                       {photoPreview && !scanComplete && (
-                        <button onClick={startNoseCapture} disabled={isScanning} className="w-full py-3.5 rounded-full bg-[#1C1A17] hover:bg-[#2A2723] text-white font-semibold text-[14px] flex justify-center items-center gap-2 disabled:opacity-70 shadow-sm">
-                          {isScanning ? (
+                        <>
+                          <label className="flex items-start gap-2 text-left mb-1 cursor-pointer">
+                            <input type="checkbox" checked={consentGiven} onChange={e => setConsentGiven(e.target.checked)} className="mt-1" />
+                            <span className="text-[12px] text-[#63684B] leading-tight">I consent to the extraction and storage of my pet's biometric data for ML identification purposes.</span>
+                          </label>
+                          <button onClick={startNoseCapture} disabled={isScanning || !consentGiven} className="w-full py-3.5 rounded-full bg-[#1C1A17] hover:bg-[#2A2723] text-white font-semibold text-[14px] flex justify-center items-center gap-2 disabled:opacity-70 shadow-sm">
+                            {isScanning ? (
                             <><RefreshCw className="w-4 h-4 animate-spin" /> Mapping features...</>
                           ) : (
                             <><Sparkles className="w-4 h-4 text-[#E2811F]" /> Enroll Biometric Record</>
                           )}
                         </button>
+                        </>
                       )}
                     </div>
                   </div>

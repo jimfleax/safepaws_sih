@@ -224,7 +224,11 @@ export const Header: React.FC<HeaderProps> = ({
                         picture: data.user.picture,
                         profileCompleted: data.user.profileCompleted
                       });
-                      if (!data.user.profileCompleted) navigate('/setup-profile');
+                      if (!data.user.profileCompleted) {
+                        navigate('/setup-profile');
+                      } else {
+                        navigate('/dashboard');
+                      }
                     }
                   }}
                   className="px-4 py-2 bg-[var(--color-ink-soft)] hover:bg-[var(--color-ink)] text-white rounded-[var(--radius-12)] text-[length:var(--text-label-button)] shadow-sm focus:outline-none min-h-[44px] transition-colors"

@@ -15,7 +15,7 @@ export class ApiClient {
       medical_notes: petData.medicalNotes,
       distinctive_features: petData.distinctiveFeatures || [],
       microchip_id: petData.microchipId,
-      consent_given: true,
+      consent_given: (petData as any).consentGiven === undefined ? true : (petData as any).consentGiven,
     };
     const res = await fetch('/api/v1/pets/register', {
       method: 'POST',
