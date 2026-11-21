@@ -1,7 +1,8 @@
-from fastapi.testclient import TestClient
 from fastapi import APIRouter
-from app.main import app
+from fastapi.testclient import TestClient
+
 from app.core.exceptions import NoDogDetectedError
+from app.main import app
 
 # Add a temporary test route to trigger the exception
 router = APIRouter()

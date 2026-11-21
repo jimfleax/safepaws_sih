@@ -1,10 +1,12 @@
 import asyncio
-import httpx
 import uuid
-import jwt
 from datetime import datetime, timedelta
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+
+import httpx
+import jwt
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+
 from app.db.models import Owner
 
 DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/safepaws"
@@ -83,7 +85,7 @@ async def main():
         print("POST /community/reports:", r.status_code)
 
         # 9. Create task
-        r = await client.post(f'/v1/community/tasks?alert_id=dummy-alert', json={
+        r = await client.post('/v1/community/tasks?alert_id=dummy-alert', json={
             "task_type": "Search",
             "description": "Task desc"
         })

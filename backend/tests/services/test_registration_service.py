@@ -1,9 +1,9 @@
-import pytest
-import pytest_asyncio
-from app.services.registration_service import RegistrationService
-from app.schemas.pet import PetCreate
-from app.core.exceptions import InfrastructureError
 import numpy as np
+import pytest
+
+from app.core.exceptions import InfrastructureError
+from app.services.registration_service import RegistrationService
+
 
 class MockBiometricService:
     def __init__(self, fail_faiss=False):

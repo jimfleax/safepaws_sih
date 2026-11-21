@@ -1,11 +1,8 @@
-import sys
-import asyncio
 from fastapi.testclient import TestClient
+
+from app.api.dependencies import get_current_owner
+from app.db.models import Owner
 from app.main import app
-from app.api.dependencies import get_db, get_current_owner
-from app.db.models import Pet, Owner
-from sqlalchemy.orm import selectinload
-from sqlalchemy.future import select
 
 client = TestClient(app)
 

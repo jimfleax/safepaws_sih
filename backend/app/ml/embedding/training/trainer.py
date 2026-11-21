@@ -9,8 +9,8 @@ import logging
 from pathlib import Path
 
 from app.ml.embedding.config import TrainingConfig
-from app.ml.embedding.training.loss import TripletLossWithMining
 from app.ml.embedding.training.dataset import split_dataset, verify_no_identity_leakage
+from app.ml.embedding.training.loss import TripletLossWithMining
 
 logger = logging.getLogger(__name__)
 

@@ -1,10 +1,12 @@
-from fastapi import APIRouter, status, Depends, HTTPException
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from app.schemas.sighting import SightingCreate, SightingResponse
-from app.db.models import Sighting
+
 from app.api.dependencies import get_db
-from datetime import datetime
+from app.db.models import Sighting
+from app.schemas.sighting import SightingCreate, SightingResponse
 
 router = APIRouter()
 

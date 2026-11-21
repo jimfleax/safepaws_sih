@@ -1,25 +1,27 @@
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Tuple
-import numpy as np
 
 from app.db.session import get_db
+from app.ml.embedding.config import EmbeddingModelConfig
+from app.ml.embedding.inference import BiometricEmbeddingModel
 from app.services.biometric_service import BiometricPipelineService
+from app.services.ml_interfaces import (
+    EmbeddingModel,
+    NoseDetector,
+    QualityGate,
+)
+from app.services.quality_gate import ClassicalQualityGate
 from app.services.registration_service import RegistrationService
-from app.services.ml_interfaces import NoseDetector, QualityGate, EmbeddingModel, QualityResult
-from app.vector_store.interfaces import VectorStore
-from app.storage.interfaces import ImageStorage
 
 # ------------------------------------------------------------------
 # Import real Panel implementations
 # ------------------------------------------------------------------
 from app.services.yolo_detector import YoloNoseDetector
-from app.services.quality_gate import ClassicalQualityGate
-from app.ml.embedding.inference import BiometricEmbeddingModel
-from app.ml.embedding.config import EmbeddingModelConfig
-from app.vector_store.faiss_store import FAISSVectorStore
-
+from app.storage.interfaces import ImageStorage
 from app.storage.local_storage import LocalFileSystemStorage
+from app.vector_store.faiss_store import FAISSVectorStore
+from app.vector_store.interfaces import VectorStore
 
 # ------------------------------------------------------------------
 # Provider functions — wired via FastAPI Depends
@@ -42,6 +44,7 @@ _image_storage = LocalFileSystemStorage()
 
 # Try to load existing FAISS index on startup
 import asyncio
+
 try:
     asyncio.run(_vector_store.load_local())
 except Exception:
@@ -76,10 +79,12 @@ def get_registration_service(
     storage: ImageStorage = Depends(get_image_storage)
 ) -> RegistrationService:
     return RegistrationService(db, biometric_service, storage)
-from fastapi import Request, HTTPException
-import jwt
 import os
+
+import jwt
+from fastapi import HTTPException, Request
 from sqlalchemy import select
+
 from app.db.models import Owner
 
 SECRET_KEY = os.getenv('JWT_SECRET', 'supersecret')

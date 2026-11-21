@@ -1,12 +1,11 @@
-import pytest
-import asyncio
-from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from app.db.models import Pet, Alert, Owner
-from app.main import app
-from app.api.dependencies import get_current_owner, get_db
 import uuid
+
+import pytest
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+
+from app.db.models import Alert, Owner, Pet
+
 
 @pytest.mark.asyncio
 async def test_real_postgres_alert_resolve_authorization():
@@ -34,8 +33,9 @@ async def test_real_postgres_alert_resolve_authorization():
         session.add(a)
         await session.commit()
 
-        from app.api.v1.endpoints.alerts import resolve_alert
         from fastapi import HTTPException
+
+        from app.api.v1.endpoints.alerts import resolve_alert
         
         # 1. Simulate Owner 2 (Different Owner) -> 403
         try:

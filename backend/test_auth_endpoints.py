@@ -1,5 +1,7 @@
-import httpx
 import asyncio
+
+import httpx
+
 
 async def main():
     async with httpx.AsyncClient(base_url="http://localhost:5000") as client:
@@ -15,14 +17,13 @@ async def main():
         print(f"Status: {res.status_code}, Body: {res.text}")
 
         # Create a mock JWT to test if PUT works with a valid cookie
-        import jwt
-        import os
-        from datetime import datetime, timedelta
         import uuid
-        
+        from datetime import datetime, timedelta
+
         # We need an owner in the DB first!
         # Let's hit the DB to insert an owner manually, then update them.
         import asyncpg
+        import jwt
         conn = await asyncpg.connect('postgresql://postgres:postgres@localhost:5432/safepaws')
         test_id = f"test-{uuid.uuid4().hex[:8]}"
         await conn.execute("INSERT INTO owners (id, name, phone, email, neighborhood) VALUES ($1, $2, $3, $4, $5)", test_id, "Test User", "000", "test@test.com", "Old")

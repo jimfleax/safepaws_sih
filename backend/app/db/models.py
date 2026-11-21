@@ -1,9 +1,20 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Float, ForeignKey, DateTime, Boolean, JSON
+
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+)
 from sqlalchemy.orm import relationship
-from app.db.base_class import Base
+
 from app.core.config import settings
+from app.db.base_class import Base
 
 # --- Polyfill for Postgres Types in SQLite Dev Mode ---
 if settings.USE_SQLITE_DEV:
@@ -15,8 +26,8 @@ if settings.USE_SQLITE_DEV:
     def GeoType(*args, **kwargs):
         return String
 else:
-    from sqlalchemy import ARRAY
     from geoalchemy2 import Geography
+    from sqlalchemy import ARRAY
     
     def ArrayType(item_type):
         return ARRAY(item_type)

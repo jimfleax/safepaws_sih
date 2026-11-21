@@ -11,8 +11,6 @@ Coverage:
 """
 import io
 import json
-import os
-import tempfile
 
 import numpy as np
 import pytest
@@ -26,7 +24,6 @@ from app.ml.embedding.inference import (
     _preprocess_crop,
     _validate_bbox,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

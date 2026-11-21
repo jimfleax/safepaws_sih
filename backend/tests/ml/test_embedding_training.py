@@ -9,7 +9,6 @@ Coverage:
   - trainer setup / NotImplementedError safety
 """
 import pytest
-import numpy as np
 
 from app.ml.embedding.config import TrainingConfig
 from app.ml.embedding.training.dataset import (
@@ -18,7 +17,6 @@ from app.ml.embedding.training.dataset import (
     verify_no_identity_leakage,
 )
 from app.ml.embedding.training.trainer import BiometricTrainer
-
 
 # ---------------------------------------------------------------------------
 # Helpers

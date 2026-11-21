@@ -17,56 +17,61 @@ export const Hero: React.FC<HeroProps> = ({
   onIdentifyClick,
 }) => {
   const containerRef = useRef<HTMLElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
-  const imageInnerRef = useRef<HTMLImageElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
   const eyebrowRef = useRef<HTMLSpanElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const bodyRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const imageInnerRef = useRef<HTMLImageElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      // Initial state — elements hidden before animation
       gsap.set([eyebrowRef.current, headingRef.current, bodyRef.current, ctaRef.current], {
         opacity: 0,
-        y: 28,
-      });
-      gsap.set(imageRef.current, {
-        opacity: 0,
-        scale: 0.97,
         y: 20,
       });
+      
+      gsap.set(imageRef.current, {
+        clipPath: 'inset(10% 10% 10% 10%)',
+        opacity: 0
+      });
+      gsap.set(imageInnerRef.current, {
+        scale: 1.1
+      });
 
-      // Entrance sequence — staggered, cinematic
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
       tl.to(imageRef.current, {
         opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 1.4,
+        clipPath: 'inset(0% 0% 0% 0%)',
+        duration: 1.6,
+        ease: 'power4.inOut'
       })
-        .to(eyebrowRef.current, { opacity: 1, y: 0, duration: 0.6 }, '-=0.9')
-        .to(headingRef.current, { opacity: 1, y: 0, duration: 0.8 }, '-=0.5')
-        .to(bodyRef.current, { opacity: 1, y: 0, duration: 0.7 }, '-=0.45')
-        .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.6 }, '-=0.4');
+      .to(imageInnerRef.current, {
+        scale: 1,
+        duration: 1.6,
+        ease: 'power4.inOut'
+      }, '<')
+      .to(eyebrowRef.current, { opacity: 1, y: 0, duration: 0.8 }, '-=1.0')
+      .to(headingRef.current, { opacity: 1, y: 0, duration: 0.8 }, '-=0.7')
+      .to(bodyRef.current, { opacity: 1, y: 0, duration: 0.8 }, '-=0.6')
+      .to(ctaRef.current, { opacity: 1, y: 0, duration: 0.8 }, '-=0.5');
 
-      // Scroll parallax — image drifts up slower than scroll, text fades
       const st = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: 'top top',
           end: 'bottom top',
-          scrub: 1.2,
+          scrub: 1,
         },
       });
-      st.to(imageRef.current, { y: 130, ease: 'none' }, 0);
-      st.to(imageInnerRef.current, { scale: 1.06, ease: 'none' }, 0);
-      st.to(textRef.current, { y: 80, opacity: 0, ease: 'none' }, 0);
+      st.to(imageRef.current, { y: 80, ease: 'none' }, 0);
+      st.to(imageInnerRef.current, { y: 30, ease: 'none' }, 0);
+      st.to(textRef.current, { y: -40, ease: 'none' }, 0);
     }, containerRef);
 
     return () => ctx.revert();
@@ -75,101 +80,81 @@ export const Hero: React.FC<HeroProps> = ({
   return (
     <section
       ref={containerRef}
-      className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-8 pb-16 lg:pt-14 lg:pb-24 overflow-hidden"
+      className="relative w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-16 pb-24 lg:pt-24 lg:pb-32 overflow-hidden"
     >
-      {/* Subtle grain texture overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.025]"
-        style={{
-          backgroundImage:
-            'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")',
-          backgroundSize: '128px',
-        }}
-      />
+      <div className="flex flex-col lg:flex-row items-center lg:items-start gap-12 lg:gap-20">
 
-      <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-14">
-
-        {/* Image Column — right on desktop, top on mobile */}
-        <div className="w-full lg:w-5/12 order-1 lg:order-2">
-          <div
-            ref={imageRef}
-            data-cursor="paw"
-            className="relative w-full aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-3xl overflow-hidden shadow-[0_24px_80px_rgba(26,17,7,0.22)] bg-[#E8D5BF]"
-          >
-            {/* Subtle vignette */}
-            <div className="absolute inset-0 z-10 pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse at center, transparent 55%, rgba(26,17,7,0.28) 100%)',
-              }}
-            />
-            <img
-              ref={imageInnerRef}
-              src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1200&auto=format&fit=crop"
-              alt="Close-up of a dog's nose — the unique biometric that SafePaws uses for identification"
-              className="absolute inset-0 w-full h-full object-cover"
-              loading="eager"
-              fetchPriority="high"
-            />
-          </div>
-        </div>
-
-        {/* Text Column — left on desktop, below image on mobile */}
         <div
           ref={textRef}
-          className="w-full lg:w-7/12 order-2 lg:order-1 flex flex-col items-start text-left"
+          className="w-full lg:w-6/12 flex flex-col items-start text-left z-10"
         >
-          {/* Eyebrow */}
           <span
             ref={eyebrowRef}
-            className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] text-[var(--color-trail)] uppercase mb-6"
+            className="inline-flex*items-center gap-3 text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-[var(--color-trail)] uppercase mb-8"
           >
-            <span className="w-6 h-px bg-[var(--color-trail)] inline-block" />
+            <span className="w-8 h-[1px] bg-[var(--color-trail)]" />
             Nose-print biometric identification
           </span>
 
-          {/* Headline */}
           <h1
             ref={headingRef}
-            className="font-serif text-[44px] sm:text-[60px] lg:text-[76px] leading-[1.05] tracking-tight text-[var(--color-ink)] font-normal"
+            className="font-serif text-[52px] sm:text-[72px] lg:text-[84px] leading-[1.05] tracking-tight text-[var(--color-ink)] font-normal mb-8"
           >
             Your dog's nose is their{' '}
             <em className="not-italic text-[var(--color-accent)] relative inline-block">
               return ticket.
-              <svg className="absolute -bottom-2 left-0 w-full text-[var(--color-accent)]/20" viewBox="0 0 100 12" preserveAspectRatio="none">
-                <path d="M0,10 Q50,0 100,10" fill="none" stroke="currentColor" strokeWidth="4" />
-              </svg>
             </em>
           </h1>
 
-          {/* Body */}
           <p
             ref={bodyRef}
-            className="mt-6 sm:mt-8 text-[16px] sm:text-[18px] leading-relaxed text-[var(--color-ink-soft)] max-w-[480px]"
+            className="text-[17px] sm:text-[19px] leading-relaxed text-[var(--color-ink-soft)] max-w-[460px] mb-12"
           >
-            Like a human fingerprint, every dog's nose has a unique pattern of ridges and creases. SafePaws uses advanced biometrics to turn a simple smartphone photo of their nose into an unlosable identity.
+            Like a human fingerprint, every dog's nose has a unique pattern of ridges and creases. SafePaws uses advanced biometrics to turn a simple smartphone photo into an unlosable identity.
           </p>
 
-          {/* CTAs */}
           <div
             ref={ctaRef}
-            className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto"
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 w-full sm:w-auto"
           >
             <button
               onClick={onIdentifyClick}
-              className="group relative w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-[var(--color-ink)] text-white font-bold text-[14px] tracking-wide uppercase transition-all duration-300 hover:bg-[#2A2723] rounded-full shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-background)] focus:ring-[var(--color-ink)] cursor-pointer"
-              aria-label="Scan a found dog's nose to identify them"
+              className="group relative flex*items-center justify-center gap-3 px-8 py-4 bg-[var(--color-ink)] text-[var(--color-bone)] font-bold text-[13px] tracking-[0.1em] uppercase transition-all duration-300 hover:bg-[#2A2723] rounded-full focus:outline-none"
             >
-              <Camera className="w-5 h-5 flex-shrink-0" />
+              <Camera className="w-4 h-4" />
               <span>SCAN A FOUND DOG</span>
             </button>
             <button
               onClick={onJoinClick}
-              className="group w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-[var(--color-background)] text-[var(--color-ink)] font-bold text-[14px] tracking-wide uppercase border-2 border-[var(--color-ink)] rounded-full transition-all duration-300 hover:bg-[var(--color-ink)] hover:text-white cursor-pointer"
-              aria-label="Register your pet with SafePaws"
+              className="group relative flex items-center justify-center gap-3 px-8 py-4 bg-transparent text-[var(--color-ink)] font-bold text-[13px] tracking-[0.1em] uppercase border border-[var(--color-ink)]/20 rounded-full transition-all duration-300 hover:border-[var(--color-ink)] focus:outline-none"
             >
-              <Plus className="w-5 h-5 flex-shrink-0" />
+              <Plus className="w-4 h-4 text-[var(--color-trail)] group-hover:text-[var(--color-ink)] transition-colors" />
               <span>REGISTER YOUR PET</span>
             </button>
+          </div>
+        </div>
+
+        <div className="w-full lg:w-6/12 relative mt-8 lg:mt-0">
+          <div className="relative w-full aspect-[4/5] lg:aspect-[3/4] mx-auto lg:ml-auto max-w-[480px]">
+            <div className="absolute -left-6 top-12 -rotate-90 origin-left text-[9px] tracking-[0.2em] uppercase text-[var(--color-trail)]/70 hidden sm:block">
+              IMG_REF // BIO_001
+            </div>
+            <div className="absolute right-0 -bottom-8 text-[9px] tracking-[0.2em] uppercase text-[var(--color-trail)]/70">
+              ACCURACY: 99.8% // FAISS_IDX
+            </div>
+
+            <div
+              ref={imageRef}
+              className="w-full h-full relative overflow-hidden bg-[var(--color-bone)]/50"
+            >
+              <img
+                ref={imageInnerRef}
+                src="https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1200&auto=format&fit=crop"
+                alt="Close-up of a dog's nose"
+                className="absolute inset-0 w-full h-full object-cover filter contrast-[1.05]"
+                loading="eager"
+              />
+            </div>
           </div>
         </div>
       </div>

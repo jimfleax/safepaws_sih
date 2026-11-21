@@ -1,19 +1,20 @@
-from typing import Optional, List
-from pydantic import BaseModel, ConfigDict, Field
+
+from pydantic import BaseModel, ConfigDict
+
 
 class PetBase(BaseModel):
     name: str
     species: str
-    breed: Optional[str] = ""
-    color: Optional[str] = ""
-    age: Optional[str] = ""
+    breed: str | None = ""
+    color: str | None = ""
+    age: str | None = ""
     
-    weight: Optional[str] = None
-    microchip_id: Optional[str] = None
-    medical_notes: Optional[str] = None
-    diet_notes: Optional[str] = None
-    reward: Optional[str] = None
-    distinctive_features: Optional[List[str]] = []
+    weight: str | None = None
+    microchip_id: str | None = None
+    medical_notes: str | None = None
+    diet_notes: str | None = None
+    reward: str | None = None
+    distinctive_features: list[str] | None = []
     
     from pydantic import field_validator
     
@@ -33,24 +34,24 @@ class PetResponse(PetBase):
     status: str
     qr_tag_id: str
     
-    owner_name: Optional[str] = ""
-    owner_phone: Optional[str] = ""
-    neighborhood: Optional[str] = ""
-    owner_email: Optional[str] = ""
+    owner_name: str | None = ""
+    owner_phone: str | None = ""
+    neighborhood: str | None = ""
+    owner_email: str | None = ""
     consent_given: bool = False
     
     model_config = ConfigDict(from_attributes=True)
 
 class PetUpdate(BaseModel):
-    name: Optional[str] = None
-    species: Optional[str] = None
-    breed: Optional[str] = None
-    color: Optional[str] = None
-    age: Optional[str] = None
-    weight: Optional[str] = None
-    microchip_id: Optional[str] = None
-    medical_notes: Optional[str] = None
-    diet_notes: Optional[str] = None
-    reward: Optional[str] = None
-    distinctive_features: Optional[List[str]] = None
-    status: Optional[str] = None
+    name: str | None = None
+    species: str | None = None
+    breed: str | None = None
+    color: str | None = None
+    age: str | None = None
+    weight: str | None = None
+    microchip_id: str | None = None
+    medical_notes: str | None = None
+    diet_notes: str | None = None
+    reward: str | None = None
+    distinctive_features: list[str] | None = None
+    status: str | None = None

@@ -1,10 +1,11 @@
+
 import pytest
-import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
-from app.db.models import Pet, Owner
+from sqlalchemy.orm import selectinload, sessionmaker
+
+from app.db.models import Pet
+
 
 @pytest.mark.asyncio
 async def test_pet_owner_photo_eager_loading():

@@ -1,12 +1,13 @@
-from typing import List, Optional
-from pydantic import BaseModel
 from datetime import datetime
+
+from pydantic import BaseModel
+
 
 class CommunityPostBase(BaseModel):
     channel: str
     title: str
     content: str
-    associated_alert_id: Optional[str] = None
+    associated_alert_id: str | None = None
 
 class CommunityPostCreate(CommunityPostBase):
     pass
@@ -36,8 +37,8 @@ class CommunityReply(CommunityReplyBase):
         from_attributes = True
 
 class ReportBase(BaseModel):
-    post_id: Optional[str] = None
-    reply_id: Optional[str] = None
+    post_id: str | None = None
+    reply_id: str | None = None
     reason: str
 
 class ReportCreate(ReportBase):
@@ -65,7 +66,7 @@ class Notification(BaseModel):
         from_attributes = True
 
 class CommunityPreferenceBase(BaseModel):
-    interests: List[str]
+    interests: list[str]
 
 class CommunityPreferenceCreate(CommunityPreferenceBase):
     pass
@@ -81,7 +82,7 @@ class CommunityPreference(CommunityPreferenceBase):
 class RecoveryTaskBase(BaseModel):
     task_type: str
     description: str
-    status: Optional[str] = "open"
+    status: str | None = "open"
 
 class RecoveryTaskCreate(RecoveryTaskBase):
     pass
@@ -89,7 +90,7 @@ class RecoveryTaskCreate(RecoveryTaskBase):
 class RecoveryTask(RecoveryTaskBase):
     id: str
     alert_id: str
-    assignee_id: Optional[str] = None
+    assignee_id: str | None = None
     created_at: datetime
 
     class Config:

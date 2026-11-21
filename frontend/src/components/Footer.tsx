@@ -13,52 +13,50 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenContact,
 }) => {
   return (
-    <footer className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pb-12 pt-8">
-      {/* Subtle top divider line matching the design */}
-      <div className="w-full h-px bg-[#E5D7C7] mb-8" />
-
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-[14px] text-[#4A3B31]">
+    <footer className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pb-12 pt-20">
+      <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-12">
         {/* Left: Brand */}
-        <div
-          id="footer-brand-logo"
-          className="flex items-center gap-2 cursor-pointer group"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          title="SafePaws"
-        >
-          <PawIcon className="w-5 h-5 text-[#241812] transition-transform group-hover:scale-105" />
-          <span className="font-semibold text-[17px] tracking-tight text-[#241812]">
-            SafePaws
-          </span>
+        <div className="flex flex-col items-center md:items-start gap-6">
+          <div
+            className="flex items-center gap-2 cursor-pointer group"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <PawIcon className="w-6 h-6 text-[var(--color-ink)] transition-transform group-hover:scale-105" />
+            <span className="font-serif text-[22px] tracking-tight text-[var(--color-ink)]">
+              SafePaws
+            </span>
+          </div>
+          <p className="text-[14px] text-[var(--color-ink-soft)] max-w-xs text-center md:text-left">
+            The world's first biometric identity platform for dogs. Built for recovery, driven by community.
+          </p>
         </div>
 
-        {/* Center: Essential Links */}
-        <div className="flex items-center gap-6 sm:gap-8 font-medium text-[14px]">
-          <button
-            id="footer-privacy-btn"
-            onClick={onOpenPrivacy}
-            className="hover:text-[#DE6828] transition-colors cursor-pointer text-[#4A3B31]"
-          >
-            Privacy
-          </button>
-          <button
-            id="footer-guidelines-btn"
-            onClick={onOpenGuidelines}
-            className="hover:text-[#DE6828] transition-colors cursor-pointer text-[#4A3B31]"
-          >
-            Community guidelines
-          </button>
-          <button
-            id="footer-contact-btn"
-            onClick={onOpenContact}
-            className="hover:text-[#DE6828] transition-colors cursor-pointer text-[#4A3B31]"
-          >
-            Contact
-          </button>
-        </div>
-
-        {/* Right: Copyright */}
-        <div className="text-[#6E5C52] text-[13px] sm:text-[14px] font-normal">
-          © 2026 SafePaws
+        {/* Right: Essential Links & Copyright */}
+        <div className="flex flex-col items-center md:items-end gap-6">
+          <div className="flex items-center gap-6 sm:gap-10 font-bold text-[11px] tracking-[0.1em] uppercase text-[var(--color-ink)]">
+            <button
+              onClick={onOpenPrivacy}
+              className="hover:text-[var(--color-accent)] transition-colors cursor-pointer"
+            >
+              Privacy
+            </button>
+            <button
+              onClick={onOpenGuidelines}
+              className="hover:text-[var(--color-accent)] transition-colors cursor-pointer"
+            >
+              Guidelines
+            </button>
+            <button
+              onClick={onOpenContact}
+              className="hover:text-[var(--color-accent)] transition-colors cursor-pointer"
+            >
+              Contact
+            </button>
+          </div>
+          
+          <div className="text-[var(--color-trail)] text-[12px] font-medium tracking-wide">
+            © 2026 SafePaws System
+          </div>
         </div>
       </div>
     </footer>

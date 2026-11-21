@@ -1,6 +1,12 @@
-from fastapi import Request
-from fastapi.responses import JSONResponse
-from typing import Optional, Any, Dict
+from typing import Any
+
+try:
+    from fastapi import Request
+    from fastapi.responses import JSONResponse
+except ImportError:
+    Request = Any  # type: ignore
+    JSONResponse = None  # type: ignore
+
 
 class DomainException(Exception):
     def __init__(
@@ -8,7 +14,7 @@ class DomainException(Exception):
         message: str, 
         error_code: str, 
         status_code: int = 400,
-        details: Optional[Dict[str, Any]] = None
+        details: dict[str, Any] | None = None
     ):
         self.message = message
         self.error_code = error_code

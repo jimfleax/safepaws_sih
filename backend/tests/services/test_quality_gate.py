@@ -7,15 +7,14 @@ Covers: quality pass (sharp image), blur rejection, low-confidence rejection,
         LowQualityImageError raised correctly, no AI model used.
 """
 import io
-import struct
-import pytest
+
 import numpy as np
+import pytest
 from PIL import Image
 
-from app.services.quality_gate import ClassicalQualityGate
-from app.services.ml_interfaces import QualityResult
 from app.core.exceptions import LowQualityImageError
-
+from app.services.ml_interfaces import QualityResult
+from app.services.quality_gate import ClassicalQualityGate
 
 # ---------------------------------------------------------------------------
 # Helpers — minimal valid image factories

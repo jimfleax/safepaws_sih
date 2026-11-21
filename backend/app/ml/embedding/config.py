@@ -6,21 +6,22 @@ Design intent:
 - Backbone, dimension, and preprocessing are all empirically selectable.
 - TrainingConfig captures a full experiment specification for reproducibility.
 """
-from typing import Literal, Optional, Tuple
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
 class PreprocessingConfig(BaseModel):
     """Deterministic preprocessing parameters — must be saved alongside checkpoint."""
-    input_size: Tuple[int, int] = Field(
+    input_size: tuple[int, int] = Field(
         default=(224, 224),
         description="(height, width) fed to backbone. Must match checkpoint."
     )
-    mean: Tuple[float, float, float] = Field(
+    mean: tuple[float, float, float] = Field(
         default=(0.485, 0.456, 0.406),
         description="Per-channel mean for normalization (ImageNet defaults; override after dataset analysis)."
     )
-    std: Tuple[float, float, float] = Field(
+    std: tuple[float, float, float] = Field(
         default=(0.229, 0.224, 0.225),
         description="Per-channel std for normalization (ImageNet defaults; override after dataset analysis)."
     )

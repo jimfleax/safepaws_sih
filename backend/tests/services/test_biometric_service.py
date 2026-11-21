@@ -1,9 +1,10 @@
-import pytest
 import numpy as np
-from app.services.biometric_service import BiometricPipelineService
-from app.schemas.search import SearchResponse
+import pytest
+
 from app.core.config import settings
+from app.services.biometric_service import BiometricPipelineService
 from app.services.ml_interfaces import QualityResult
+
 
 class MockDetector:
     async def detect(self, image: bytes):

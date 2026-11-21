@@ -1,11 +1,17 @@
 $ErrorActionPreference = 'Continue'
+$env:SAFEPAWS_AUTOMATED_SYNC = "1"
 Write-Host "Starting SafePaws Detailed Auto-Sync Watcher..." -ForegroundColor Cyan
 Write-Host "Monitoring for changes... (Commits will occur EXACTLY every 5 minutes)" -ForegroundColor Cyan
 
 while ($true) {
     $status = git status --porcelain
     if ($status) {
-        git add .
+        # SAFEGUARD: Indiscriminate 'git add .' disabled to protect repository integrity.
+        # Auto-staging led to 800+ files trapped in index when commits were blocked by pre-commit hooks.
+        Write-Warning "[SAFEGUARD] Automatic broad staging via 'git add .' has been disabled."
+        Write-Warning "[SAFEGUARD] Changes must be staged intentionally per workstream. Watcher stopping."
+        break
+        # git add .
         
         $added = @(git diff --cached --name-only --diff-filter=A)
         $modified = @(git diff --cached --name-only --diff-filter=M)

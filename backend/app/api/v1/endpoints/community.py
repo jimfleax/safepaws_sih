@@ -1,16 +1,20 @@
-from typing import Any, List
-from fastapi import APIRouter, Depends, HTTPException, Query
+from typing import Any
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.api import dependencies
 from app.db import models
 from app.schemas.community import (
-    CommunityPost, CommunityPostCreate,
-    CommunityReply, CommunityReplyCreate,
-    Report, ReportCreate,
-    CommunityPreference, CommunityPreferenceCreate,
-    RecoveryTask, Notification
+    CommunityPost,
+    CommunityPostCreate,
+    CommunityPreference,
+    CommunityPreferenceCreate,
+    CommunityReply,
+    CommunityReplyCreate,
+    Report,
+    ReportCreate,
 )
 
 router = APIRouter()
@@ -34,7 +38,7 @@ async def create_post(
     await db.refresh(post)
     return post
 
-@router.get("/posts", response_model=List[CommunityPost])
+@router.get("/posts", response_model=list[CommunityPost])
 async def read_posts(
     db: AsyncSession = Depends(dependencies.get_db),
     skip: int = 0,
@@ -93,7 +97,7 @@ async def create_reply(
     await db.refresh(reply)
     return reply
 
-@router.get("/posts/{post_id}/replies", response_model=List[CommunityReply])
+@router.get("/posts/{post_id}/replies", response_model=list[CommunityReply])
 async def read_replies(
     post_id: str,
     db: AsyncSession = Depends(dependencies.get_db)
@@ -166,7 +170,7 @@ async def update_preferences(
     await db.refresh(pref)
     return pref
 
-@router.get("/search", response_model=List[CommunityPost])
+@router.get("/search", response_model=list[CommunityPost])
 async def search_community(
     query: str,
     db: AsyncSession = Depends(dependencies.get_db)

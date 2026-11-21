@@ -1,5 +1,6 @@
+
 from pydantic import BaseModel
-from typing import Optional
+
 
 class OwnerUpdate(BaseModel):
     phone: str
@@ -8,9 +9,9 @@ class OwnerUpdate(BaseModel):
 class OwnerResponse(BaseModel):
     id: str
     name: str
-    email: Optional[str] = None
+    email: str | None = None
     phone: str
-    neighborhood: Optional[str] = None
+    neighborhood: str | None = None
 
 class GoogleLoginRequest(BaseModel):
     token: str

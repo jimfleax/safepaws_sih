@@ -56,20 +56,22 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
   return (
     <div className="relative w-full h-full bg-[var(--color-ink)] flex flex-col items-center justify-center overflow-hidden touch-none">
       {error ? (
-        <div className="text-[var(--color-bone)] text-center p-4">
-          <p className="mb-4 font-medium">{error}</p>
-          <div className="w-full max-w-sm mx-auto border border-dashed border-[var(--color-marigold)]/50 rounded-[2rem] p-8 flex flex-col items-center justify-center bg-[var(--color-ink)] shadow-sm focus-within:ring-2 focus-within:ring-[var(--color-marigold)] relative">
-             <Camera className="w-12 h-12 text-[var(--color-marigold)]/60 mb-3" />
-             <span className="text-[var(--color-bone)]/90 text-sm font-medium">Use a photo instead</span>
-             <input 
-               type="file" 
-               accept="image/*" 
-               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-               onChange={(e) => {
-                 const file = e.target.files?.[0];
-                 if (file) onCapture(file);
-               }}
-             />
+        <div className="text-[var(--color-bone)] w-full h-full flex flex-col justify-center px-6 bg-[var(--color-ink)]">
+          <div className="max-w-md w-full mx-auto text-center">
+            <p className="mb-6 font-medium text-[var(--color-bone)]/80">Camera access is required to scan.</p>
+            <label className="group relative w-full border border-dashed border-[var(--color-bone)]/30 hover:border-[var(--color-bone)]/60 rounded-[1.5rem] p-10 flex flex-col items-center justify-center bg-[var(--color-ink)]/50 transition-colors cursor-pointer shadow-sm focus-within:ring-2 focus-within:ring-[var(--color-bone)]/50 overflow-hidden">
+               <Camera className="w-10 h-10 text-[var(--color-bone)]/50 group-hover:text-[var(--color-bone)]/80 mb-4 transition-colors" />
+               <span className="text-[var(--color-bone)] text-sm font-medium tracking-wide">Upload a photo instead</span>
+               <input 
+                 type="file" 
+                 accept="image/*" 
+                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                 onChange={(e) => {
+                   const file = e.target.files?.[0];
+                   if (file) onCapture(file);
+                 }}
+               />
+            </label>
           </div>
         </div>
       ) : (
@@ -91,7 +93,7 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
             aria-label="Tap to focus and align"
           >
              <div className="relative w-[85%] max-w-[340px] aspect-square">
-               <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible drop-shadow-[0_0_12px_var(--color-marigold)] motion-reduce:transition-none transition-all duration-500">
+               <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible motion-reduce:transition-none transition-all duration-[150ms] ease-out">
                   <defs>
                     <mask id="scan-mask">
                       <rect x="-500%" y="-500%" width="1100%" height="1100%" fill="white" />
@@ -106,34 +108,35 @@ export default function CameraView({ phase, onCapture, onAlign }: CameraViewProp
                   <path 
                     d="M50 25 C20 25, 20 60, 35 75 C45 85, 55 85, 65 75 C80 60, 80 25, 50 25 Z" 
                     fill="none" 
-                    stroke={phase === 'ALIGN' ? 'var(--color-marigold)' : 'rgba(255, 255, 255, 0.4)'} 
+                    stroke="var(--color-bone)" 
+                    strokeOpacity={phase === 'ALIGN' ? 1 : 0.4}
                     strokeWidth="0.8" 
                     strokeLinecap="round" 
                     strokeLinejoin="round" 
-                    className="motion-reduce:transition-none transition-colors duration-300"
+                    className="motion-reduce:transition-none transition-opacity duration-[150ms]"
                   />
                   {/* Focusing corners */}
-                  <path d="M45 23.5 L55 23.5 M45 76.5 L55 76.5 M24.5 45 L24.5 55 M75.5 45 L75.5 55" stroke="rgba(255, 255, 255, 0.8)" strokeWidth="1" strokeLinecap="round" className={phase === 'ALIGN' ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'} />
+                  <path d="M45 23.5 L55 23.5 M45 76.5 L55 76.5 M24.5 45 L24.5 55 M75.5 45 L75.5 55" stroke="var(--color-bone)" strokeOpacity="0.8" strokeWidth="1" strokeLinecap="round" className={phase === 'ALIGN' ? 'opacity-0' : 'opacity-100 transition-opacity duration-[150ms]'} />
                </svg>
              </div>
           </div>
 
           {/* One Instruction */}
           <div className="absolute top-24 left-0 right-0 text-center px-4 pointer-events-none">
-             <p className="text-[var(--color-bone)] text-base font-sans font-semibold tracking-wide bg-[var(--color-ink)]/60 backdrop-blur-md inline-block px-6 py-2.5 rounded-full border border-[var(--color-bone)]/10 shadow-lg">
+             <p className="text-[var(--color-bone)] text-[15px] font-sans font-medium tracking-wide bg-[var(--color-ink)]/70 backdrop-blur-md inline-block px-6 py-3 rounded-full border border-[var(--color-bone)]/10 shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
                {phase === 'ALIGN' ? 'Hold still...' : 'Position nose within the frame'}
              </p>
           </div>
 
           {/* Capture Control */}
-          <div className="absolute bottom-16 left-0 right-0 flex justify-center pb-safe">
+          <div className="absolute bottom-16 left-0 right-0 flex justify-center pb-safe z-10">
              <button 
                onClick={handleCaptureClick}
-               className="group relative w-20 h-20 rounded-full bg-transparent flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-[var(--color-marigold)]/50"
+               className="group relative w-20 h-20 rounded-full bg-transparent flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-[var(--color-bone)]/30"
                aria-label="Capture photo"
              >
-                <div className="absolute inset-0 rounded-full border-[3px] border-[var(--color-bone)]/80 group-active:scale-95 transition-transform motion-reduce:transition-none" />
-                <div className="w-[60px] h-[60px] rounded-full bg-[var(--color-bone)] group-active:bg-[var(--color-marigold)] transition-colors duration-200 motion-reduce:transition-none" />
+                <div className="absolute inset-0 rounded-full border-[3px] border-[var(--color-bone)] group-active:scale-95 transition-transform duration-[150ms] motion-reduce:transition-none shadow-sm" />
+                <div className="w-[62px] h-[62px] rounded-full bg-[var(--color-bone)] group-active:bg-[var(--color-bone)]/80 transition-colors duration-[150ms] motion-reduce:transition-none" />
              </button>
           </div>
         </>

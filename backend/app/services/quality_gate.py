@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import io
 import logging
-from typing import Optional
 
 import numpy as np
 from PIL import Image

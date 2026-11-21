@@ -1,4 +1,5 @@
 ﻿import os
+
 try:
     from ultralytics import YOLO
     model = YOLO('yolov8n.pt')
@@ -8,7 +9,7 @@ except Exception as e:
 
 try:
     import torch
-    import torchvision.models as models
+    from torchvision import models
     model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.DEFAULT)
     model.classifier = torch.nn.Identity()
     os.makedirs('model_weights', exist_ok=True)

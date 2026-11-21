@@ -1,11 +1,12 @@
-import pytest
 import numpy as np
-from app.services.biometric_service import BiometricPipelineService
-from app.services.registration_service import RegistrationService
-from app.core.exceptions import InfrastructureError
+import pytest
+
 from app.core.config import Settings
-from app.schemas.search import SearchResponse
+from app.core.exceptions import InfrastructureError
+from app.services.biometric_service import BiometricPipelineService
 from app.services.ml_interfaces import QualityResult
+from app.services.registration_service import RegistrationService
+
 
 class MockDetector:
     async def detect(self, image: bytes):

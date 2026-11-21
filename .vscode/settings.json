@@ -1,0 +1,26 @@
+{
+  "git.enableSmartCommit": false,
+  "git.suggestSmartCommit": false,
+  "git.confirmSync": true,
+  "git.autoStash": false,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/pgsql_bin": true,
+    "**/pgsql_bin_fast": true,
+    "**/postgis_bin": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/pgsql_bin": true,
+    "**/pgsql_bin_fast": true,
+    "**/postgis_bin": true,
+    "**/.venv": true
+  }
+}

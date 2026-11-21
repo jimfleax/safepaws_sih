@@ -1,9 +1,10 @@
-import pytest
-from fastapi.testclient import TestClient
-from app.main import app
-from app.api.dependencies import get_db, get_current_owner
-from app.db.models import Pet, Alert, Owner
 import datetime
+
+from fastapi.testclient import TestClient
+
+from app.api.dependencies import get_current_owner, get_db
+from app.db.models import Alert, Owner, Pet
+from app.main import app
 
 # Clean up any overrides from conftest that might interfere
 # But we will inject our own overrides

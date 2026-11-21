@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import pets, search, sightings, health, alerts, community
+from app.api.v1.endpoints import alerts, community, health, pets, search, sightings
 
 api_router = APIRouter()
 

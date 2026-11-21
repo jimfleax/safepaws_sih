@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Request
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-import httpx
-import jwt
 import os
 from datetime import datetime, timedelta
 
-from app.api.dependencies import get_db, get_current_owner
+import httpx
+import jwt
+from fastapi import APIRouter, Depends, HTTPException, Response
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.dependencies import get_current_owner, get_db
 from app.db.models import Owner
 from app.schemas.user import GoogleLoginRequest
 

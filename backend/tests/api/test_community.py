@@ -1,9 +1,10 @@
-import pytest
-from fastapi.testclient import TestClient
-from app.main import app
-from app.api.dependencies import get_db, get_current_owner
-from app.db.models import Owner, CommunityPost, CommunityReply, Report, CommunityPreference
 import datetime
+
+from fastapi.testclient import TestClient
+
+from app.api.dependencies import get_current_owner, get_db
+from app.db.models import CommunityPost, CommunityReply, Owner
+from app.main import app
 
 
 def setup_app_overrides(current_user, post=None, replies=None, pref=None):

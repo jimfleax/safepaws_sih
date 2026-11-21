@@ -26,9 +26,9 @@ This gives downstream consumers a machine-readable structured rejection reason.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol, List, Optional
-import numpy as np
+from typing import Protocol
 
+import numpy as np
 
 # ---------------------------------------------------------------------------
 # Shared data types — all panels must use these
@@ -56,7 +56,7 @@ class BoundingBox:
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> "BoundingBox":
+    def from_dict(cls, d: dict) -> BoundingBox:
         """
         Construct from a plain dict using the canonical key names.
         Raises KeyError if any required key is absent.
@@ -87,7 +87,7 @@ class QualityResult:
     """
     accepted: bool
     score: float                    # 0.0 (worst) to 1.0 (best)
-    rejection_reason: Optional[str] = None  # None when accepted=True
+    rejection_reason: str | None = None  # None when accepted=True
 
     # Machine-readable reason codes — add new ones here as the gate matures
     REASON_BLUR = "BLUR_DETECTED"
@@ -122,7 +122,7 @@ class NoseDetector(Protocol):
     - MUST NOT log raw image bytes.
     - Ownership: Panel 2.
     """
-    async def detect(self, image: bytes) -> List[dict]: ...
+    async def detect(self, image: bytes) -> list[dict]: ...
 
 
 class QualityGate(Protocol):

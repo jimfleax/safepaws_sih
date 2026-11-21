@@ -59,10 +59,10 @@ export default function ProcessingView({ phase }: ProcessingViewProps) {
 
           {/* Controlled premium motion: soft sweeping scanner line */}
           <div 
-            className="absolute left-0 right-0 h-16 bg-gradient-to-b from-transparent via-[var(--color-marigold)]/[0.15] to-transparent pointer-events-none motion-reduce:hidden"
+            className="absolute left-0 right-0 h-16 bg-gradient-to-b from-transparent via-[var(--color-bone)]/[0.1] to-transparent pointer-events-none motion-reduce:hidden"
             style={{ top: `${scanPos}%`, transform: 'translateY(-50%)' }}
           >
-             <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-[var(--color-marigold)]/30 shadow-[0_0_8px_var(--color-marigold)]" />
+             <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-[var(--color-bone)]/20 shadow-[0_0_8px_var(--color-bone)]" />
           </div>
         </div>
       </div>

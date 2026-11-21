@@ -16,13 +16,13 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.db.base_class import Base
-import app.db.models
 from app.core.config import settings
+from app.db.base_class import Base
 
 target_metadata = Base.metadata
 

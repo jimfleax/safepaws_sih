@@ -18,35 +18,64 @@ export default function Scan() {
       
       setPhase('COMPARE');
       
-      if (apiResult.matches && apiResult.matches.length > 0) {
-        if (apiResult.matches.length === 1 || apiResult.matches[0].confidence >= 0.85) {
-           setResult({ state: 'MATCH', petId: apiResult.matches[0].pet_id, petName: apiResult.matches[0].name, qrTagId: apiResult.matches[0].qr_tag_id });
-        } else {
-           setResult({ state: 'AMBIGUOUS', candidates: apiResult.matches.map(m => ({ 
-             pet_id: m.pet_id, 
-             qr_tag_id: m.qr_tag_id,
-             name: m.name,
-             breed: m.breed,
-             photo_url: m.photo_url
-           })) });
-        }
+      // Priority 0: Treat backend status as authoritative. Never auto-promote single candidate to MATCH.
+      if (apiResult.status === 'MATCH' && apiResult.matches && apiResult.matches.length > 0) {
+        setResult({
+          state: 'MATCH',
+          petId: apiResult.matches[0].pet_id,
+          petName: apiResult.matches[0].name,
+          qrTagId: apiResult.matches[0].qr_tag_id
+        });
+      } else if (apiResult.status === 'AMBIGUOUS' && apiResult.matches && apiResult.matches.length > 0) {
+        setResult({
+          state: 'AMBIGUOUS',
+          candidates: apiResult.matches.map(m => ({
+            pet_id: m.pet_id,
+            qr_tag_id: m.qr_tag_id,
+            name: m.name,
+            breed: m.breed,
+            photo_url: m.photo_url
+          }))
+        });
       } else {
+        // UNKNOWN status or empty/missing matches safely defaults to UNKNOWN
         setResult({ state: 'UNKNOWN' });
       }
       setPhase('RESULT');
     } catch (e: any) {
-      const msg = (e.message || '').toLowerCase();
-      if (msg.includes('no dog detected') || msg.includes('multiple dogs') || msg.includes('quality') || msg.includes('clear')) {
-        setResult({ state: 'QUALITY_FAILURE', errorDetails: e.message });
+      const status = e.status || e.statusCode;
+      const errorCode = (e.errorCode || '').toUpperCase();
+      const msg = (e.detail || e.message || '').toLowerCase();
+
+      const isQualityOrInput =
+        status === 422 ||
+        status === 400 ||
+        status === 415 ||
+        status === 413 ||
+        errorCode === 'INVALID_BBOX_FORMAT' ||
+        errorCode === 'BBOX_OUT_OF_BOUNDS' ||
+        errorCode === 'BBOX_ZERO_AREA' ||
+        errorCode === 'IMAGE_DECODE_FAILURE' ||
+        errorCode === 'LOW_QUALITY_IMAGE' ||
+        msg.includes('no dog detected') ||
+        msg.includes('multiple dogs') ||
+        msg.includes('quality') ||
+        msg.includes('clear') ||
+        msg.includes('blur') ||
+        msg.includes('unsupported file type') ||
+        msg.includes('file too large');
+
+      if (isQualityOrInput) {
+        setResult({ state: 'QUALITY_FAILURE', errorDetails: e.detail || e.message });
       } else {
-        setResult({ state: 'SYSTEM_FAILURE', errorDetails: e.message });
+        setResult({ state: 'SYSTEM_FAILURE', errorDetails: e.detail || e.message });
       }
       setPhase('RESULT');
     }
   };
 
   const handleConfirmCandidate = (petId: string, qrTagId?: string, petName?: string) => {
-    setResult({ state: 'MATCH', petId, qrTagId, petName });
+    setResult({ state: 'CANDIDATE_SELECTED', petId, qrTagId, petName });
   };
 
   const resetScan = () => {
@@ -61,7 +90,7 @@ export default function Scan() {
         {/* Close Button */}
         <button 
           onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/dashboard'}
-          className="absolute top-6 right-6 z-50 p-4 rounded-full bg-[var(--color-ink)]/40 text-[var(--color-bone)] backdrop-blur-md border border-[var(--color-bone)]/10 hover:bg-[var(--color-bone)]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-marigold)]"
+          className="absolute top-6 right-6 z-50 p-4 rounded-full bg-[var(--color-ink)]/40 text-[var(--color-bone)] backdrop-blur-md border border-[var(--color-bone)]/10 hover:bg-[var(--color-bone)]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)]/50"
           aria-label="Close scan"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -10,13 +10,18 @@ Contracts:
   - UNKNOWN = successful pipeline, no candidate met threshold.
   - Infrastructure failures (VectorStoreError, DomainException with 503) NEVER become UNKNOWN.
 """
-from typing import List
-from app.services.ml_interfaces import NoseDetector, QualityGate, EmbeddingModel, QualityResult
-from app.vector_store.interfaces import VectorStore
-from app.core.config import settings
-from app.core.exceptions import LowQualityImageError, InfrastructureError, VectorStoreError
-from app.schemas.search import SearchResponse, SearchResultMatch
 import numpy as np
+
+from app.core.config import settings
+from app.core.exceptions import LowQualityImageError
+from app.schemas.search import SearchResponse, SearchResultMatch
+from app.services.ml_interfaces import (
+    EmbeddingModel,
+    NoseDetector,
+    QualityGate,
+    QualityResult,
+)
+from app.vector_store.interfaces import VectorStore
 
 
 class BiometricPipelineService:

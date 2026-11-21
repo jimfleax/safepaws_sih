@@ -1,17 +1,18 @@
 import argparse
-import json
-import numpy as np
-from pathlib import Path
-from typing import List, Dict, Tuple
-from sklearn.metrics import roc_curve, auc
 import datetime
+import json
+from pathlib import Path
 
-def compute_eer(fpr: np.ndarray, tpr: np.ndarray, thresholds: np.ndarray) -> Tuple[float, float]:
+import numpy as np
+from sklearn.metrics import auc, roc_curve
+
+
+def compute_eer(fpr: np.ndarray, tpr: np.ndarray, thresholds: np.ndarray) -> tuple[float, float]:
     """
     Compute Equal Error Rate (EER) and the corresponding threshold.
     """
     fnr = 1 - tpr
-    idx = np.nanargmin(np.absolute((fnr - fpr)))
+    idx = np.nanargmin(np.absolute(fnr - fpr))
     return float(fpr[idx]), float(thresholds[idx])
 
 def validate_identity_disjoint(train_ids: set, val_ids: set, test_ids: set):
@@ -25,7 +26,7 @@ def validate_identity_disjoint(train_ids: set, val_ids: set, test_ids: set):
     if val_ids & test_ids:
         raise ValueError("Validation and Test splits have overlapping identities.")
 
-def evaluate_verification(scores: List[float], labels: List[int]) -> Dict:
+def evaluate_verification(scores: list[float], labels: list[int]) -> dict:
     """
     Evaluate verification task (1:1 matching).
     labels: 1 for genuine (same identity), 0 for imposter (different identity)

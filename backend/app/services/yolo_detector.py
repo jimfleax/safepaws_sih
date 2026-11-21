@@ -1,11 +1,12 @@
 ﻿import io
 import logging
-from typing import List
-from PIL import Image
-import numpy as np
+import os
+from pathlib import Path
 
+from PIL import Image
+
+from app.core.exceptions import MultiDogDetectedError, NoDogDetectedError
 from app.services.ml_interfaces import NoseDetector
-from app.core.exceptions import NoDogDetectedError, MultiDogDetectedError
 
 try:
     from ultralytics import YOLO
@@ -14,14 +15,35 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
+def _resolve_model_path(model_path: str = "yolov8n.pt") -> str:
+    env_path = os.environ.get("YOLO_MODEL_PATH")
+    if env_path and os.path.exists(env_path):
+        return env_path
+    if os.path.exists(model_path):
+        return model_path
+    backend_dir = Path(__file__).resolve().parent.parent.parent
+    candidates = [
+        backend_dir / "model_weights" / model_path,
+        backend_dir / model_path,
+        backend_dir / "model_weights" / "yolov8n.pt",
+        backend_dir / "yolov8n.pt",
+    ]
+    for c in candidates:
+        if c.exists():
+            return str(c)
+    return model_path
+
+
 class YoloNoseDetector(NoseDetector):
     def __init__(self, model_path: str = "yolov8n.pt"):
         if YOLO is None:
             raise RuntimeError("ultralytics package is required for YoloNoseDetector")
-        self.model = YOLO(model_path)
+        resolved_path = _resolve_model_path(model_path)
+        self.model = YOLO(resolved_path)
         self.dog_class_id = 16
 
-    async def detect(self, image: bytes) -> List[dict]:
+    async def detect(self, image: bytes) -> list[dict]:
         if not image:
             logger.warning("Empty image payload received.")
             raise NoDogDetectedError()

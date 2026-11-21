@@ -25,124 +25,119 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      // Header entrance
       gsap.from(headerRef.current, {
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top 85%',
-        },
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        ease: 'back.out(1.2)'
+        scrollTrigger: { trigger: containerRef.current, start: 'top 85%' },
+        opacity: 0, y: 30, duration: 0.8, ease: 'power3.out'
       });
 
-      // Cards staggered entrance with slight scale
       if (cardsRef.current) {
         gsap.from(cardsRef.current.children, {
-          scrollTrigger: {
-            trigger: cardsRef.current,
-            start: 'top 80%',
-          },
-          opacity: 0,
-          y: 60,
-          scale: 0.95,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: 'power4.out',
+          scrollTrigger: { trigger: cardsRef.current, start: 'top 80%' },
+          opacity: 0, y: 40, duration: 0.8, stagger: 0.15, ease: 'power3.out',
         });
       }
     }, containerRef);
 
     return () => ctx.revert();
   }, []);
+
   return (
-    <section ref={containerRef} className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-12 sm:py-16">
-      {/* Section Eyebrow */}
-      <div ref={headerRef} className="flex items-center gap-2 mb-8 sm:mb-10">
-        <span className="w-2.5 h-2.5 rounded-full bg-[#DE6828] inline-block animate-pulse" />
-        <span className="text-[12px] sm:text-[13px] font-bold tracking-[0.12em] text-[#3F3127] uppercase">
-          ONE PLACE TO KEEP THEM SAFE
+    <section ref={containerRef} className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16 sm:py-24">
+      {/* Editorial Header */}
+      <div ref={headerRef} className="flex flex-col mb-16 sm:mb-24">
+        <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-[var(--color-trail)] uppercase mb-4 inline-flex items-center gap-3">
+          <span className="w-8 h-[1px] bg-[var(--color-trail)]" />
+          The SafePaws System
         </span>
+        <h2 className="font-serif text-[40px] sm:text-[56px] text-[var(--color-ink)] leading-[1.1] max-w-2xl">
+          Complete protection,<br/>built on certainty.
+        </h2>
       </div>
 
-      {/* Asymmetrical Feature Layout */}
-      <div ref={cardsRef} className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+      {/* Asymmetrical Layout */}
+      <div ref={cardsRef} className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
         
         {/* Primary Feature: Biometric AI */}
         <div
-          id="feature-card-biometric"
           onClick={onOpenBiometric}
-          className="group relative bg-[#FDE8DC] rounded-[var(--radius-24)] p-10 sm:p-14 lg:col-span-12 flex flex-col md:flex-row justify-between cursor-pointer border border-[#F4D3C2] transition-all hover:bg-[#FBE0D0] hover:-translate-y-1 hover:shadow-lg min-h-[360px]"
+          className="group relative lg:col-span-12 flex flex-col md:flex-row gap-8 lg:gap-16 cursor-pointer"
         >
-          <div className="md:w-1/2 flex flex-col justify-between">
-            <div className="w-16 h-16 rounded-[var(--radius-16)] bg-[#F8D4C1] text-[#422B1F] flex items-center justify-center mb-10 shadow-inner">
-              <Fingerprint className="w-8 h-8 stroke-[1.5]" />
+          {/* Left Text */}
+          <div className="md:w-5/12 flex flex-col justify-center">
+            <div className="w-12 h-12 rounded-full border border-[var(--color-ink)]/20 flex items-center justify-center mb-8 text-[var(--color-ink)] transition-colors group-hover:bg-[var(--color-ink)] group-hover:text-[var(--color-bone)]">
+              <Fingerprint className="w-5 h-5" />
             </div>
             
-            <div className="mt-auto">
-              <div className="flex items-center gap-4 mb-4">
-                <h3 className="font-serif text-[40px] sm:text-[48px] text-[#241812] leading-none tracking-tight">
-                  Nose-print Biometrics
-                </h3>
-                <ArrowUpRight className="w-8 h-8 text-[#7A6458] opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-              </div>
-              <p className="text-[18px] sm:text-[20px] leading-relaxed text-[#5C4A3F] max-w-md">
-                We turn your dog's unique nose pattern into an un-losable identity record. It's like a fingerprint, but for your best friend.
-              </p>
-              <span className="inline-block mt-8 text-[12px] font-bold tracking-[0.15em] uppercase text-[#DE6828]">
-                Identity Verification Rolling Out Soon
-              </span>
+            <h3 className="font-serif text-[32px] sm:text-[44px] text-[var(--color-ink)] leading-tight mb-6">
+              Nose-print Biometrics
+            </h3>
+            <p className="text-[16px] sm:text-[18px] leading-relaxed text-[var(--color-ink-soft)] mb-10">
+              We turn your dog's unique nose pattern into an unlosable identity record. It's like a fingerprint, but for your best friend.
+            </p>
+            <div className="flex items-center gap-3 text-[12px] font-bold tracking-[0.15em] uppercase text-[var(--color-ink)]">
+              Explore Technology <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
             </div>
           </div>
-          <div className="hidden md:block md:w-5/12 rounded-[var(--radius-24)] overflow-hidden bg-[#F4D3C2]/50 relative border border-[#F4D3C2]">
-             <div className="absolute inset-0 flex items-center justify-center text-[#DE6828]/20 font-serif text-[180px] italic select-none">ID</div>
+          
+          {/* Right Image */}
+          <div className="md:w-7/12 relative bg-[var(--color-surface)] aspect-[4/3] md:aspect-[3/2] overflow-hidden border border-[var(--color-ink)]/5">
+             <div className="absolute inset-0 bg-[var(--color-ink)]/5 transition-transform duration-700 group-hover:scale-105" />
+             <div className="absolute inset-0 flex items-center justify-center text-[var(--color-ink)]/5 font-serif text-[180px] md:text-[240px] italic select-none">
+               ID
+             </div>
+             <div className="absolute top-6 right-6 text-[10px] tracking-[0.15em] uppercase text-[var(--color-ink)]/40 font-medium">
+               Feature // 01
+             </div>
           </div>
         </div>
 
         {/* Secondary Feature 1: Sensor Network */}
         <div
-          id="feature-card-sensor-network"
           onClick={onOpenNetwork}
-          className="group relative bg-[#ECE0D2] rounded-[var(--radius-24)] p-10 lg:col-span-6 flex flex-col justify-between cursor-pointer border border-[#E0D0BF] transition-all hover:bg-[#E4D5C5] hover:-translate-y-1 hover:shadow-md min-h-[320px]"
+          className="group relative lg:col-span-6 flex flex-col cursor-pointer border-t border-[var(--color-ink)]/15 pt-10"
         >
-          <div className="w-14 h-14 rounded-[var(--radius-12)] bg-[#DFCDBD] text-[#3D291E] flex items-center justify-center mb-8 shadow-inner">
-            <Share2 className="w-7 h-7 stroke-[1.5]" />
+          <div className="flex items-center justify-between mb-10">
+            <div className="w-10 h-10 rounded-full border border-[var(--color-ink)]/20 flex items-center justify-center text-[var(--color-ink)] transition-colors group-hover:bg-[var(--color-ink)] group-hover:text-[var(--color-bone)]">
+              <Share2 className="w-4 h-4" />
+            </div>
+            <div className="text-[10px] tracking-[0.15em] uppercase text-[var(--color-ink)]/40 font-medium">
+               Feature // 02
+            </div>
           </div>
 
-          <div className="mt-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-sans font-bold text-[28px] text-[#241812] tracking-tight">
-                Neighborhood Network
-              </h3>
-              <ArrowUpRight className="w-6 h-6 text-[#7A6458] opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </div>
-            <p className="text-[16px] sm:text-[18px] leading-relaxed text-[#5C4A3F]">
-              Activate a local search instantly. Our system alerts nearby SafePaws members so your community becomes an active recovery team.
-            </p>
+          <h3 className="font-serif text-[28px] sm:text-[36px] text-[var(--color-ink)] mb-4">
+            Neighborhood Network
+          </h3>
+          <p className="text-[16px] leading-relaxed text-[var(--color-ink-soft)] mb-10 max-w-sm">
+            Activate a local search instantly. Our system alerts nearby SafePaws members so your community becomes an active recovery team.
+          </p>
+          <div className="mt-auto flex items-center gap-3 text-[12px] font-bold tracking-[0.15em] uppercase text-[var(--color-ink)]">
+             View Network <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
           </div>
         </div>
 
         {/* Secondary Feature 2: Smart QR Tags */}
         <div
-          id="feature-card-smart-qr"
           onClick={onOpenQrTags}
-          className="group relative bg-[#D7ECEB] rounded-[var(--radius-24)] p-10 lg:col-span-6 flex flex-col justify-between cursor-pointer border border-[#C5E1DF] transition-all hover:bg-[#CDE6E5] hover:-translate-y-1 hover:shadow-md min-h-[320px]"
+          className="group relative lg:col-span-6 flex flex-col cursor-pointer border-t border-[var(--color-ink)]/15 pt-10"
         >
-          <div className="w-14 h-14 rounded-[var(--radius-12)] bg-[#C1E2E0] text-[#1E3B3A] flex items-center justify-center mb-8 shadow-inner">
-            <Scan className="w-7 h-7 stroke-[1.5]" />
+          <div className="flex items-center justify-between mb-10">
+            <div className="w-10 h-10 rounded-full border border-[var(--color-ink)]/20 flex items-center justify-center text-[var(--color-ink)] transition-colors group-hover:bg-[var(--color-ink)] group-hover:text-[var(--color-bone)]">
+              <Scan className="w-4 h-4" />
+            </div>
+            <div className="text-[10px] tracking-[0.15em] uppercase text-[var(--color-ink)]/40 font-medium">
+               Feature // 03
+            </div>
           </div>
 
-          <div className="mt-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-sans font-bold text-[28px] text-[#1E3B3A] tracking-tight">
-                Smart QR Tags
-              </h3>
-              <ArrowUpRight className="w-6 h-6 text-[#356361] opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </div>
-            <p className="text-[16px] sm:text-[18px] leading-relaxed text-[#3D5B59]">
-              Every pet profile generates a unique QR code. Print it, tag it, and let anyone who finds your dog instantly pull up their critical details.
-            </p>
+          <h3 className="font-serif text-[28px] sm:text-[36px] text-[var(--color-ink)] mb-4">
+            Smart QR Tags
+          </h3>
+          <p className="text-[16px] leading-relaxed text-[var(--color-ink-soft)] mb-10 max-w-sm">
+            Every pet profile generates a unique QR code. Print it, tag it, and let anyone who finds your dog instantly pull up their critical details.
+          </p>
+          <div className="mt-auto flex items-center gap-3 text-[12px] font-bold tracking-[0.15em] uppercase text-[var(--color-ink)]">
+             View Tags <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
           </div>
         </div>
 

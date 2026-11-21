@@ -39,7 +39,7 @@ async function runFlow() {
     console.log("TEST 2: Uploading real dog image...");
     await fileInput.setInputFiles('test_dog.jpg');
     console.log("Waiting for Processing to finish...");
-    await page.waitForSelector("text=Match Found!", { timeout: 15000 });
+    await page.waitForSelector("text=Identity Confirmed", { timeout: 15000 });
     await page.screenshot({ path: 'scan_match.png' });
     
     console.log("Clicking 'View Pet Profile'...");

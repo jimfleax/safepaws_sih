@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { PawPrint, ScanLine, Radar } from 'lucide-react';
 
@@ -6,6 +7,7 @@ const POOL_SIZE = 25; // How many footprints can exist on screen before recyclin
 const FOOTSTEP_DISTANCE = 45; // Pixels between each footprint
 
 export const CustomCursor: React.FC = () => {
+  const location = useLocation();
   const cursorRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -14,8 +16,39 @@ export const CustomCursor: React.FC = () => {
   
   const [cursorText, setCursorText] = useState('');
   const [cursorMode, setCursorMode] = useState<'default' | 'hover' | 'text' | 'paw' | 'scan' | 'alert' | 'hidden'>('default');
+  const [isDisabled, setIsDisabled] = useState(false);
 
   useEffect(() => {
+    const touchQuery = window.matchMedia('(pointer: coarse)');
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const evaluateDisable = () => {
+      const isTouch = touchQuery.matches;
+      const isReducedMotion = motionQuery.matches;
+      const isScanPage = location.pathname.startsWith('/scan');
+      const shouldDisable = isTouch || isReducedMotion || isScanPage;
+      setIsDisabled(shouldDisable);
+      if (shouldDisable) {
+        document.body.classList.add('no-custom-cursor');
+      } else {
+        document.body.classList.remove('no-custom-cursor');
+      }
+    };
+
+    evaluateDisable();
+
+    touchQuery.addEventListener?.('change', evaluateDisable);
+    motionQuery.addEventListener?.('change', evaluateDisable);
+
+    return () => {
+      touchQuery.removeEventListener?.('change', evaluateDisable);
+      motionQuery.removeEventListener?.('change', evaluateDisable);
+      document.body.classList.remove('no-custom-cursor');
+    };
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (isDisabled) return;
     const cursor = cursorRef.current;
     const ring = ringRef.current;
     const container = containerRef.current;
@@ -129,7 +162,7 @@ export const CustomCursor: React.FC = () => {
       window.removeEventListener('mouseover', handleHoverStart);
       window.removeEventListener('mouseout', handleHoverEnd);
     };
-  }, []);
+  }, [isDisabled]);
 
   // Visual state animations based on SafePaws brand themes
   useEffect(() => {
@@ -227,7 +260,9 @@ export const CustomCursor: React.FC = () => {
         });
         break;
     }
-  }, [cursorMode]);
+  }, [cursorMode, isDisabled]);
+
+  if (isDisabled) return null;
 
   return (
     <div ref={containerRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 999999 }}>

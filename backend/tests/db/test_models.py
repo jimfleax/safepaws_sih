@@ -1,6 +1,5 @@
-import pytest
-from sqlalchemy.schema import CreateTable
-from app.db.models import Owner, Pet, PetPhoto, PetBiometricEnrollment, Sighting
+from app.db.models import Owner, Pet, PetBiometricEnrollment, PetPhoto, Sighting
+
 
 def test_owner_model():
     table = Owner.__table__

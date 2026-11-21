@@ -1,12 +1,12 @@
 import logging
-from typing import List
+
+from app.core.exceptions import MultiDogDetectedError, NoDogDetectedError
 from app.services.ml_interfaces import NoseDetector
-from app.core.exceptions import NoDogDetectedError, MultiDogDetectedError
 
 logger = logging.getLogger(__name__)
 
 class MockNoseDetector(NoseDetector):
-    async def detect(self, image: bytes) -> List[dict]:
+    async def detect(self, image: bytes) -> list[dict]:
         """
         Deterministic mock implementation of NoseDetector.
         Parses special byte sequences to simulate detection states for M0 tests.

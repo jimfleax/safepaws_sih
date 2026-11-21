@@ -3,17 +3,20 @@ import io
 import sys
 
 from PIL import Image
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from app.api.dependencies import (
+    get_detector,
+    get_embedder,
+    get_image_storage,
+    get_quality_gate,
+    get_vector_store,
+)
 from app.core.config import settings
 from app.schemas.pet import PetCreate
-from app.services.registration_service import RegistrationService
 from app.services.biometric_service import BiometricPipelineService
-from app.api.dependencies import (
-    get_detector, get_quality_gate, get_embedder,
-    get_vector_store, get_image_storage
-)
+from app.services.registration_service import RegistrationService
 
 OK  = "[OK]"
 ERR = "[ERR]"

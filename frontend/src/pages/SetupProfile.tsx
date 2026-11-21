@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { apiFetch } from '../lib/api';
-import { MapPin, Navigation, Phone, ArrowRight } from 'lucide-react';
+import { MapPin, Navigation, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export const SetupProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -84,115 +83,115 @@ export const SetupProfile: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#F6F1E7] text-[#1C1A17] p-6 relative overflow-hidden">
-      
-      {/* Decorative background element */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#E2811F]/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#4C7A52]/5 rounded-full blur-[120px] pointer-events-none" />
-
-      <header className="absolute top-8 left-8">
-        <div className="font-serif text-[24px] tracking-tight font-bold text-[#E2811F]">SafePaws</div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-bone)] text-[var(--color-ink)] p-6 relative">
+      <header className="absolute top-10 left-10">
+        <div className="font-serif text-[28px] tracking-tight font-bold text-[var(--color-ink)]">SafePaws</div>
       </header>
       
       <button 
         onClick={handleLogout} 
-        className="absolute top-8 right-8 text-[13px] font-bold tracking-wider uppercase text-[#63684B] hover:text-[#1C1A17] transition-colors"
+        className="absolute top-10 right-10 text-[11px] font-bold tracking-widest uppercase text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors"
       >
         Sign Out
       </button>
 
-      <div className="w-full max-w-[440px]">
+      <div className="w-full max-w-2xl bg-white border border-[var(--color-ink)]/10 p-12 sm:p-20 shadow-sm relative z-10">
         
         {/* Progress indicator */}
-        <div className="flex items-center gap-2 mb-8 px-4">
-          <div className={`h-1 flex-1 rounded-full transition-colors duration-300 ${step >= 1 ? 'bg-[#1C1A17]' : 'bg-[#E5E0D8]'}`} />
-          <div className={`h-1 flex-1 rounded-full transition-colors duration-300 ${step >= 2 ? 'bg-[#1C1A17]' : 'bg-[#E5E0D8]'}`} />
+        <div className="flex items-center gap-4 mb-16">
+          <div className={`h-1 flex-1 transition-colors duration-300 ${step >= 1 ? 'bg-[var(--color-ink)]' : 'bg-[var(--color-ink)]/10'}`} />
+          <div className={`h-1 flex-1 transition-colors duration-300 ${step >= 2 ? 'bg-[var(--color-ink)]' : 'bg-[var(--color-ink)]/10'}`} />
         </div>
-
-        <div className="bg-white rounded-[2rem] p-10 sm:p-12 shadow-[0_8px_30px_rgba(28,26,23,0.04)] border border-[#E5E0D8] relative z-10 text-center">
-          
-          {step === 1 ? (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="w-20 h-20 bg-[#F6F1E7] rounded-full flex items-center justify-center mx-auto mb-8">
-                <Navigation className="w-8 h-8 text-[#E2811F]" />
-              </div>
-              <h1 className="font-serif text-[36px] leading-tight text-[#1C1A17] mb-4">Set Location</h1>
-              <p className="text-[#63684B] text-[15px] leading-relaxed mb-10 max-w-sm mx-auto">
-                SafePaws relies on local community alerts. We need your neighborhood to accurately map sightings and broadcast alerts.
-              </p>
-              
-              <div className="space-y-4">
-                <button 
-                  onClick={requestLocation}
-                  disabled={locationLoading}
-                  className="w-full flex items-center justify-center gap-2 py-4 bg-[#E2811F] hover:bg-[#CA721A] text-white rounded-full font-semibold text-[15px] transition-all hover:-translate-y-0.5 shadow-[0_4px_14px_rgba(226,129,31,0.25)] disabled:opacity-70 disabled:hover:translate-y-0"
-                >
-                  {locationLoading ? 'Locating...' : 'Enable Auto-Location'}
-                </button>
-                <button 
-                  onClick={() => setStep(2)}
-                  disabled={locationLoading}
-                  className="w-full py-4 text-[#63684B] hover:text-[#1C1A17] transition-colors font-semibold text-[15px] disabled:opacity-50"
-                >
-                  Enter manually instead
-                </button>
-              </div>
+        
+        {step === 1 ? (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out text-center">
+            <div className="w-24 h-24 bg-[var(--color-ink)]/5 rounded-full flex items-center justify-center mx-auto mb-10">
+              <Navigation className="w-10 h-10 text-[var(--color-ink-soft)]" />
             </div>
-          ) : (
-            <div className="animate-in fade-in slide-in-from-right-8 duration-500 text-left">
-              <h1 className="font-serif text-[36px] leading-tight text-[#1C1A17] mb-3 text-center">Contact Info</h1>
-              <p className="text-[#63684B] text-[15px] mb-8 leading-relaxed">
-                Provide your emergency contact details so the community can reach you instantly.
-              </p>
-
-              {error && (
-                <div className="mb-6 p-4 rounded-[1rem] bg-[var(--color-danger-light)] text-[var(--color-danger)] text-sm font-medium">
-                  {error}
-                </div>
-              )}
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-[12px] font-bold text-[#63684B] uppercase tracking-[0.12em] mb-2 flex items-center gap-2">
-                    <Phone size={14} /> Phone Number *
-                  </label>
-                  <input 
-                    type="tel" 
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-5 py-4 border border-[#E5E0D8] bg-[#F6F1E7] text-[#1C1A17] text-[15px] rounded-[1rem] focus:outline-none focus:ring-2 focus:ring-[#E2811F] transition-all" 
-                    placeholder="+1 (555) 000-0000"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[12px] font-bold text-[#63684B] uppercase tracking-[0.12em] mb-2 flex items-center gap-2">
-                    <MapPin size={14} /> Neighborhood *
-                  </label>
-                  <input 
-                    type="text" 
-                    required
-                    value={neighborhood}
-                    onChange={(e) => setNeighborhood(e.target.value)}
-                    className="w-full px-5 py-4 border border-[#E5E0D8] bg-[#F6F1E7] text-[#1C1A17] text-[15px] rounded-[1rem] focus:outline-none focus:ring-2 focus:ring-[#E2811F] transition-all" 
-                    placeholder="e.g. Oakridge Park"
-                  />
-                </div>
-                
-                <div className="pt-4">
-                  <button 
-                    type="submit" 
-                    disabled={loading}
-                    className="group w-full flex items-center justify-center gap-2 py-4 bg-[#1C1A17] hover:bg-[#2A2723] text-white rounded-full font-semibold text-[15px] shadow-sm transition-transform hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0"
-                  >
-                    {loading ? 'Saving...' : 'Complete Profile'}
-                    {!loading && <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
-                  </button>
-                </div>
-              </form>
+            <h1 className="font-serif text-5xl font-bold text-[var(--color-ink)] mb-6 tracking-tight">Zone Identity</h1>
+            <p className="text-[var(--color-ink-soft)] text-lg leading-relaxed mb-12 max-w-md mx-auto">
+              SafePaws secures your neighborhood. We need your operational zone to accurately map sightings and broadcast local alerts.
+            </p>
+            
+            <div className="space-y-4 flex flex-col items-center">
+              <button 
+                onClick={requestLocation}
+                disabled={locationLoading}
+                className="w-full max-w-sm flex items-center justify-center gap-2 py-5 bg-[var(--color-ink)] hover:bg-opacity-90 text-[var(--color-bone)] font-bold text-sm uppercase tracking-widest transition-colors disabled:opacity-70 shadow-sm"
+              >
+                {locationLoading ? 'Establishing Lock...' : 'Enable Auto-Location'}
+              </button>
+              <button 
+                onClick={() => setStep(2)}
+                disabled={locationLoading}
+                className="w-full max-w-sm py-5 text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] hover:bg-[var(--color-ink)]/5 border-2 border-transparent transition-colors font-bold text-xs uppercase tracking-widest disabled:opacity-50"
+              >
+                Enter Manually Instead
+              </button>
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="animate-in fade-in slide-in-from-right-8 duration-700 ease-out">
+            <div className="mb-12 border-b border-[var(--color-ink)]/10 pb-8 text-center sm:text-left">
+              <h1 className="font-serif text-4xl sm:text-5xl font-bold text-[var(--color-ink)] mb-4 tracking-tight">Recovery Contact</h1>
+              <p className="text-[var(--color-ink-soft)] text-lg leading-relaxed">
+                Provide emergency contact details to complete your security profile.
+              </p>
+            </div>
+
+            {error && (
+              <div className="mb-8 p-4 bg-[var(--color-danger)]/10 border-l-4 border-[var(--color-danger)] text-[var(--color-ink)] text-sm font-medium">
+                {error}
+              </div>
+            )}
+            
+            <form onSubmit={handleSubmit} className="space-y-12">
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-widest flex items-center gap-2">
+                  <Phone size={16} /> Phone Number *
+                </label>
+                <input 
+                  type="tel" 
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full bg-transparent border-b-2 border-[var(--color-ink)]/20 py-3 text-3xl font-serif text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-ink)] transition-colors placeholder:text-[var(--color-ink)]/20" 
+                  placeholder="+1 (555) 000-0000"
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-widest flex items-center gap-2">
+                  <MapPin size={16} /> Neighborhood *
+                </label>
+                <input 
+                  type="text" 
+                  required
+                  value={neighborhood}
+                  onChange={(e) => setNeighborhood(e.target.value)}
+                  className="w-full bg-transparent border-b-2 border-[var(--color-ink)]/20 py-3 text-3xl font-serif text-[var(--color-ink)] focus:outline-none focus:border-[var(--color-ink)] transition-colors placeholder:text-[var(--color-ink)]/20" 
+                  placeholder="e.g. Oakridge Park"
+                />
+              </div>
+              
+              <div className="pt-8">
+                <button 
+                  type="submit" 
+                  disabled={loading || !phone || !neighborhood}
+                  className="group w-full flex items-center justify-center gap-3 py-5 bg-[var(--color-ink)] hover:bg-opacity-90 text-[var(--color-bone)] font-bold text-sm uppercase tracking-widest transition-colors disabled:opacity-50"
+                >
+                  {loading ? (
+                    'Securing Profile...'
+                  ) : (
+                    <>
+                      <ShieldCheck size={20} />
+                      Complete Profile
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );

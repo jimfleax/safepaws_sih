@@ -13,7 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 import { EnterScreen } from '../components/EnterScreen';
 import { Header } from '../components/Header';
 import { Hero } from '../components/Hero';
-import { HowItWorksSection } from '../components/HowItWorksSection';
+import { StepsDarkSection } from '../components/StepsDarkSection';
 import { FeaturesSection } from '../components/FeaturesSection';
 import { TrustSection } from '../components/TrustSection';
 import { CommunitySection } from '../components/CommunitySection';
@@ -85,11 +85,12 @@ export default function LandingPage() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    // Dynamic import to avoid SSR/build issues with Lenis
-    let lenis: any;
-    let requestAnimationFrameId: number;
+    let lenis: any = null;
+    let tickerCallback: ((time: number) => void) | null = null;
+    let isDisposed = false;
 
     import('lenis').then((LenisModule) => {
+      if (isDisposed) return;
       const Lenis = LenisModule.default;
       lenis = new Lenis({
         duration: 1.2,
@@ -104,19 +105,25 @@ export default function LandingPage() {
       // Synchronize Lenis with GSAP ScrollTrigger
       lenis.on('scroll', ScrollTrigger.update);
 
-      gsap.ticker.add((time) => {
-        lenis.raf(time * 1000);
-      });
+      tickerCallback = (time: number) => {
+        if (lenis) {
+          lenis.raf(time * 1000);
+        }
+      };
+      gsap.ticker.add(tickerCallback);
       gsap.ticker.lagSmoothing(0);
     });
 
     return () => {
+      isDisposed = true;
       if (lenis) {
         lenis.destroy();
+        lenis = null;
       }
-      gsap.ticker.remove((time) => {
-        lenis.raf(time * 1000);
-      });
+      if (tickerCallback) {
+        gsap.ticker.remove(tickerCallback);
+        tickerCallback = null;
+      }
     };
   }, []);
 
@@ -163,7 +170,11 @@ export default function LandingPage() {
         </div>
 
         {/* 4. How It Works */}
-        <HowItWorksSection />
+        <StepsDarkSection 
+          onStep1Click={handleJoinClick} 
+          onStep2Click={() => navigate('/community')} 
+          onStep3Click={() => navigate('/lost')} 
+        />
 
         {/* 5. Trust + Nose Print */}
         <TrustSection />

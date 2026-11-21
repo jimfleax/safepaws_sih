@@ -1,8 +1,11 @@
 import asyncio
 import sys
+
 sys.path.append('.')
-from app.db.session import async_session_maker
 from sqlalchemy import text
+
+from app.db.session import async_session_maker
+
 
 async def main():
     async with async_session_maker() as s:

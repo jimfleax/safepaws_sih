@@ -1,5 +1,6 @@
 from typing import Protocol
 
+
 class ImageStorage(Protocol):
     async def upload_image(self, file_name: str, file_bytes: bytes, content_type: str) -> str:
         """
@@ -8,4 +9,3 @@ class ImageStorage(Protocol):
         Failure: Raises DomainException on storage failure.
         Ownership: Infrastructure
         """
-        pass

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Phone, MapPin, ShieldCheck, AlertCircle } from 'lucide-react';
+import { MapPin, ShieldCheck, AlertCircle, FileText } from 'lucide-react';
 import { Pet } from '../types';
 import { ApiClient } from '../utils/apiClient';
 import { usePetStore } from '../store/petStore';
@@ -146,17 +146,20 @@ export default function PublicTagProfile() {
               </div>
             </div>
 
+            {/* Privacy Protection Notice */}
+            <div className="mb-6 flex items-start gap-3 p-4 bg-[var(--color-bone)] border border-[var(--color-border)] text-xs text-[var(--color-ink-soft)] text-left">
+              <ShieldCheck className="w-5 h-5 text-[var(--color-success)] shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-[var(--color-ink)] mb-1">Guardian Contact Protected</p>
+                <p className="leading-relaxed">
+                  Direct phone numbers are withheld from public tag displays to protect guardian privacy. You can immediately transmit a location ping or file a detailed sighting report into the SafePaws recovery database.
+                </p>
+              </div>
+            </div>
+
             {/* Discoverable Actions (>=44px touch targets) */}
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a
-                  href={`tel:${pet.ownerPhone}`}
-                  className="flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-ink)] text-white font-bold tracking-wide transition-transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)] focus:ring-offset-2"
-                >
-                  <Phone size={20} />
-                  Call Owner
-                </a>
-                
                 <button
                   onClick={async () => {
                     setActionError('');
@@ -177,28 +180,26 @@ export default function PublicTagProfile() {
                             notes: `Direct location ping from tag ID: ${pet.qrTagId}`,
                             alertId: activeAlert?.id
                           });
-                          setSuccessMessage('Location successfully securely transmitted to the owner!');
-                        } catch (err) {
-                          setActionError('Failed to send location. Please try calling the owner.');
+                          setSuccessMessage('Location coordinates successfully logged to the recovery database!');
+                        } catch (err: any) {
+                          setActionError('Failed to record location. Please submit a detailed sighting report.');
                         } finally {
                           setLocationSending(false);
                         }
                       },
                       () => {
-                        setActionError('Unable to retrieve your location. Please check your device permissions.');
+                        setActionError('Unable to retrieve your location. Please check device permissions or file a sighting.');
                         setLocationSending(false);
                       }
                     );
                   }}
                   disabled={locationSending}
-                  className="flex items-center justify-center gap-3 px-6 py-4 bg-white text-[var(--color-ink)] font-bold tracking-wide border-2 border-[var(--color-ink)] transition-transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-ink)] text-white font-bold tracking-wide transition-transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)] focus:ring-offset-2 disabled:opacity-50 min-h-[44px]"
                 >
                   <MapPin size={20} />
                   {locationSending ? 'Sending...' : 'Send Location Ping'}
                 </button>
-              </div>
 
-              {isLost && (
                 <button
                   onClick={() => {
                     const activeAlert = usePetStore.getState().alerts.find(a => a.petId === pet.id && a.status === 'active');
@@ -208,12 +209,16 @@ export default function PublicTagProfile() {
                       navigate(`/sightings/new`);
                     }
                   }}
-                  className="w-full mt-4 flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-alert-clay)] text-white font-bold tracking-wide transition-transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[var(--color-alert-clay)] focus:ring-offset-2"
+                  className={`flex items-center justify-center gap-3 px-6 py-4 font-bold tracking-wide transition-transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] ${
+                    isLost
+                      ? 'bg-[var(--color-alert-clay)] text-white focus:ring-[var(--color-alert-clay)]'
+                      : 'bg-white text-[var(--color-ink)] border-2 border-[var(--color-ink)] focus:ring-[var(--color-ink)]'
+                  }`}
                 >
-                  <AlertCircle size={20} />
-                  File Detailed Sighting
+                  {isLost ? <AlertCircle size={20} /> : <FileText size={20} />}
+                  {isLost ? 'File Emergency Sighting' : 'File Sighting Report'}
                 </button>
-              )}
+              </div>
 
               {actionError && (
                 <div className="p-4 bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] text-sm text-center font-medium">

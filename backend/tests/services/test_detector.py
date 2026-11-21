@@ -6,12 +6,12 @@ Covers: single dog, no dog, multi-dog, low confidence,
         valid bbox keys, invalid/empty image, raw-byte logging guard.
 """
 import logging
+
 import pytest
 
+from app.core.exceptions import MultiDogDetectedError, NoDogDetectedError
 from app.services.detector import MockNoseDetector
 from app.services.ml_interfaces import BoundingBox
-from app.core.exceptions import NoDogDetectedError, MultiDogDetectedError
-
 
 # ---------------------------------------------------------------------------
 # Helpers

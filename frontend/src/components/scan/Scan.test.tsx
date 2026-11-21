@@ -56,7 +56,8 @@ describe('Scan Page - States', () => {
 
   it('handles MATCH state correctly', async () => {
     (ApiClient.identifyPet as any).mockResolvedValueOnce({
-      matches: [{ pet_id: 'pet-123', confidence: 0.95 }]
+      status: 'MATCH',
+      matches: [{ pet_id: 'pet-123', name: 'Buddy', confidence: 0.95 }]
     });
 
     renderWithRouter(<Scan />);
@@ -65,16 +66,33 @@ describe('Scan Page - States', () => {
     expect(screen.getByText('Reading the nose pattern...')).toBeInTheDocument();
     
     await waitFor(() => {
-      expect(screen.getByText('Match Found!')).toBeInTheDocument();
+      expect(screen.getByText('Identity Confirmed')).toBeInTheDocument();
     });
     expect(screen.getByText(/View Pet Profile/i)).toBeInTheDocument();
   });
 
-  it('handles AMBIGUOUS state correctly', async () => {
+  it('handles single candidate with backend AMBIGUOUS correctly without auto-promoting to MATCH', async () => {
     (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      status: 'AMBIGUOUS',
+      matches: [{ pet_id: 'pet-single', name: 'Rover', confidence: 0.72 }]
+    });
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+    
+    await waitFor(() => {
+      expect(screen.getByText('Multiple Similar Profiles')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Rover')).toBeInTheDocument();
+    expect(screen.queryByText('Identity Confirmed')).not.toBeInTheDocument();
+  });
+
+  it('handles multiple ambiguous candidates correctly', async () => {
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      status: 'AMBIGUOUS',
       matches: [
-        { pet_id: 'pet-1', confidence: 0.8 },
-        { pet_id: 'pet-2', confidence: 0.75 }
+        { pet_id: 'pet-1', name: 'Max', confidence: 0.8 },
+        { pet_id: 'pet-2', name: 'Charlie', confidence: 0.75 }
       ]
     });
     
@@ -85,10 +103,40 @@ describe('Scan Page - States', () => {
       expect(screen.getByText('Multiple Similar Profiles')).toBeInTheDocument();
     });
     expect(screen.getByText(/carefully review the candidates/i)).toBeInTheDocument();
+    expect(screen.getByText('Max')).toBeInTheDocument();
+    expect(screen.getByText('Charlie')).toBeInTheDocument();
+  });
+
+  it('handles selecting an ambiguous candidate without promoting to biometric MATCH', async () => {
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      status: 'AMBIGUOUS',
+      matches: [
+        { pet_id: 'pet-1', name: 'Max', confidence: 0.8 },
+        { pet_id: 'pet-2', name: 'Charlie', confidence: 0.75 }
+      ]
+    });
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+
+    await waitFor(() => {
+      expect(screen.getByText('Multiple Similar Profiles')).toBeInTheDocument();
+    });
+
+    const selectButtons = screen.getAllByRole('button', { name: /Select Candidate/i });
+    expect(selectButtons.length).toBeGreaterThan(0);
+    fireEvent.click(selectButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('Candidate Selected by Finder')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Identity Confirmed')).not.toBeInTheDocument();
+    expect(screen.getByText(/visually selected by the finder, not verified by an automated biometric confidence threshold/i)).toBeInTheDocument();
   });
 
   it('handles UNKNOWN state correctly', async () => {
     (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      status: 'UNKNOWN',
       matches: []
     });
 
@@ -102,7 +150,22 @@ describe('Scan Page - States', () => {
     expect(screen.getByText(/Register this pet/i)).toBeInTheDocument();
   });
 
-  it('handles QUALITY_FAILURE state correctly', async () => {
+  it('handles malformed or unexpected response safely as UNKNOWN', async () => {
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      status: 'UNEXPECTED_STATUS_CODE',
+      matches: null
+    });
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+    
+    await waitFor(() => {
+      expect(screen.getByText('No Match Found')).toBeInTheDocument();
+    });
+    expect(screen.getByText(/Register this pet/i)).toBeInTheDocument();
+  });
+
+  it('handles QUALITY_FAILURE state correctly with string error', async () => {
     (ApiClient.identifyPet as any).mockRejectedValueOnce(new Error('Quality check failed: image blurry'));
 
     renderWithRouter(<Scan />);
@@ -114,6 +177,38 @@ describe('Scan Page - States', () => {
     expect(screen.getByText(/couldn't get a clear read/i)).toBeInTheDocument();
     expect(screen.getByText(/image blurry/i)).toBeInTheDocument();
     expect(screen.getByText(/Scan Again/i)).toBeInTheDocument();
+  });
+
+  it('handles structured 422 error code as QUALITY_FAILURE', async () => {
+    const err: any = new Error('Identification failed: Blur detected');
+    err.status = 422;
+    err.errorCode = 'LOW_QUALITY_IMAGE';
+    err.detail = 'Laplacian variance below threshold (blur detected)';
+    (ApiClient.identifyPet as any).mockRejectedValueOnce(err);
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+
+    await waitFor(() => {
+      expect(screen.getByText('Scan Unclear')).toBeInTheDocument();
+    });
+    expect(screen.getByText(/Laplacian variance below threshold/i)).toBeInTheDocument();
+  });
+
+  it('handles structured 503 error as SYSTEM_FAILURE', async () => {
+    const err: any = new Error('Identification failed: Model unavailable');
+    err.status = 503;
+    err.errorCode = 'CHECKPOINT_MISSING';
+    err.detail = 'Embedding model checkpoint not found on server';
+    (ApiClient.identifyPet as any).mockRejectedValueOnce(err);
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+
+    await waitFor(() => {
+      expect(screen.getByText('Service Unavailable')).toBeInTheDocument();
+    });
+    expect(screen.getByText(/Embedding model checkpoint not found/i)).toBeInTheDocument();
   });
 
   it('handles SYSTEM_FAILURE state correctly', async () => {

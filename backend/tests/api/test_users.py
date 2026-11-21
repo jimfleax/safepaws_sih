@@ -1,13 +1,13 @@
+import os
+from datetime import datetime, timedelta
+
+import jwt
 import pytest
 from fastapi.testclient import TestClient
-import jwt
-from datetime import datetime, timedelta
-import os
-from unittest.mock import patch, MagicMock
 
-from app.main import app
+from app.api.dependencies import get_current_owner, get_db
 from app.db.models import Owner, Pet
-from app.api.dependencies import get_db, get_current_owner
+from app.main import app
 
 SECRET_KEY = os.getenv('JWT_SECRET', 'supersecret')
 
@@ -150,7 +150,6 @@ def test_unauthenticated_pet_registration_returns_401(stateful_client: TestClien
     }
     response_unauth = stateful_client.post("/api/v1/pets/register", json=pet_data)
     assert response_unauth.status_code == 401
-    pass
 
 def test_profile_completed_logic(client: TestClient):
     def get_mock_owner_missing_both():

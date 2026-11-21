@@ -1,8 +1,9 @@
 import io
 import json
 import logging
+import math
 import os
-from typing import Optional
+from pathlib import Path
 
 import numpy as np
 from PIL import Image
@@ -12,8 +13,7 @@ from app.ml.embedding.config import EmbeddingModelConfig, PreprocessingConfig
 
 try:
     import torch
-    import torchvision.models as models
-    from torchvision import transforms
+    from torchvision import models, transforms
 except ImportError:
     torch = None
 
@@ -29,21 +29,45 @@ def _validate_bbox(bbox: dict, img_width: int, img_height: int) -> tuple[int, in
             status_code=422,
         )
 
-    x_min = int(bbox["x_min"])
-    y_min = int(bbox["y_min"])
-    x_max = int(bbox["x_max"])
-    y_max = int(bbox["y_max"])
+    for k in required_keys:
+        val = bbox[k]
+        if not isinstance(val, (int, float)) or not math.isfinite(val):
+            raise DomainException(
+                message=f"Bounding box coordinate '{k}' must be a finite number. Got: {val}",
+                error_code="INVALID_BBOX_FORMAT",
+                status_code=422,
+            )
 
-    if x_min < 0 or y_min < 0 or x_max > img_width or y_max > img_height:
+    raw_x_min = float(bbox["x_min"])
+    raw_y_min = float(bbox["y_min"])
+    raw_x_max = float(bbox["x_max"])
+    raw_y_max = float(bbox["y_max"])
+
+    # Reject inverted or non-positive boxes prior to clamping
+    if raw_x_max <= raw_x_min or raw_y_max <= raw_y_min:
         raise DomainException(
-            message=f"Bounding box {bbox} is out of image bounds ({img_width}x{img_height}).",
+            message=f"Bounding box has zero or negative area before clamping: {bbox}.",
+            error_code="BBOX_ZERO_AREA",
+            status_code=422,
+        )
+
+    # Reject boxes completely outside image boundaries
+    if raw_x_max <= 0 or raw_y_max <= 0 or raw_x_min >= img_width or raw_y_min >= img_height:
+        raise DomainException(
+            message=f"Bounding box {bbox} does not overlap image bounds ({img_width}x{img_height}).",
             error_code="BBOX_OUT_OF_BOUNDS",
             status_code=422,
         )
 
+    # Clamp coordinates to valid image bounds
+    x_min = max(0, min(img_width, int(raw_x_min)))
+    y_min = max(0, min(img_height, int(raw_y_min)))
+    x_max = max(0, min(img_width, int(raw_x_max)))
+    y_max = max(0, min(img_height, int(raw_y_max)))
+
     if x_max <= x_min or y_max <= y_min:
         raise DomainException(
-            message=f"Bounding box has zero or negative area: {bbox}.",
+            message=f"Bounding box has zero or negative area after boundary clamping: {bbox}.",
             error_code="BBOX_ZERO_AREA",
             status_code=422,
         )
@@ -108,7 +132,7 @@ def _assert_output_valid(embedding: np.ndarray, expected_dim: int) -> None:
 
 
 class BiometricEmbeddingModel:
-    def __init__(self, config: Optional[EmbeddingModelConfig] = None):
+    def __init__(self, config: EmbeddingModelConfig | None = None):
         self.config = config or EmbeddingModelConfig()
         self._model = None
         self.is_loaded = False
@@ -130,6 +154,26 @@ class BiometricEmbeddingModel:
 
         weights_path = self.config.model_weights_path
         metadata_path = self.config.checkpoint_metadata_path
+
+        if not os.path.exists(weights_path):
+            env_w = os.environ.get("SAFEPAWS_MODEL_WEIGHTS_PATH")
+            if env_w and os.path.exists(env_w):
+                weights_path = env_w
+            elif not os.path.isabs(weights_path):
+                backend_dir = Path(__file__).resolve().parent.parent.parent.parent
+                cand = backend_dir / weights_path
+                if cand.exists():
+                    weights_path = str(cand)
+
+        if not os.path.exists(metadata_path):
+            env_m = os.environ.get("SAFEPAWS_CHECKPOINT_METADATA_PATH")
+            if env_m and os.path.exists(env_m):
+                metadata_path = env_m
+            elif not os.path.isabs(metadata_path):
+                backend_dir = Path(__file__).resolve().parent.parent.parent.parent
+                cand = backend_dir / metadata_path
+                if cand.exists():
+                    metadata_path = str(cand)
 
         if not os.path.exists(weights_path):
             raise DomainException(

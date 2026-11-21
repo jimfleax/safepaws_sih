@@ -1,25 +1,43 @@
-import os
-import json
 import asyncio
-import numpy as np
-import faiss
+import json
 import logging
-from typing import List, Tuple, Dict, Any
+import os
+from pathlib import Path
+from typing import Any
 
-from app.vector_store.interfaces import VectorStore
-from app.core.exceptions import VectorStoreError
+import faiss
+import numpy as np
+
 from app.core.config import settings
+from app.core.exceptions import VectorStoreError
+from app.vector_store.interfaces import VectorStore
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_faiss_path(index_path: str) -> str:
+    env_path = os.environ.get("SAFEPAWS_FAISS_INDEX_PATH")
+    if env_path:
+        return env_path
+    if os.path.isabs(index_path) or os.path.exists(index_path):
+        return index_path
+    backend_dir = Path(__file__).resolve().parent.parent.parent
+    candidate = backend_dir / index_path
+    if candidate.exists():
+        return str(candidate)
+    if not os.path.isabs(index_path):
+        return str(candidate)
+    return index_path
+
 
 class FAISSVectorStore(VectorStore):
     def __init__(self, dimension: int = settings.EMBEDDING_DIMENSION, index_path: str = settings.FAISS_INDEX_PATH):
         self.dimension = dimension
-        self.index_path = index_path
-        self.meta_path = f"{index_path}.meta.json"
+        self.index_path = _resolve_faiss_path(index_path)
+        self.meta_path = f"{self.index_path}.meta.json"
         
-        self._id_map: Dict[int, str] = {}
-        self._uuid_to_id: Dict[str, int] = {}
+        self._id_map: dict[int, str] = {}
+        self._uuid_to_id: dict[str, int] = {}
         self._next_id: int = 0
         
         self._init_index()
@@ -32,7 +50,7 @@ class FAISSVectorStore(VectorStore):
             self._uuid_to_id = {}
             self._next_id = 0
         except Exception as e:
-            raise VectorStoreError(f"Failed to initialize FAISS index: {str(e)}")
+            raise VectorStoreError(f"Failed to initialize FAISS index: {e!s}")
 
     def _validate_vector(self, vector: Any) -> np.ndarray:
         if not isinstance(vector, np.ndarray):
@@ -82,32 +100,39 @@ class FAISSVectorStore(VectorStore):
         except Exception as e:
             if isinstance(e, VectorStoreError):
                 raise
-            raise VectorStoreError(f"Failed to add vector: {str(e)}")
+            raise VectorStoreError(f"Failed to add vector: {e!s}")
 
-    async def search(self, vector: np.ndarray, top_k: int = 5) -> List[Tuple[str, float]]:
+    async def search(self, vector: np.ndarray, top_k: int = 5) -> list[tuple[str, float]]:
         if self.index.ntotal == 0:
             return [] # Empty gallery
             
         try:
             validated_vec = self._validate_vector(vector)
             
+            # Query an expanded candidate pool in case of multi-vector/duplicate pet enrollments
+            query_k = min(self.index.ntotal, max(top_k * 3, top_k, 10))
+            
             def _search():
-                distances, indices = self.index.search(validated_vec, top_k)
+                distances, indices = self.index.search(validated_vec, query_k)
                 return distances[0], indices[0]
                 
             distances, indices = await asyncio.to_thread(_search)
             
             results = []
+            seen_pets = set()
             for dist, idx in zip(distances, indices):
                 if idx != -1:
                     pet_id = self._id_map.get(idx)
-                    if pet_id is not None:
+                    if pet_id is not None and pet_id not in seen_pets:
+                        seen_pets.add(pet_id)
                         results.append((pet_id, float(dist)))
+                        if len(results) >= top_k:
+                            break
             return results
         except Exception as e:
             if isinstance(e, VectorStoreError):
                 raise
-            raise VectorStoreError(f"Search failed: {str(e)}")
+            raise VectorStoreError(f"Search failed: {e!s}")
 
     async def remove_vector(self, pet_id: str) -> bool:
         try:
@@ -127,9 +152,9 @@ class FAISSVectorStore(VectorStore):
             await self.save_local()
             return True
         except Exception as e:
-            raise VectorStoreError(f"Failed to remove vector: {str(e)}")
+            raise VectorStoreError(f"Failed to remove vector: {e!s}")
 
-    async def rebuild(self, vectors: List[Tuple[str, np.ndarray]]) -> bool:
+    async def rebuild(self, vectors: list[tuple[str, np.ndarray]]) -> bool:
         try:
             self._init_index()
             if not vectors:
@@ -155,7 +180,7 @@ class FAISSVectorStore(VectorStore):
         except Exception as e:
             if isinstance(e, VectorStoreError):
                 raise
-            raise VectorStoreError(f"Rebuild failed: {str(e)}")
+            raise VectorStoreError(f"Rebuild failed: {e!s}")
             
     async def save_local(self) -> bool:
         try:
@@ -180,7 +205,7 @@ class FAISSVectorStore(VectorStore):
             await asyncio.to_thread(_save)
             return True
         except Exception as e:
-            raise VectorStoreError(f"Failed to persist index: {str(e)}")
+            raise VectorStoreError(f"Failed to persist index: {e!s}")
             
     async def load_local(self) -> bool:
         if not os.path.exists(self.index_path) or not os.path.exists(self.meta_path):
@@ -207,4 +232,4 @@ class FAISSVectorStore(VectorStore):
         except Exception as e:
             if isinstance(e, VectorStoreError):
                 raise
-            raise VectorStoreError(f"Failed to load index: {str(e)}")
+            raise VectorStoreError(f"Failed to load index: {e!s}")

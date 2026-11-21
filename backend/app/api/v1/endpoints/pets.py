@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException, status, UploadFile, File, Depends
-from app.schemas.pet import PetCreate, PetResponse
-from typing import Dict, Any
 
-from app.services.registration_service import RegistrationService
-from app.api.dependencies import get_registration_service, get_db, get_current_owner
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy import select
-from app.db.models import Pet, Owner
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.dependencies import get_current_owner, get_db, get_registration_service
+from app.db.models import Owner, Pet
+from app.schemas.pet import PetCreate, PetResponse
+from app.services.registration_service import RegistrationService
 
 router = APIRouter()
 
@@ -50,10 +50,29 @@ async def enroll_image(
     pet_id: str,
     file: UploadFile = File(...),
     service: RegistrationService = Depends(get_registration_service),
+    db: AsyncSession = Depends(get_db),
+    current_owner: Owner = Depends(get_current_owner),
 ):
     """
     Enroll a biometric image for an existing pet profile.
+    Requires authentication. Only the registered pet owner can enroll biometric images.
     """
+    stmt = select(Pet).where(Pet.id == pet_id)
+    result = await db.execute(stmt)
+    pet = result.scalars().first()
+
+    if not pet:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Pet '{pet_id}' not found."
+        )
+
+    if pet.owner_id != current_owner.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to enroll images for this pet."
+        )
+
     validate_image(file)
     file_bytes = await file.read()
     return await service.enroll_image(
@@ -188,6 +207,7 @@ async def list_pets(
     ]
 from app.schemas.pet import PetUpdate
 
+
 @router.put("/{pet_id}", response_model=PetResponse)
 async def update_pet(
     pet_id: str,
@@ -254,4 +274,3 @@ async def delete_pet(
         
     await db.delete(pet)
     await db.commit()
-    return None

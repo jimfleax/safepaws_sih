@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from app.api.dependencies import get_db, get_current_owner
-from app.db.models import Alert, Pet, Owner
+
+from app.api.dependencies import get_current_owner, get_db
+from app.db.models import Alert, Owner, Pet
 from app.schemas.alert import AlertCreate, AlertResponse
 
 router = APIRouter()
@@ -34,12 +35,12 @@ async def create_alert(
     await db.refresh(new_alert)
     
     # Reload with sightings (should be empty but ensures schema validation passes)
-    stmt = select(Alert).options(selectinload(Alert.sightings), selectinload(Alert.pet).selectinload(Pet.photos)).where(Alert.id == new_alert.id)
+    stmt = select(Alert).options(selectinload(Alert.sightings), selectinload(Alert.pet).selectinload(Pet.photos)).where(Alert.id == new_alert.id).execution_options(populate_existing=True)
     return (await db.execute(stmt)).scalars().first()
 
 @router.get("/{alert_id}", response_model=AlertResponse)
 async def get_alert(alert_id: str, db: AsyncSession = Depends(get_db)):
-    stmt = select(Alert).options(selectinload(Alert.sightings), selectinload(Alert.pet).selectinload(Pet.photos)).where(Alert.id == alert_id)
+    stmt = select(Alert).options(selectinload(Alert.sightings), selectinload(Alert.pet).selectinload(Pet.photos)).where(Alert.id == alert_id).execution_options(populate_existing=True)
     alert = (await db.execute(stmt)).scalars().first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
@@ -51,7 +52,7 @@ async def resolve_alert(
     db: AsyncSession = Depends(get_db),
     current_owner: Owner = Depends(get_current_owner)
 ):
-    stmt = select(Alert).options(selectinload(Alert.sightings), selectinload(Alert.pet).selectinload(Pet.photos)).where(Alert.id == alert_id)
+    stmt = select(Alert).options(selectinload(Alert.sightings), selectinload(Alert.pet).selectinload(Pet.photos)).where(Alert.id == alert_id).execution_options(populate_existing=True)
     alert = (await db.execute(stmt)).scalars().first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
@@ -71,6 +72,6 @@ async def resolve_alert(
     return alert
 @router.get("/", response_model=list[AlertResponse])
 async def get_all_alerts(db: AsyncSession = Depends(get_db)):
-    stmt = select(Alert).options(selectinload(Alert.sightings), selectinload(Alert.pet).selectinload(Pet.photos))
+    stmt = select(Alert).options(selectinload(Alert.sightings), selectinload(Alert.pet).selectinload(Pet.photos)).execution_options(populate_existing=True)
     alerts = (await db.execute(stmt)).scalars().all()
     return alerts

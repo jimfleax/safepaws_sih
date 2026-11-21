@@ -1,13 +1,15 @@
+import io
+import os
+from datetime import datetime, timedelta
+
+import jwt
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app
-import io
-import jwt
-from datetime import datetime, timedelta
-import os
 
 from app.api.dependencies import get_current_owner
 from app.db.models import Owner
+from app.main import app
+
 
 @pytest.fixture(scope="module")
 def client() -> TestClient:
@@ -90,6 +92,7 @@ def test_unsupported_file_type(client: TestClient):
 # We override the embedder so fake bytes don't fail PIL decode in scaffold path.
 def test_identify_scaffold_response(client: TestClient):
     import numpy as np
+
     from app.api import dependencies
     from app.services.ml_interfaces import QualityResult
 
@@ -132,6 +135,7 @@ def test_identify_scaffold_response(client: TestClient):
 
 def test_verify_scaffold_response(client: TestClient):
     import numpy as np
+
     from app.api import dependencies
     from app.services.ml_interfaces import QualityResult
 

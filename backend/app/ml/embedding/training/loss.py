@@ -16,8 +16,8 @@ Requires torch. Import gated so the rest of the codebase imports cleanly without
 
 try:
     import torch
-    import torch.nn as nn
     import torch.nn.functional as F
+    from torch import nn
     _TORCH_AVAILABLE = True
 except ImportError:
     _TORCH_AVAILABLE = False

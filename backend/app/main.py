@@ -1,12 +1,13 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
-from app.api.v1.router import api_router
-from app.core.exceptions import domain_exception_handler, DomainException
-
-from sqlalchemy.exc import SQLAlchemyError
 import socket
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
+
+from app.api.v1.router import api_router
+from app.core.config import settings
+from app.core.exceptions import DomainException, domain_exception_handler
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -26,10 +27,9 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     if settings.USE_SQLITE_DEV:
-        from app.db.session import engine
-        from app.db.base_class import Base
         # Ensure all models are imported so metadata knows about them
-        import app.db.models
+        from app.db.base_class import Base
+        from app.db.session import engine
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
 
@@ -49,6 +49,8 @@ async def sqlalchemy_exception_handler(request, exc):
     )
 
 from fastapi.exceptions import RequestValidationError
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     import traceback
@@ -74,6 +76,7 @@ async def os_error_handler(request, exc):
     raise exc
 
 import os
+
 from fastapi.staticfiles import StaticFiles
 
 # Ensure static/images exists so mount doesn't fail
@@ -83,5 +86,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 from app.api.v1.endpoints import auth, users
+
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])

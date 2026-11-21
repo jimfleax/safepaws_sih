@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+
 from app.api.dependencies import get_embedder
 from app.services.ml_interfaces import EmbeddingModel
 

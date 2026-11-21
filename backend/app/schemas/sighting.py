@@ -1,18 +1,19 @@
-from typing import Optional
-from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict
+
 
 class SightingBase(BaseModel):
     reporter_name: str
     location: str
-    notes: Optional[str] = None
+    notes: str | None = None
 
 class SightingCreate(SightingBase):
-    alert_id: Optional[str] = None
+    alert_id: str | None = None
 
 class SightingResponse(SightingBase):
     id: str
-    alert_id: Optional[str] = None
+    alert_id: str | None = None
     time: datetime
     confirmed: bool
     

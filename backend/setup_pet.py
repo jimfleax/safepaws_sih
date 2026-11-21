@@ -1,7 +1,9 @@
 import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine
+from datetime import datetime
+
 from sqlalchemy import text
-from datetime import datetime, timedelta
+from sqlalchemy.ext.asyncio import create_async_engine
+
 
 async def setup():
     engine = create_async_engine("postgresql+asyncpg://postgres:postgres@localhost:5432/safepaws")

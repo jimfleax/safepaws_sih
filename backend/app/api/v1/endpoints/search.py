@@ -1,7 +1,8 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+
+from app.api.dependencies import get_biometric_service
 from app.schemas.search import SearchResponse
 from app.services.biometric_service import BiometricPipelineService
-from app.api.dependencies import get_biometric_service
 
 router = APIRouter()
 
@@ -19,12 +20,13 @@ def validate_image(file: UploadFile):
     if size > MAX_FILE_SIZE:
         raise HTTPException(status_code=413, detail="File too large")
 
-from app.api.dependencies import get_biometric_service, get_db
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.api.dependencies import get_db
 from app.db.models import Pet
 
-from sqlalchemy.orm import selectinload
 
 @router.post("/identify", response_model=SearchResponse)
 async def identify_pet(

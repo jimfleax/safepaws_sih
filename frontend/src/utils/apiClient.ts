@@ -115,11 +115,18 @@ export class ApiClient {
     });
     if (!res.ok) {
       let msg = res.statusText;
+      let errorCode: string | undefined;
       try {
         const errData = await res.json();
         msg = errData.message || errData.detail || msg;
+        errorCode = errData.error_code || errData.code;
       } catch (e) {}
-      throw new Error(`Identification failed: ${msg}`);
+      const error: any = new Error(`Identification failed: ${msg}`);
+      error.status = res.status;
+      error.statusCode = res.status;
+      error.errorCode = errorCode;
+      error.detail = msg;
+      throw error;
     }
     return res.json();
   }
@@ -189,6 +196,15 @@ export class ApiClient {
       status: d.status,
       qrTagId: d.qr_tag_id
     }));
+  }
+
+  static async getAlert(alertId: string): Promise<any> {
+    const res = await fetch(`/api/v1/alerts/${alertId}`, { credentials: 'include' });
+    if (!res.ok) {
+      if (res.status === 404) throw new Error('Alert not found');
+      throw new Error(`Failed to fetch alert: ${res.statusText}`);
+    }
+    return res.json();
   }
 
   static async getAllAlerts(): Promise<any[]> {

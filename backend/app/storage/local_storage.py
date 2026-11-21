@@ -1,7 +1,9 @@
 import os
 import uuid
-from app.storage.interfaces import ImageStorage
+
 from app.core.exceptions import DomainException
+from app.storage.interfaces import ImageStorage
+
 
 class LocalFileSystemStorage(ImageStorage):
     def __init__(self, base_dir: str = "static/images"):
@@ -20,7 +22,7 @@ class LocalFileSystemStorage(ImageStorage):
             return f"/static/images/{unique_name}"
         except Exception as e:
             raise DomainException(
-                message=f"Failed to save image locally: {str(e)}",
+                message=f"Failed to save image locally: {e!s}",
                 error_code="STORAGE_FAILURE",
                 status_code=500
             )

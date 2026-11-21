@@ -17,15 +17,14 @@ The split field must be computed by split_dataset() below, not by random per-ima
 """
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
 try:
-    from torch.utils.data import Dataset as TorchDataset
     from PIL import Image as PILImage
+    from torch.utils.data import Dataset as TorchDataset
     _TORCH_AVAILABLE = True
 except ImportError:
     TorchDataset = object  # Fallback base so class is importable without torch
@@ -33,11 +32,11 @@ except ImportError:
 
 
 def split_dataset(
-    records: List[Dict],
+    records: list[dict],
     train_ratio: float = 0.7,
     val_ratio: float = 0.1,
     seed: int = 42,
-) -> List[Dict]:
+) -> list[dict]:
     """
     Assign identity-disjoint splits to a list of records.
 
@@ -86,7 +85,7 @@ def split_dataset(
         len(train_ids), len(val_ids), len(test_ids), n,
     )
 
-    split_map: Dict[str, str] = {}
+    split_map: dict[str, str] = {}
     for uid in train_ids:
         split_map[uid] = "train"
     for uid in val_ids:
@@ -100,14 +99,14 @@ def split_dataset(
     return records
 
 
-def verify_no_identity_leakage(records: List[Dict]) -> None:
+def verify_no_identity_leakage(records: list[dict]) -> None:
     """
     Assert that no identity_id appears in more than one split.
     Raises ValueError if leakage is detected.
     Call before training to protect evaluation validity.
     """
     from collections import defaultdict
-    identity_splits: Dict[str, set] = defaultdict(set)
+    identity_splits: dict[str, set] = defaultdict(set)
     for r in records:
         identity_splits[r["identity_id"]].add(r.get("split", "UNKNOWN"))
 
@@ -135,10 +134,10 @@ class IdentityAwareDataset(TorchDataset):
 
     def __init__(
         self,
-        records: List[Dict],
+        records: list[dict],
         split: str,
         transform=None,
-        dataset_root: Optional[str] = None,
+        dataset_root: str | None = None,
     ):
         if split not in ("train", "val", "test"):
             raise ValueError(f"split must be 'train', 'val', or 'test'. Got: '{split}'")
@@ -154,7 +153,7 @@ class IdentityAwareDataset(TorchDataset):
 
         # Build label encoder: identity_id → integer label
         unique_ids = sorted({r["identity_id"] for r in self.records})
-        self._label_map: Dict[str, int] = {uid: i for i, uid in enumerate(unique_ids)}
+        self._label_map: dict[str, int] = {uid: i for i, uid in enumerate(unique_ids)}
         self.num_identities = len(unique_ids)
 
         logger.info(
@@ -165,7 +164,7 @@ class IdentityAwareDataset(TorchDataset):
     def __len__(self) -> int:
         return len(self.records)
 
-    def __getitem__(self, idx: int) -> Tuple:
+    def __getitem__(self, idx: int) -> tuple:
         """
         Returns (image_tensor, integer_label).
 
@@ -175,7 +174,6 @@ class IdentityAwareDataset(TorchDataset):
         if not _TORCH_AVAILABLE:
             raise RuntimeError("torch is required for IdentityAwareDataset.__getitem__.")
 
-        import torch
         record = self.records[idx]
         img_path = Path(record["image_path"])
         if self.dataset_root and not img_path.is_absolute():

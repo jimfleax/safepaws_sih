@@ -1,9 +1,15 @@
-import pytest
-import numpy as np
 import json
-import os
-from pathlib import Path
-from scripts.evaluate import compute_eer, evaluate_verification, validate_identity_disjoint, main
+
+import numpy as np
+import pytest
+
+from scripts.evaluate import (
+    compute_eer,
+    evaluate_verification,
+    main,
+    validate_identity_disjoint,
+)
+
 
 def test_eer_calculation():
     # If fpr and fnr cross perfectly

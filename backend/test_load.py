@@ -1,8 +1,11 @@
 import asyncio
-from sqlalchemy.orm import selectinload
+
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
+
 from app.db.models import Alert, Pet
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+
 
 async def main():
     engine = create_async_engine("postgresql+asyncpg://postgres:postgres@localhost:5432/safepaws")

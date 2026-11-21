@@ -1,5 +1,7 @@
-import asyncpg
 import asyncio
+
+import asyncpg
+
 
 async def check():
     conn = await asyncpg.connect('postgresql://postgres:postgres@localhost:5432/safepaws')

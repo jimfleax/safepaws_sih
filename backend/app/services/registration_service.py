@@ -1,10 +1,12 @@
-from typing import Any
 import uuid
+
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.exceptions import InfrastructureError
 from app.schemas.pet import PetCreate, PetResponse
 from app.services.biometric_service import BiometricPipelineService
 from app.storage.interfaces import ImageStorage
-from app.core.exceptions import InfrastructureError
+
 
 class RegistrationService:
     def __init__(
@@ -19,7 +21,6 @@ class RegistrationService:
 
     async def register_pet(self, pet_in: PetCreate, current_owner: 'Owner') -> PetResponse:
         from app.db.models import Pet
-        import uuid
         
         pet_id = f"pet-{uuid.uuid4().hex[:8]}"
         qr_tag_id = f"qr-{pet_id}"
@@ -58,8 +59,7 @@ class RegistrationService:
         )
 
     async def enroll_image(self, pet_id: str, file_name: str, file_bytes: bytes, content_type: str) -> dict:
-        from app.db.models import PetPhoto, PetBiometricEnrollment
-        import uuid
+        from app.db.models import PetBiometricEnrollment, PetPhoto
         
         # 1. Pipeline ML processing (Detection, Quality, Embed)
         embedding = await self.pipeline._process_image(file_bytes)
@@ -106,4 +106,4 @@ class RegistrationService:
             # Step c: Compensate DB by rolling back the pending transaction
             await self.db.rollback()
             # Escalate as InfrastructureError, avoiding silent failures
-            raise InfrastructureError(f"Enrollment compensation triggered. Orchestration failed: {str(e)}")
+            raise InfrastructureError(f"Enrollment compensation triggered. Orchestration failed: {e!s}")

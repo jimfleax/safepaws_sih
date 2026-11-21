@@ -1,9 +1,10 @@
 import os
-import json
-import pytest
+
 import numpy as np
-from app.vector_store.faiss_store import FAISSVectorStore
+import pytest
+
 from app.core.exceptions import VectorStoreError
+from app.vector_store.faiss_store import FAISSVectorStore
 
 # M0 Tests for VectorStore implementation
 
