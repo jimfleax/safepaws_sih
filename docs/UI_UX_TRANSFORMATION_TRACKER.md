@@ -7,7 +7,7 @@
 **Master Design Architecture:** [docs/UI_UX_DESIGN_ARCHITECTURE.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UI_UX_DESIGN_ARCHITECTURE.md)  
 **Research & Inventory Reference:** [docs/UI_UX_RESEARCH_AND_INVENTORY.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UI_UX_RESEARCH_AND_INVENTORY.md)  
 **Panel A Specification & Audit:** [docs/DESIGN_SYSTEM_PANEL_A.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/DESIGN_SYSTEM_PANEL_A.md)  
-**Current Program State:** UX-03 Step 5 (Panel E Community & Finder HUD) **ACCEPTED (99/100) — PHASE UX-03 COMPLETE**  
+**Current Program State:** Phase UX-04 (Global Motion Choreography & Polish) **ACCEPTED (98.4/100) — PHASE UX-05 UNBLOCKED**  
 **Last Updated:** November 21, 2026  
 
 ---
@@ -20,19 +20,20 @@ Committed HEAD:          4a89f4da1bab8274c7c067774516ed78bf546276 (Verified)
 Active Branch:           frontend (Verified)
 Remote Tracking:         origin/frontend (0 behind, 0 ahead) (Verified)
 Staging Index:           Preserved (No git add/commit)
-Working Tree:            Clean modifications strictly scoped to Panels C, D, and E (Community & Finder HUD)
+Working Tree:            Clean modifications strictly scoped to Panels C, D, E & UX-04 Motion Architecture
 In-Repo UI/UX Docs:      docs/UI_UX_TRANSFORMATION_TRACKER.md, docs/UI_UX_DESIGN_ARCHITECTURE.md,
                          docs/UI_UX_RESEARCH_AND_INVENTORY.md, docs/DESIGN_SYSTEM_PANEL_A.md,
                          docs/PANEL_C_OWNER_CONSOLE_ARCHITECTURE.md, docs/PANEL_D_BIOMETRIC_SCANNER_ARCHITECTURE.md,
-                         docs/PANEL_E_COMMUNITY_FINDER_ARCHITECTURE.md,
+                         docs/PANEL_E_COMMUNITY_FINDER_ARCHITECTURE.md, docs/UX_04_GLOBAL_MOTION_ARCHITECTURE.md,
                          docs/reports/SAFEPAWS_UX_03_STEP_3_2_REMEDIATION_REPORT.md,
                          docs/reports/SAFEPAWS_UX_03_STEP_4_PANEL_D_IMPLEMENTATION_AND_AUDIT_REPORT.md,
                          docs/reports/SAFEPAWS_UX_03_STEP_5_PANEL_E_IMPLEMENTATION_AND_AUDIT_REPORT.md,
+                         docs/reports/SAFEPAWS_UX_04_GLOBAL_MOTION_IMPLEMENTATION_AND_AUDIT_REPORT.md,
                          docs/PROJECT_ARCHITECTURE.md, docs/DEVELOPMENT_SETUP.md
 ```
 
 > [!NOTE]
-> **Baseline Reconciliation:** All five Phase UX-03 workstream panels are formally accepted: Panel A (Design System), Panel B (Marketing Experience, 96/100), Panel C (Owner Console, 99/100), Panel D (Biometric Scanner HUD, 100/100), and Panel E (Community & Finder HUD, 99/100). Scope Deviation SD-01 remains active and ratified. Phase UX-03 is complete; Phase UX-04 is unblocked.
+> **Baseline Reconciliation:** All five Phase UX-03 workstream panels are formally accepted: Panel A (Design System), Panel B (Marketing Experience, 96/100), Panel C (Owner Console, 99/100), Panel D (Biometric Scanner HUD, 100/100), and Panel E (Community & Finder HUD, 99.5/100). Scope Deviation SD-01 remains active and ratified. Phase UX-04 (Global Motion Choreography) is formally evaluated and accepted (98.4/100). Phase UX-05 is unblocked.
 
 ---
 
@@ -50,9 +51,9 @@ flowchart LR
     P5 --> P5R["UX-03 Step 3.2: Panel C Remediation\n(REMEDIATED — DEFECTS D-01 TO D-06)"]
     P5R --> P5A["UX-03 Step 3.3: Panel C Re-Audit\n(ACCEPTED — 99/100)"]
     P5A --> P6["UX-03 Step 4: Panel D (Scanner HUD)\n(ACCEPTED — 100/100)"]
-    P6 --> P6E["UX-03 Step 5: Panel E (Finder HUD)\n(ACCEPTED — 99/100)"]
-    P6E --> P7["UX-04: Motion Polish\n(UNBLOCKED — READY)"]
-    P7 --> P8["UX-05: Quality & Release Gate\n(NOT STARTED)"]
+    P6 --> P6E["UX-03 Step 5: Panel E (Finder HUD)\n(ACCEPTED — 99.5/100)"]
+    P6E --> P7["UX-04: Motion Polish\n(ACCEPTED — 98.4/100)"]
+    P7 --> P8["UX-05: Quality & Release Gate\n(UNBLOCKED — READY)"]
 ```
 
 | Phase Code | Milestone Title | Lead Workstream | Key Deliverables & Evidence | Status |
@@ -69,9 +70,9 @@ flowchart LR
 | **UX-03 (Step 3.2)**| **Panel C: Defect Remediation** | Owner Console Lead | Comprehensive remediation resolving all defects: D-01 (QR tag fallback removed), D-02 (Button variants conformed), D-03 (store errors surfaced & 4-state UI), D-04 (finder sighting routed to community with status banner), D-05 (6.11:1 contrast on Marigold), D-06 (44px touch targets & aria-pressed), Obs A (strict status mapping), Obs B (try/finally logout). | **REMEDIATED** |
 | **UX-03 (Step 3.3)**| **Panel C: Independent Acceptance Re-Audit** | Panel F Lead (Independent QA) | Independent re-audit by 3 specialist auditors. Scored 99/100. All defects confirmed resolved. Formal verdict: ACCEPTED — PANEL C PASSES. Report in `docs/reports/SAFEPAWS_UX_03_STEP_3_2_REMEDIATION_REPORT.md`. | **ACCEPTED (99/100) — PANEL D UNBLOCKED** |
 | **UX-03 (Step 4)** | **Panel D: Biometric Scanner HUD** | Biometric Scanner Lead | Spatial reticle HUD, camera isolation, 5-state result cards. Targets: `Scan.tsx`, `CameraView.tsx`, `ProcessingView.tsx`, `ResultView.tsx`. Formally audited by 5 Panel F specialists (F-D1 to F-D5): Scored 100/100. Formal verdict: ACCEPTED. Report in `docs/reports/SAFEPAWS_UX_03_STEP_4_PANEL_D_IMPLEMENTATION_AND_AUDIT_REPORT.md`. | **ACCEPTED (100/100) — PANEL E UNBLOCKED** |
-| **UX-03 (Step 5)** | **Panel E: Community & Finder HUD** | Community & Finder Lead | High-contrast finder view (`/p/:tagId`), recovery board (`/lost`), incident room (`/alerts/:id`), community feed (`/community/*`). Formally audited by 6 Panel F specialists (F-E1 to F-E6): Scored 99/100. Formal verdict: ACCEPTED. Report in `docs/reports/SAFEPAWS_UX_03_STEP_5_PANEL_E_IMPLEMENTATION_AND_AUDIT_REPORT.md`. | **ACCEPTED (99/100) — UX-03 COMPLETE** |
-| **UX-04** | **Motion Choreography & Polish** | Motion Designer | GSAP context timelines, smooth Lenis integration, 3D card physics, reduced-motion overrides, 60fps frame-rate protection. | **UNBLOCKED — READY TO IMPLEMENT** |
-| **UX-05** | **Quality, Accessibility & Release Gate** | Panel F (Independent QA) | Independent WCAG 2.2 AA audit, Playwright E2E verification across all 15 routes, regression validation, release sign-off. | **NOT STARTED** |
+| **UX-03 (Step 5)** | **Panel E: Community & Finder HUD** | Community & Finder Lead | High-contrast finder view (`/p/:tagId`), recovery board (`/lost`), incident room (`/alerts/:id`), community feed (`/community/*`). Formally audited by 6 Panel F specialists (F-E1 to F-E6): Scored 99.5/100. Formal verdict: ACCEPTED. Report in `docs/reports/SAFEPAWS_UX_03_STEP_5_PANEL_E_IMPLEMENTATION_AND_AUDIT_REPORT.md`. | **ACCEPTED (99.5/100) — UX-03 COMPLETE** |
+| **UX-04** | **Global Motion Choreography & Polish** | Motion Designer & QA Orchestrator | 5-tier global timing hierarchy, GSAP context teardown, Lenis dynamic smooth scroll, GPU compositor sweep ray, WCAG 2.2 AA reduced-motion architecture. Formally audited by 6 Panel F specialists (F-M1 to F-M6): Scored 98.4/100. Report in `docs/reports/SAFEPAWS_UX_04_GLOBAL_MOTION_IMPLEMENTATION_AND_AUDIT_REPORT.md`. | **ACCEPTED (98.4/100) — UX-05 UNBLOCKED** |
+| **UX-05** | **Quality, Accessibility & Release Gate** | Panel F (Independent QA) | Independent WCAG 2.2 AA audit, Playwright E2E verification across all 15 routes, regression validation, release sign-off. | **UNBLOCKED — READY TO BEGIN** |
 
 ---
 
@@ -85,24 +86,25 @@ flowchart TD
         PF["Panel F: Independent Acceptance Authority\nStatus: SIGN-OFF COMPLETE"]
         PC["Panel C: Owner Console (Step 3.3)\nStatus: ACCEPTED (99/100)"]
         PD["Panel D: Biometric Scanner HUD (Step 4)\nStatus: ACCEPTED (100/100)"]
-        PE["Panel E: Community & Finder HUD (Step 5)\nStatus: ACCEPTED (99/100)"]
+        PE["Panel E: Community & Finder HUD (Step 5)\nStatus: ACCEPTED (99.5/100)"]
     end
     PA --> PB
     PB --> PF
     PF -->|Formally Unblocked| PC
     PC -->|Step 3.3 Passed| PD
     PD -->|Step 4 Passed| PE
-    PE -->|Phase UX-03 Complete| P4M["Phase UX-04: Motion Polish"]
+    PE -->|Phase UX-03 Complete| P4M["Phase UX-04: Motion Polish\nStatus: ACCEPTED (98.4/100)"]
+    P4M --> P5G["Phase UX-05: Release Gate"]
 ```
 
 | Panel Code | Lead Workstream | Assigned Scope & Files | Dependencies | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **Panel A** | **Design System Lead** | `frontend/src/index.css`<br>`frontend/src/components/ui/*` | None | **ACCEPTED WITH MINOR NOTES** |
 | **Panel B** | **Marketing & Brand Lead** | `frontend/src/pages/LandingPage.tsx`<br>`frontend/src/components/Hero.tsx`<br>`frontend/src/components/FeaturesSection.tsx`<br>`frontend/src/components/ScannerTeaserSection.tsx`<br>`frontend/src/components/HowItWorksSection.tsx`<br>`frontend/src/components/PrivacySection.tsx`<br>`frontend/src/components/CommunitySection.tsx`<br>`frontend/src/components/CtaSection.tsx`<br>`frontend/src/components/Footer.tsx`<br>`frontend/src/components/modals/InfoModal.tsx` | Panel A Acceptance | **ACCEPTED (96/100) — PASSES** |
-| **Panel F** | **Independent QA Lead** | Independent re-audit authority across all panels. | Workstream Submissions | **PANEL E ACCEPTANCE ISSUED (99/100)** |
+| **Panel F** | **Independent QA Lead** | Independent re-audit authority across all panels. | Workstream Submissions | **UX-04 ACCEPTANCE ISSUED (98.4/100)** |
 | **Panel C** | **Owner Console Lead** | `frontend/src/pages/Dashboard.tsx`<br>`frontend/src/pages/SetupProfile.tsx`<br>`frontend/src/pages/pets/NewPet.tsx`<br>`frontend/src/pages/pets/PetDetail.tsx`<br>`frontend/src/components/DashboardNav.tsx`<br>`frontend/src/components/PetCard.tsx`<br>`frontend/src/components/modals/QrTagModal.tsx` | Panel B Acceptance | **ACCEPTED (99/100) — PASSES** |
 | **Panel D** | **Biometric Scanner Lead** | `frontend/src/pages/Scan.tsx`<br>`frontend/src/components/scan/*` | Panel C Acceptance | **ACCEPTED (100/100) — PASSES** |
-| **Panel E** | **Community & Finder Lead** | `frontend/src/pages/PublicTagProfile.tsx`<br>`frontend/src/pages/ReportLost.tsx`<br>`frontend/src/pages/LostDogs.tsx`<br>`frontend/src/pages/Community.tsx` | Panel D Acceptance | **ACCEPTED (99/100) — PASSES** |
+| **Panel E** | **Community & Finder Lead** | `frontend/src/pages/PublicTagProfile.tsx`<br>`frontend/src/pages/ReportLost.tsx`<br>`frontend/src/pages/LostDogs.tsx`<br>`frontend/src/pages/Community.tsx` | Panel D Acceptance | **ACCEPTED (99.5/100) — PASSES** |
 
 ---
 

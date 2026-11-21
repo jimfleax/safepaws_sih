@@ -96,7 +96,8 @@ export default function LostDogs() {
           <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
             <button
               onClick={() => setSelectedSpecies('all')}
-              className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all min-h-[44px] cursor-pointer ${
+              aria-pressed={selectedSpecies === 'all'}
+              className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all min-h-[44px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] ${
                 selectedSpecies === 'all'
                   ? 'bg-[var(--color-ink)] text-white shadow-sm'
                   : 'bg-white border border-[var(--color-border)] text-[var(--color-ink-soft)] hover:bg-[var(--color-surface)]'
@@ -106,7 +107,8 @@ export default function LostDogs() {
             </button>
             <button
               onClick={() => setSelectedSpecies('dog')}
-              className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all min-h-[44px] cursor-pointer ${
+              aria-pressed={selectedSpecies === 'dog'}
+              className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all min-h-[44px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] ${
                 selectedSpecies === 'dog'
                   ? 'bg-[var(--color-ink)] text-white shadow-sm'
                   : 'bg-white border border-[var(--color-border)] text-[var(--color-ink-soft)] hover:bg-[var(--color-surface)]'
@@ -116,7 +118,8 @@ export default function LostDogs() {
             </button>
             <button
               onClick={() => setSelectedSpecies('cat')}
-              className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all min-h-[44px] cursor-pointer ${
+              aria-pressed={selectedSpecies === 'cat'}
+              className={`px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all min-h-[44px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] ${
                 selectedSpecies === 'cat'
                   ? 'bg-[var(--color-ink)] text-white shadow-sm'
                   : 'bg-white border border-[var(--color-border)] text-[var(--color-ink-soft)] hover:bg-[var(--color-surface)]'
