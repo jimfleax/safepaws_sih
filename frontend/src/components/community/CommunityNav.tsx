@@ -45,11 +45,12 @@ export function CommunityNav({
           return (
             <button
               key={c.id}
+              aria-pressed={isActive}
               onClick={() => {
                 onChannelSelect(c.id);
                 if (isMobile && onClose) onClose();
               }}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer min-h-[44px] ${
+              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] ${
                 isActive 
                   ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-xs border border-[var(--color-border)]' 
                   : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]'

@@ -37,22 +37,38 @@ export function NumberTicker({
   useEffect(() => {
     // Check user preference for reduced motion
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mediaQuery.matches) {
+    const applyReducedMotion = () => {
       if (ref.current) {
         ref.current.textContent = `${prefix}${Intl.NumberFormat('en-US', {
           minimumFractionDigits: decimalPlaces,
           maximumFractionDigits: decimalPlaces,
         }).format(value)}${suffix}`;
       }
+    };
+
+    if (mediaQuery.matches) {
+      applyReducedMotion();
       return;
     }
 
+    const handleChange = () => {
+      if (mediaQuery.matches) {
+        applyReducedMotion();
+      }
+    };
+    mediaQuery.addEventListener?.('change', handleChange);
+
+    let timer: NodeJS.Timeout | undefined;
     if (isInView) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         motionValue.set(direction === 'down' ? 0 : value);
       }, delay * 1000);
-      return () => clearTimeout(timer);
     }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      mediaQuery.removeEventListener?.('change', handleChange);
+    };
   }, [motionValue, isInView, delay, value, direction, decimalPlaces, prefix, suffix]);
 
   useEffect(() => {

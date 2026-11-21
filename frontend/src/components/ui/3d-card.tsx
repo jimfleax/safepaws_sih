@@ -72,7 +72,7 @@ export const CardContainer = ({
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           className={cn(
-            "relative flex items-center justify-center transition-transform duration-200 ease-linear preserve-3d motion-reduce:transform-none motion-reduce:transition-none",
+            "relative flex items-center justify-center transition-transform duration-[var(--duration-component)] ease-linear preserve-3d motion-reduce:transform-none motion-reduce:transition-none",
             className
           )}
           style={{ transformStyle: "preserve-3d" }}
@@ -145,7 +145,7 @@ export const CardItem = ({
   return (
     <Tag
       ref={ref}
-      className={cn("w-fit transition-transform duration-200 ease-linear motion-reduce:transform-none", className)}
+      className={cn("w-fit transition-transform duration-[var(--duration-component)] ease-linear motion-reduce:transform-none", className)}
       {...rest}
     >
       {children}
