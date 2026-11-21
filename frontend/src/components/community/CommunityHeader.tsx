@@ -43,7 +43,7 @@ export function CommunityHeader({
       <div className="flex items-center gap-3 ml-4">
         <button 
           onClick={onComposeClick}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-ink)] text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-[#2A2723] transition-all shadow-xs min-h-[44px] cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-ink)] text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-[#2A2723] transition-all shadow-xs min-h-[44px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
         >
           <Plus size={16} /> 
           <span className="hidden sm:inline">New Post</span>
