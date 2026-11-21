@@ -161,6 +161,11 @@ export const CustomCursor: React.FC = () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseover', handleHoverStart);
       window.removeEventListener('mouseout', handleHoverEnd);
+      trailRefs.current.forEach(paw => {
+        if (paw) gsap.killTweensOf(paw);
+      });
+      if (cursor) gsap.killTweensOf(cursor);
+      if (ring) gsap.killTweensOf(ring);
     };
   }, [isDisabled]);
 

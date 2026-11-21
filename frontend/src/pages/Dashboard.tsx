@@ -1,66 +1,149 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { DashboardNav } from '../components/DashboardNav';
 import { usePetStore } from '../store/petStore';
+import { PetCard } from '../components/PetCard';
 import { Link } from 'react-router-dom';
-import { Plus, ShieldAlert, ArrowRight, Activity, MapPin, Search } from 'lucide-react';
+import { 
+  Plus, ShieldAlert, ArrowRight, Activity, 
+  MapPin, Search, AlertCircle, RefreshCw, LayoutGrid, List as ListIcon 
+} from 'lucide-react';
+import { Button } from '../components/ui/Button';
 
 export default function Dashboard() {
-  const { pets, alerts } = usePetStore();
+  const { pets, alerts, hydrated, isLoading, error, hydrate } = usePetStore();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'row'>('grid');
 
-  const lostPets = useMemo(() => pets.filter(p => p.status === 'lost'), [pets]);
-  const safePets = useMemo(() => pets.filter(p => p.status !== 'lost'), [pets]);
+  // Rigorous 3-tier status separation: lost or sightings_reported trigger crisis mode
+  const lostPets = useMemo(() => pets.filter(p => p.status === 'lost' || p.status === 'sightings_reported'), [pets]);
+  const safePets = useMemo(() => pets.filter(p => p.status !== 'lost' && p.status !== 'sightings_reported'), [pets]);
   const hasLostPet = lostPets.length > 0;
+
+  // Filtered safe pets based on search query
+  const filteredSafePets = useMemo(() => {
+    if (!searchQuery.trim()) return safePets;
+    const query = searchQuery.toLowerCase();
+    return safePets.filter(p => 
+      p.name.toLowerCase().includes(query) || 
+      p.breed.toLowerCase().includes(query) ||
+      (p.color && p.color.toLowerCase().includes(query)) ||
+      (p.microchipId && p.microchipId.toLowerCase().includes(query))
+    );
+  }, [safePets, searchQuery]);
 
   return (
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans selection:bg-[var(--color-ink)] selection:text-white">
       <DashboardNav />
       
-      <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-10 md:py-16 md:pb-16 pb-32">
-        {/* 1. CURRENT SITUATION */}
-        <header className="mb-16">
-          <h1 className="font-serif text-5xl md:text-6xl font-bold tracking-tight mb-4">
-            Console
-          </h1>
-          <div className="flex items-center gap-3">
-            {hasLostPet ? (
-              <>
-                <span className="relative flex h-4 w-4">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-alert)] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-4 w-4 bg-[var(--color-alert)]"></span>
-                </span>
-                <span className="text-sm font-bold text-[var(--color-alert)] uppercase tracking-[0.2em]">Active Recovery Protocol</span>
-              </>
-            ) : (
-              <>
-                <span className="h-3 w-3 rounded-full bg-[var(--color-success)]"></span>
-                <span className="text-sm font-bold text-[var(--color-ink-soft)] uppercase tracking-[0.2em]">Network Secure</span>
-              </>
-            )}
+      <main className="flex-1 w-full max-w-6xl mx-auto px-6 py-10 md:py-16 md:pb-16 pb-32">
+        
+        {/* 1. CONSOLE TELEMETRY HEADER */}
+        <header className="mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[var(--color-border)] pb-8">
+          <div>
+            <h1 className="font-serif text-5xl md:text-6xl font-bold tracking-tight mb-3">
+              Console
+            </h1>
+            <div className="flex items-center gap-3">
+              {hasLostPet ? (
+                <>
+                  <span className="relative flex h-3.5 w-3.5" aria-hidden="true">
+                    <span className="animate-ping motion-reduce:animate-none absolute inline-flex h-full w-full rounded-full bg-[var(--color-alert-clay)] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[var(--color-alert-clay)]"></span>
+                  </span>
+                  <span className="text-xs font-bold text-[var(--color-alert-clay)] uppercase tracking-[0.2em]">
+                    Active Recovery Protocol
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="h-3 w-3 rounded-full bg-[var(--color-success)]" aria-hidden="true"></span>
+                  <span className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-[0.2em]">
+                    Network Secure
+                  </span>
+                </>
+              )}
+            </div>
           </div>
+
+          {/* Quick Add CTA in Header */}
+          <Link 
+            to="/pets/new"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[var(--color-ink)] text-white hover:bg-[var(--color-surface-dark-raised)] rounded-full font-bold text-xs uppercase tracking-widest transition-all min-h-[44px] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)] self-start sm:self-auto"
+          >
+            <Plus size={16} />
+            <span>Add Pet</span>
+          </Link>
         </header>
 
-        {/* Empty State */}
-        {pets.length === 0 && (
-          <div className="py-24 px-6 border-y border-[var(--color-ink)]/10 text-center max-w-2xl mx-auto">
-            <h2 className="font-serif text-3xl font-bold mb-4">No Biometric Profiles Found</h2>
-            <p className="text-[var(--color-ink-soft)] mb-10 text-lg">
-              Register your first pet to generate their ML nose-print. This allows the SafePaws network to identify them immediately if they ever go missing.
+        {/* 2. ERROR STATE (If API hydration failed) */}
+        {error && pets.length === 0 && (
+          <div className="mb-12 p-6 rounded-[var(--radius-24)] bg-[var(--color-alert-clay)]/10 border border-[var(--color-alert-clay)]/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <AlertCircle size={24} className="text-[var(--color-alert-clay)] shrink-0" />
+              <div>
+                <p className="font-bold text-sm text-[var(--color-ink)]">Network Synchronization Error</p>
+                <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">{error}</p>
+              </div>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => hydrate()}
+              className="gap-2 min-h-[44px]"
+            >
+              <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
+              <span>Retry Sync</span>
+            </Button>
+          </div>
+        )}
+
+        {/* 3. LOADING SKELETONS (Prevent Flash of Empty State) */}
+        {(!hydrated || isLoading) && pets.length === 0 && (
+          <div className="space-y-6 animate-pulse motion-reduce:animate-none">
+            <div className="h-6 w-48 bg-[var(--color-border)] rounded-md mb-6" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="h-80 rounded-[var(--radius-28)] bg-white/70 border border-[var(--color-border)] p-4 flex flex-col justify-between">
+                  <div className="h-48 w-full bg-[var(--color-bone)] rounded-[var(--radius-24)]" />
+                  <div className="space-y-2 mt-4">
+                    <div className="h-6 w-3/4 bg-[var(--color-bone)] rounded" />
+                    <div className="h-4 w-1/2 bg-[var(--color-bone)] rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4. TRUE EMPTY STATE (Only when hydrated and genuinely 0 pets) */}
+        {hydrated && !isLoading && pets.length === 0 && !error && (
+          <div className="py-20 px-8 border-2 border-dashed border-[var(--color-border)] rounded-[var(--radius-28)] bg-white/50 text-center max-w-2xl mx-auto my-8">
+            <div className="w-16 h-16 rounded-full bg-[var(--color-marigold)]/10 text-[var(--color-accent-text)] flex items-center justify-center mx-auto mb-6">
+              <Plus size={28} />
+            </div>
+            <h2 className="font-serif text-3xl font-bold mb-3 tracking-tight">
+              No Registered Companions
+            </h2>
+            <p className="text-[var(--color-ink-soft)] mb-8 text-base leading-relaxed max-w-lg mx-auto">
+              Enroll your pet to generate their verifiable biometric nose-print and collar QR tag. If they ever wander, the SafePaws community network can identify and safeguard them instantly.
             </p>
             <Link 
               to="/pets/new"
-              className="inline-flex items-center justify-center px-8 py-4 bg-[var(--color-ink)] text-white rounded-full font-bold text-sm uppercase tracking-wider hover:bg-[#2A2723] hover:-translate-y-0.5 transition-all"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--color-ink)] text-white hover:bg-[var(--color-surface-dark-raised)] rounded-full font-bold text-xs uppercase tracking-widest transition-all min-h-[44px] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)]"
             >
-              Start Enrollment
+              <span>Begin First Enrollment</span>
+              <ArrowRight size={16} />
             </Link>
           </div>
         )}
 
-        {/* 3. ACTIVE LOST ALERT (Priority if exists) */}
+        {/* 5. URGENT CRISIS INCIDENTS (Priority Section if lost pets exist) */}
         {hasLostPet && (
-          <section className="mb-20">
-            <div className="flex items-center justify-between mb-8 border-b border-[var(--color-alert)]/20 pb-4">
-              <h2 className="text-xs font-bold text-[var(--color-alert)] uppercase tracking-[0.15em] flex items-center gap-2">
-                <ShieldAlert size={16} /> Urgent Alerts
+          <section className="mb-16">
+            <div className="flex items-center justify-between mb-6 border-b border-[var(--color-alert-clay)]/20 pb-4">
+              <h2 className="text-xs font-bold text-[var(--color-alert-clay)] uppercase tracking-[0.2em] flex items-center gap-2">
+                <ShieldAlert size={16} /> 
+                <span>Active Incidents ({lostPets.length})</span>
               </h2>
             </div>
             
@@ -68,118 +151,109 @@ export default function Dashboard() {
               {lostPets.map((pet) => {
                 const activeAlert = alerts.find(a => a.petId === pet.id);
                 return (
-                  <div key={pet.id} className="group flex flex-col md:flex-row bg-white border border-[var(--color-alert)]/30 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all">
-                    {/* Pet Image block */}
-                    <div className="md:w-64 h-64 md:h-auto shrink-0 bg-[#F4EDE4] relative border-b md:border-b-0 md:border-r border-[var(--color-alert)]/20">
-                      {pet.photoUrl ? (
-                         <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover mix-blend-multiply" />
-                      ) : (
-                         <div className="w-full h-full flex flex-col items-center justify-center text-[var(--color-ink)]/30">
-                           <Search size={48} strokeWidth={1} />
-                           <span className="text-xs uppercase tracking-widest mt-2 font-bold">No Photo</span>
-                         </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                        <h3 className="font-serif text-3xl text-white font-bold">{pet.name}</h3>
-                      </div>
-                    </div>
-                    
-                    {/* Alert Data block */}
-                    <div className="p-6 md:p-8 flex flex-col justify-between flex-1">
-                      <div>
-                        <div className="inline-flex items-center gap-2 text-sm font-bold text-[var(--color-alert)] uppercase tracking-wider mb-4">
-                          <Activity size={16} className="animate-pulse" />
-                          Scanning Network
-                        </div>
-                        <p className="text-lg text-[var(--color-ink)] mb-2 font-medium">
-                          {activeAlert ? activeAlert.description : "Community members and shelters have been notified."}
-                        </p>
-                        <p className="text-sm text-[var(--color-ink-soft)] flex items-center gap-1.5 mb-8">
-                          <MapPin size={14} /> Last seen: {activeAlert?.lastSeenAddress || "Unknown location"}
-                        </p>
-                      </div>
-                      
-                      <div className="flex flex-col sm:flex-row gap-4 mt-auto">
-                        <Link 
-                          to={activeAlert ? `/alerts/${activeAlert.id}` : '/lost'}
-                          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[var(--color-alert)] hover:bg-[#A93F2B] text-white font-bold text-xs uppercase tracking-widest transition-colors rounded-full"
-                        >
-                          Manage Recovery
-                          <ArrowRight size={16} />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
+                  <PetCard 
+                    key={pet.id} 
+                    pet={pet} 
+                    viewMode="crisis" 
+                    activeAlert={activeAlert} 
+                  />
                 );
               })}
             </div>
           </section>
         )}
 
-        {/* 2. PET IDENTITY (Calm list) */}
+        {/* 6. SECURED IDENTITIES (Normal calm operations with ZERO dimming) */}
         {safePets.length > 0 && (
-          <section className={`transition-opacity duration-500 ${hasLostPet ? 'opacity-40 hover:opacity-100' : ''}`}>
-            <div className="flex items-center justify-between mb-8 border-b border-[var(--color-ink)]/10 pb-4">
-              <h2 className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-[0.15em]">
-                Secured Identities
-              </h2>
-              {!hasLostPet && (
-                <Link to="/pets/new" className="text-xs font-bold text-[var(--color-ink)] uppercase tracking-wider hover:text-[var(--color-accent)] flex items-center gap-1 transition-colors">
-                  <Plus size={14} /> Add
-                </Link>
-              )}
+          <section className="mt-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-[var(--color-border)] pb-4">
+              <div>
+                <h2 className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-[0.2em]">
+                  Secured Profiles ({safePets.length})
+                </h2>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                {/* Search Bar if 4+ pets */}
+                {safePets.length >= 4 && (
+                  <div className="relative">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-ink-soft)]" />
+                    <input
+                      type="text"
+                      placeholder="Search pets..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 pr-4 py-1.5 text-xs rounded-full bg-white border border-[var(--color-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] w-40 sm:w-48"
+                      aria-label="Filter pets by name or breed"
+                    />
+                  </div>
+                )}
+
+                {/* View Mode Toggle if 3+ pets */}
+                {safePets.length >= 3 && (
+                  <div className="inline-flex rounded-full bg-white border border-[var(--color-border)] p-1">
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('grid')}
+                      className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                        viewMode === 'grid' 
+                          ? 'bg-[var(--color-bone)] text-[var(--color-ink)] font-bold shadow-xs' 
+                          : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'
+                      }`}
+                      aria-label="Grid view"
+                      title="Grid view"
+                    >
+                      <LayoutGrid size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('row')}
+                      className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                        viewMode === 'row' 
+                          ? 'bg-[var(--color-bone)] text-[var(--color-ink)] font-bold shadow-xs' 
+                          : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'
+                      }`}
+                      aria-label="List row view"
+                      title="List row view"
+                    >
+                      <ListIcon size={15} />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             
-            <div className="flex flex-col gap-4">
-              {safePets.map((pet) => (
-                <Link 
-                  key={pet.id} 
-                  to={`/pets/${pet.id}`}
-                  className="group flex items-center gap-6 p-4 md:p-5 bg-white/50 hover:bg-white border border-[var(--color-ink)]/10 hover:border-[var(--color-ink)]/20 rounded-2xl transition-all"
-                >
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden bg-[#F4EDE4] shrink-0 border border-[var(--color-ink)]/5">
-                    {pet.photoUrl ? (
-                      <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-500" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[var(--color-ink)]/30 text-2xl font-serif">
-                        {pet.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-serif text-2xl font-medium text-[var(--color-ink)] truncate leading-tight">
-                      {pet.name}
-                    </h3>
-                    <p className="text-sm text-[var(--color-ink-soft)] truncate mt-1">
-                      {pet.breed} • {pet.color}
-                    </p>
-                  </div>
-                  
-                  <div className="hidden md:flex flex-col items-end mr-4">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-ink-soft)] mb-1">Status</span>
-                    <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-success)] flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-success)]"></span>
-                      Safe
-                    </span>
-                  </div>
-                  
-                  <div className="shrink-0 w-10 h-10 rounded-full border border-[var(--color-ink)]/10 flex items-center justify-center group-hover:bg-[var(--color-ink)] group-hover:text-white transition-colors">
-                    <ArrowRight size={18} />
-                  </div>
-                </Link>
-              ))}
-            </div>
-            
-            {hasLostPet && (
-               <div className="mt-8 text-center">
-                 <Link to="/pets/new" className="inline-flex items-center gap-2 text-xs font-bold text-[var(--color-ink)] uppercase tracking-wider hover:text-[var(--color-accent)] transition-colors">
-                   <Plus size={14} /> Register another pet
-                 </Link>
-               </div>
+            {/* Cards Display */}
+            {viewMode === 'row' ? (
+              <div className="flex flex-col gap-4">
+                {filteredSafePets.map((pet) => (
+                  <PetCard 
+                    key={pet.id} 
+                    pet={pet} 
+                    viewMode="row" 
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredSafePets.map((pet) => (
+                  <PetCard 
+                    key={pet.id} 
+                    pet={pet} 
+                    viewMode="grid" 
+                  />
+                ))}
+              </div>
+            )}
+
+            {filteredSafePets.length === 0 && searchQuery && (
+              <div className="text-center py-12 text-[var(--color-ink-soft)] text-sm">
+                No pets matching &ldquo;{searchQuery}&rdquo;
+              </div>
             )}
           </section>
         )}
+
       </main>
     </div>
   );

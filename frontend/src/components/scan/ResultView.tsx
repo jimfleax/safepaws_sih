@@ -30,7 +30,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
   };
 
   const handleRegister = () => {
-    navigate('/setup');
+    navigate('/pets/new');
   };
 
   const ViewWrapper = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (

@@ -53,7 +53,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({
               <ul className="space-y-2">
                 <li className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-[#34A853] shrink-0 mt-0.5" />
-                  <span><strong>Owner Phone Masking:</strong> When a QR code is scanned, you can choose direct forwarding or private relay.</span>
+                  <span><strong>Guardian Contact Protection:</strong> When a QR code is scanned, personal phone numbers are withheld from public tags by default. Finders transmit location pings and sightings securely through SafePaws.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-[#34A853] shrink-0 mt-0.5" />

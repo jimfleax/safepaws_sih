@@ -8,6 +8,8 @@ interface PetState {
   alerts: NeighborhoodAlert[];
   sightings: CommunitySighting[];
   hydrated: boolean;
+  isLoading: boolean;
+  error: string | null;
   
   // Actions
   hydrate: () => Promise<void>;
@@ -33,50 +35,75 @@ export const usePetStore = create<PetState>((set) => ({
   alerts: [],
   sightings: [],
   hydrated: false,
+  isLoading: false,
+  error: null,
 
   hydrate: async () => {
+    set({ isLoading: true, error: null });
     try {
       let pets: Pet[] = [];
       try {
         pets = await ApiClient.getAllPets();
-      } catch (e) {
-        // May fail if not authenticated
+      } catch (e: any) {
+        // Unauthenticated or network error on pets endpoint
+        console.warn('Pets fetch failed during hydration:', e?.message);
       }
       
       const [alerts, sightings] = await Promise.all([
-        ApiClient.getAllAlerts(),
-        ApiClient.getAllSightings()
+        ApiClient.getAllAlerts().catch(() => []),
+        ApiClient.getAllSightings().catch(() => [])
       ]);
-      set({ 
-        pets, 
-        alerts: alerts.map(a => ({
-          id: a.id,
-          petId: a.pet_id,
-          petName: a.pet_name || 'Unknown',
-          breed: a.breed || 'Unknown',
-          photoUrl: a.photo_url || '',
-          status: a.status as 'active' | 'resolved',
-          broadcastRadiusKm: 5,
-          notifiedNeighborsCount: 0,
-          timeAgo: a.created_at || 'Recently',
-          lastSeenAddress: a.last_seen_address || '',
-          description: a.description || '',
-          sightingsCount: 0
-        })), 
-        sightings: sightings.map(s => ({
-          id: s.id,
-          reporterName: s.reporter_name,
-          location: s.location,
-          notes: s.notes,
-          time: s.time || 'Recently',
-          alertId: s.alert_id,
-          confirmed: false
-        })),
-        hydrated: true
+
+      set((state) => {
+        // Reconcile selectedPetId with fetched pets
+        let activeSelectedId = state.selectedPetId;
+        if (pets.length > 0) {
+          const exists = pets.some(p => p.id === activeSelectedId);
+          if (!exists) {
+            activeSelectedId = pets[0].id;
+          }
+        } else {
+          activeSelectedId = '';
+        }
+
+        return {
+          pets,
+          selectedPetId: activeSelectedId,
+          alerts: alerts.map((a: any) => ({
+            id: a.id,
+            petId: a.pet_id,
+            petName: a.pet_name || 'Unknown',
+            breed: a.breed || 'Unknown',
+            photoUrl: a.photo_url || '',
+            status: a.status as 'active' | 'resolved',
+            broadcastRadiusKm: 5,
+            notifiedNeighborsCount: 0,
+            timeAgo: a.created_at || 'Recently',
+            lastSeenAddress: a.last_seen_address || '',
+            description: a.description || '',
+            sightingsCount: 0
+          })), 
+          sightings: sightings.map((s: any) => ({
+            id: s.id,
+            reporterName: s.reporter_name,
+            location: s.location,
+            notes: s.notes,
+            time: s.time || 'Recently',
+            alertId: s.alert_id,
+            confirmed: false
+          })),
+          hydrated: true,
+          isLoading: false,
+          error: null
+        };
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error('Failed to hydrate store from API', e);
-      set({ hydrated: true });
+      set({ 
+        hydrated: true, 
+        isLoading: false, 
+        error: e.message || 'Unable to sync with SafePaws network. Please check your connection.' 
+      });
     }
   },
 
@@ -90,9 +117,9 @@ export const usePetStore = create<PetState>((set) => ({
   removePet: (petId) => {
     set((state) => {
       const remaining = state.pets.filter((p) => p.id !== petId);
-      let newSelectedId = state.selectedPetId;
-      if (remaining.length > 0 && state.selectedPetId === petId) {
-        newSelectedId = remaining[0].id;
+      let newSelectedId = '';
+      if (remaining.length > 0) {
+        newSelectedId = state.selectedPetId === petId ? remaining[0].id : state.selectedPetId;
       }
       return { pets: remaining, selectedPetId: newSelectedId };
     });
@@ -116,8 +143,14 @@ export const usePetStore = create<PetState>((set) => ({
 
   resolveAlert: (alertId) => {
     set((state) => {
+      const targetAlert = state.alerts.find(a => a.id === alertId);
       const newAlerts = state.alerts.map((a) => (a.id === alertId ? { ...a, status: 'resolved' as const } : a));
-      const newPets = state.pets.map((p) => ({ ...p, status: 'safe' as const })); // Exact current behavior
+      const newPets = state.pets.map((p) => {
+        if (targetAlert && p.id === targetAlert.petId) {
+          return { ...p, status: 'safe' as const };
+        }
+        return p;
+      });
       return { alerts: newAlerts, pets: newPets };
     });
   },
@@ -126,7 +159,11 @@ export const usePetStore = create<PetState>((set) => ({
 usePetStore.subscribe((state, prevState) => {
   if (state.selectedPetId !== prevState.selectedPetId) {
     try {
-      localStorage.setItem('safepaws_selected_pet_id', state.selectedPetId);
+      if (state.selectedPetId) {
+        localStorage.setItem('safepaws_selected_pet_id', state.selectedPetId);
+      } else {
+        localStorage.removeItem('safepaws_selected_pet_id');
+      }
     } catch {}
   }
 });

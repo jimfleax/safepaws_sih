@@ -1,127 +1,231 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { ShieldAlert, ScanLine, List, LogOut, User, MessageSquare } from 'lucide-react';
+import { ShieldAlert, ScanLine, List, LogOut, User, MessageSquare, AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from './ui/Dialog';
+import { Button } from './ui/Button';
 
 export const DashboardNav = () => {
   const { user, logout } = useAuthStore();
   const location = useLocation();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogout = () => {
     logout();
+    setShowLogoutConfirm(false);
   };
 
-  const isCurrent = (path: string) => location.pathname === path;
+  const isCurrent = (path: string) => {
+    if (path === '/dashboard') {
+      return location.pathname === '/dashboard' || location.pathname.startsWith('/pets');
+    }
+    if (path === '/lost') {
+      return location.pathname.startsWith('/lost') || location.pathname.startsWith('/alerts');
+    }
+    if (path === '/community') {
+      return location.pathname.startsWith('/community');
+    }
+    return location.pathname === path;
+  };
 
   return (
     <>
-      {/* Desktop Rail */}
-      <nav className="hidden md:flex flex-col w-64 bg-[var(--color-background)] border-r border-[var(--color-border)] h-screen sticky top-0 px-6 py-8">
-        <Link to="/dashboard" className="text-[length:var(--text-section-heading)] font-serif font-bold text-[var(--color-accent)] mb-12 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded-[var(--radius-12)]">SafePaws</Link>
+      {/* Desktop Navigation Rail */}
+      <nav 
+        aria-label="Main sidebar navigation" 
+        className="hidden md:flex flex-col w-64 bg-[var(--color-bone)] border-r border-[var(--color-border)] h-screen sticky top-0 px-6 py-8 select-none"
+      >
+        <Link 
+          to="/dashboard" 
+          className="text-[length:var(--text-section-heading)] font-serif font-bold text-[var(--color-accent-text)] mb-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-[var(--radius-12)] inline-block transition-opacity hover:opacity-90"
+        >
+          SafePaws
+        </Link>
+
         <div className="flex flex-col gap-2 flex-1">
+          {/* Quick Scan Action */}
           <Link 
             to="/scan" 
-            className="flex items-center gap-3 px-4 py-3 bg-[var(--color-accent)] text-white rounded-[var(--radius-16)] font-medium hover:bg-[var(--color-accent-hover)] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-focus)] min-h-[44px]"
+            className="flex items-center gap-3 px-4 py-3 bg-[var(--color-marigold)] text-white rounded-[var(--radius-16)] font-semibold hover:bg-[var(--color-accent-hover)] transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)] min-h-[44px]"
             aria-label="Scan a dog"
           >
-            <ScanLine size={20} />
-            Scan a dog
+            <ScanLine size={20} className="shrink-0" />
+            <span>Scan a dog</span>
           </Link>
-          <div className="h-4"></div>
+          
+          <div className="h-4" role="separator" />
           
           <Link 
             to="/dashboard" 
-            className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] min-h-[44px] ${
-              isCurrent('/dashboard') ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-sm' : 'text-[var(--color-ink-soft)] hover:bg-black/5 hover:text-[var(--color-ink)]'
+            aria-current={isCurrent('/dashboard') ? 'page' : undefined}
+            className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] min-h-[44px] ${
+              isCurrent('/dashboard') 
+                ? 'bg-white text-[var(--color-ink)] shadow-sm font-semibold' 
+                : 'text-[var(--color-ink-soft)] hover:bg-black/5 hover:text-[var(--color-ink)]'
             }`}
           >
-            <List size={20} />
-            My pets
+            <List size={20} className="shrink-0" />
+            <span>My pets</span>
           </Link>
 
           <Link 
             to="/lost"
-            className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium transition-colors text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] min-h-[44px] ${
-              isCurrent('/lost') ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-sm' : 'text-[var(--color-ink-soft)] hover:bg-black/5 hover:text-[var(--color-ink)]'
+            aria-current={isCurrent('/lost') ? 'page' : undefined}
+            className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] min-h-[44px] ${
+              isCurrent('/lost') 
+                ? 'bg-white text-[var(--color-ink)] shadow-sm font-semibold' 
+                : 'text-[var(--color-ink-soft)] hover:bg-black/5 hover:text-[var(--color-ink)]'
             }`}
           >
-            <ShieldAlert size={20} />
-            Alerts
+            <ShieldAlert size={20} className="shrink-0" />
+            <span>Alerts</span>
           </Link>
 
           <Link 
             to="/community"
-            className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium transition-colors text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] min-h-[44px] ${
-              isCurrent('/community') ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-sm' : 'text-[var(--color-ink-soft)] hover:bg-black/5 hover:text-[var(--color-ink)]'
+            aria-current={isCurrent('/community') ? 'page' : undefined}
+            className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] min-h-[44px] ${
+              isCurrent('/community') 
+                ? 'bg-white text-[var(--color-ink)] shadow-sm font-semibold' 
+                : 'text-[var(--color-ink-soft)] hover:bg-black/5 hover:text-[var(--color-ink)]'
             }`}
           >
-            <MessageSquare size={20} />
-            Community
+            <MessageSquare size={20} className="shrink-0" />
+            <span>Community</span>
           </Link>
         </div>
 
+        {/* User Card & Logout Trigger */}
         <div className="mt-auto flex flex-col gap-2 border-t border-[var(--color-border)] pt-4">
-          <div className="flex items-center gap-3 px-4 py-3">
+          <div className="flex items-center gap-3 px-4 py-2">
             {user?.picture ? (
-              <img src={user.picture} alt={user?.name || 'User'} className="w-10 h-10 rounded-full border-2 border-[var(--color-accent)]" />
+              <img 
+                src={user.picture} 
+                alt={user?.name || 'Owner Profile'} 
+                className="w-10 h-10 rounded-full border-2 border-[var(--color-accent-text)] object-cover" 
+              />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-ink)] font-bold shadow-sm">
-                {user?.name?.charAt(0) || 'U'}
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[var(--color-ink)] font-bold shadow-sm border border-[var(--color-border)]">
+                {user?.name?.charAt(0) || 'O'}
               </div>
             )}
-            <span className="text-[length:var(--text-label-button)] text-[var(--color-ink)] truncate">{user?.name || 'Account'}</span>
+            <div className="min-w-0 flex-1">
+              <span className="block text-[length:var(--text-label-button)] text-[var(--color-ink)] font-semibold truncate">
+                {user?.name || 'Account'}
+              </span>
+              <span className="block text-xs text-[var(--color-ink-soft)] truncate">
+                {user?.neighborhood || 'Guardian'}
+              </span>
+            </div>
           </div>
+          
           <button 
-            onClick={handleLogout} 
-            className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium text-[var(--color-danger)] hover:bg-black/5 transition-colors text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-danger)] min-h-[44px]"
+            type="button"
+            onClick={() => setShowLogoutConfirm(true)} 
+            className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium text-[var(--color-alert-clay)] hover:bg-[var(--color-alert-clay)]/10 transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-danger)] min-h-[44px] cursor-pointer"
           >
-            <LogOut size={20} />
-            Logout
+            <LogOut size={20} className="shrink-0" />
+            <span>Logout</span>
           </button>
         </div>
       </nav>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-background)] border-t border-[var(--color-border)] px-4 py-2 flex items-center justify-between z-50 safe-area-pb shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      <nav 
+        aria-label="Mobile navigation" 
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-bone)] border-t border-[var(--color-border)] px-4 py-2 flex items-center justify-between z-50 safe-area-pb shadow-[0_-4px_12px_rgba(0,0,0,0.06)]"
+      >
         <Link 
           to="/dashboard" 
-          className={`flex flex-col items-center justify-center gap-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] ${isCurrent('/dashboard') ? 'text-[var(--color-ink)]' : 'text-[var(--color-ink-soft)]'}`}
+          aria-current={isCurrent('/dashboard') ? 'page' : undefined}
+          className={`flex flex-col items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] px-2 ${
+            isCurrent('/dashboard') ? 'text-[var(--color-ink)] font-bold' : 'text-[var(--color-ink-soft)]'
+          }`}
         >
           <List size={20} />
-          <span className="text-[10px] font-medium">My pets</span>
+          <span className="text-[11px]">My pets</span>
         </Link>
+
         <Link 
           to="/lost" 
-          className={`flex flex-col items-center justify-center gap-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] ${isCurrent('/lost') ? 'text-[var(--color-ink)]' : 'text-[var(--color-ink-soft)]'}`}
+          aria-current={isCurrent('/lost') ? 'page' : undefined}
+          className={`flex flex-col items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] px-2 ${
+            isCurrent('/lost') ? 'text-[var(--color-ink)] font-bold' : 'text-[var(--color-ink-soft)]'
+          }`}
         >
           <ShieldAlert size={20} />
-          <span className="text-[10px] font-medium">Alerts</span>
+          <span className="text-[11px]">Alerts</span>
         </Link>
+
+        {/* Elevated Mobile Center Hub Scan */}
         <Link 
           to="/scan" 
-          className="flex flex-col items-center gap-0.5 -mt-6 focus:outline-none"
+          className="flex flex-col items-center gap-1 -mt-6 focus:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-focus)] rounded-full"
           aria-label="Scan a dog"
         >
-          <div className="w-12 h-12 bg-[var(--color-accent)] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-[var(--color-background)] transition-transform hover:scale-105 focus:ring-4 focus:ring-[var(--color-focus)]">
+          <div className="w-13 h-13 bg-[var(--color-marigold)] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-[var(--color-bone)] transition-transform active:scale-95">
             <ScanLine size={24} />
           </div>
-          <span className="text-[10px] text-[var(--color-accent)] font-medium">Scan</span>
+          <span className="text-[11px] text-[var(--color-accent-text)] font-bold tracking-tight">Scan</span>
         </Link>
+
         <Link 
           to="/community" 
-          className={`flex flex-col items-center justify-center gap-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] ${isCurrent('/community') ? 'text-[var(--color-ink)]' : 'text-[var(--color-ink-soft)]'}`}
+          aria-current={isCurrent('/community') ? 'page' : undefined}
+          className={`flex flex-col items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] px-2 ${
+            isCurrent('/community') ? 'text-[var(--color-ink)] font-bold' : 'text-[var(--color-ink-soft)]'
+          }`}
         >
           <MessageSquare size={20} />
-          <span className="text-[10px] font-medium">Community</span>
+          <span className="text-[11px]">Community</span>
         </Link>
+
         <button 
-          onClick={handleLogout} 
-          className="flex flex-col items-center justify-center gap-0.5 text-[var(--color-ink-soft)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px]"
+          type="button"
+          onClick={() => setShowLogoutConfirm(true)} 
+          className="flex flex-col items-center justify-center gap-1 text-[var(--color-ink-soft)] hover:text-[var(--color-alert-clay)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] px-2 cursor-pointer"
+          aria-label="Logout"
         >
           <LogOut size={20} />
-          <span className="text-[10px] font-medium">Logout</span>
+          <span className="text-[11px]">Logout</span>
         </button>
       </nav>
+
+      {/* Accessible Logout Confirmation Modal */}
+      <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <DialogContent className="max-w-md p-6 sm:p-8 bg-[var(--color-bone)] border border-[var(--color-border)] rounded-[var(--radius-24)] shadow-xl">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-full bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] flex items-center justify-center mb-4">
+              <AlertCircle size={24} />
+            </div>
+            
+            <DialogTitle className="font-serif text-2xl font-bold text-[var(--color-ink)] mb-2">
+              Sign Out of SafePaws?
+            </DialogTitle>
+            
+            <DialogDescription className="text-sm text-[var(--color-ink-soft)] leading-relaxed mb-6">
+              You will need to sign in again to manage your pets and receive direct recovery updates.
+            </DialogDescription>
+            
+            <div className="flex flex-col-reverse sm:flex-row gap-3 w-full">
+              <Button
+                variant="outline"
+                className="flex-1 min-h-[44px]"
+                onClick={() => setShowLogoutConfirm(false)}
+              >
+                Stay Signed In
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1 min-h-[44px]"
+                onClick={handleLogout}
+              >
+                Sign Out
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

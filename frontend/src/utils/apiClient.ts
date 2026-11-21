@@ -219,6 +219,46 @@ export class ApiClient {
     return res.json();
   }
 
+  static async updatePet(petId: string, petData: Partial<Pet>): Promise<Pet> {
+    const payload: any = {};
+    if (petData.name !== undefined) payload.name = petData.name;
+    if (petData.species !== undefined) payload.species = petData.species;
+    if (petData.breed !== undefined) payload.breed = petData.breed;
+    if (petData.color !== undefined) payload.color = petData.color;
+    if (petData.age !== undefined) payload.age = petData.age;
+    if (petData.weight !== undefined) payload.weight = petData.weight;
+    if (petData.medicalNotes !== undefined) payload.medical_notes = petData.medicalNotes;
+    if (petData.distinctiveFeatures !== undefined) payload.distinctive_features = petData.distinctiveFeatures;
+    if (petData.microchipId !== undefined) payload.microchip_id = petData.microchipId;
+
+    const res = await fetch(`/api/v1/pets/${petId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error(`Failed to update pet: ${res.statusText}`);
+    const data = await res.json();
+    return {
+      id: data.id,
+      name: data.name,
+      species: data.species,
+      breed: data.breed,
+      color: data.color,
+      age: data.age,
+      weight: data.weight,
+      ownerName: data.owner_name,
+      ownerPhone: data.owner_phone,
+      neighborhood: data.neighborhood,
+      medicalNotes: data.medical_notes,
+      distinctiveFeatures: data.distinctive_features,
+      microchipId: data.microchip_id,
+      photoUrl: data.photo_url || "",
+      status: data.status,
+      qrTagId: data.qr_tag_id
+    };
+  }
+
   static async deletePet(petId: string): Promise<void> {
     const res = await fetch(`/api/v1/pets/${petId}`, {
       method: 'DELETE',

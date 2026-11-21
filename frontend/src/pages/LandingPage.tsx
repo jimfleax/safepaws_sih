@@ -10,16 +10,17 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
+
 import { EnterScreen } from '../components/EnterScreen';
 import { Header } from '../components/Header';
 import { Hero } from '../components/Hero';
-import { StepsDarkSection } from '../components/StepsDarkSection';
 import { FeaturesSection } from '../components/FeaturesSection';
-import { TrustSection } from '../components/TrustSection';
+import { ScannerTeaserSection } from '../components/ScannerTeaserSection';
+import { HowItWorksSection } from '../components/HowItWorksSection';
+import { PrivacySection } from '../components/PrivacySection';
 import { CommunitySection } from '../components/CommunitySection';
 import { CtaSection } from '../components/CtaSection';
 import { Footer } from '../components/Footer';
-
 import { InfoModal } from '../components/modals/InfoModal';
 
 import { useAuthStore } from '../store/authStore';
@@ -28,7 +29,6 @@ import { usePetStore } from '../store/petStore';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  // Always show the starting portal animation on every page refresh / load
   const [hasEntered, setHasEntered] = useState<boolean>(false);
   const [infoModalType, setInfoModalType] = useState<'privacy' | 'guidelines' | 'contact' | null>(null);
 
@@ -42,9 +42,9 @@ export default function LandingPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tokenResponse.access_token }),
-          credentials: 'include'
+          credentials: 'include',
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           setAuth({
@@ -52,9 +52,9 @@ export default function LandingPage() {
             email: data.user.email,
             name: data.user.name,
             picture: data.user.picture,
-            profileCompleted: data.user.profileCompleted
+            profileCompleted: data.user.profileCompleted,
           });
-          
+
           if (!data.user.profileCompleted) {
             navigate('/setup-profile');
           } else {
@@ -82,7 +82,10 @@ export default function LandingPage() {
 
   useEffect(() => {
     // Only initialize smooth scrolling and parallax if user hasn't requested reduced motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     if (prefersReducedMotion) return;
 
     let lenis: any = null;
@@ -131,9 +134,7 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col bg-[var(--color-background)] text-[var(--color-ink)] selection:bg-[var(--color-accent)]/20 selection:text-[var(--color-ink)] transition-colors duration-[var(--animate-duration-page)]">
       {/* Entry Screen Overlay */}
       <AnimatePresence>
-        {!hasEntered && (
-          <EnterScreen onEnter={() => setHasEntered(true)} />
-        )}
+        {!hasEntered && <EnterScreen onEnter={() => setHasEntered(true)} />}
       </AnimatePresence>
 
       {/* 1. Header Navigation */}
@@ -153,40 +154,55 @@ export default function LandingPage() {
         activeAlertCount={alerts?.length || 0}
       />
 
-      {/* 2. Hero Section */}
+      {/* Main Landing Flow */}
       <main className="relative z-10 flex-1">
+        {/* Section A: Signature Hero */}
         <Hero
           onJoinClick={handleJoinClick}
           onIdentifyClick={() => navigate('/scan')}
+          onOpenLostAlerts={() => navigate('/lost')}
         />
 
-        {/* 3. Features */}
-        <div id="features">
-          <FeaturesSection
-            onOpenBiometric={() => navigate('/scan')}
-            onOpenNetwork={() => navigate('/community')}
-            onOpenQrTags={() => handleJoinClick()}
-          />
-        </div>
-
-        {/* 4. How It Works */}
-        <StepsDarkSection 
-          onStep1Click={handleJoinClick} 
-          onStep2Click={() => navigate('/community')} 
-          onStep3Click={() => navigate('/lost')} 
+        {/* Section B: Feature Showcase / Interactive Bento */}
+        <FeaturesSection
+          onOpenBiometric={() => navigate('/scan')}
+          onOpenNetwork={() => navigate('/community')}
+          onOpenQrTags={handleJoinClick}
+          onOpenAlerts={() => navigate('/lost')}
+          onOpenSightings={() => navigate('/sightings/new')}
+          onOpenManagement={() => navigate('/dashboard')}
         />
 
-        {/* 5. Trust + Nose Print */}
-        <TrustSection />
+        {/* Section C: Biometric Scanner Teaser */}
+        <ScannerTeaserSection onOpenScan={() => navigate('/scan')} />
 
-        {/* 5. Community + Recovery */}
-        <CommunitySection />
+        {/* Section D: How SafePaws Works (5-Step Reunion Cycle) */}
+        <HowItWorksSection
+          onStep1Click={handleJoinClick}
+          onStep2Click={handleJoinClick}
+          onStep3Click={handleJoinClick}
+          onStep4Click={() => navigate('/community')}
+          onStep5Click={() => navigate('/community')}
+        />
 
-        {/* 6. Bottom Call to Action */}
-        <CtaSection onStartClick={handleJoinClick} />
+        {/* Section E: Privacy and Consent Transparency */}
+        <PrivacySection onOpenPrivacy={() => setInfoModalType('privacy')} />
+
+        {/* Section F: Community Recovery Preview & Metrics */}
+        <CommunitySection
+          onOpenCommunity={() => navigate('/community')}
+          onOpenAlerts={() => navigate('/lost')}
+          onOpenReportSighting={() => navigate('/sightings/new')}
+        />
+
+        {/* Section G: Closing Signature Call to Action */}
+        <CtaSection
+          onStartClick={handleJoinClick}
+          onScanClick={() => navigate('/scan')}
+        />
       </main>
 
-      {/* 6. Footer */}
+      {/* Section H: Refined Footer */}
       <div className="relative z-10">
         <Footer
           onOpenPrivacy={() => setInfoModalType('privacy')}
@@ -195,6 +211,7 @@ export default function LandingPage() {
         />
       </div>
 
+      {/* Info Modals for Governance & Privacy */}
       <InfoModal
         isOpen={infoModalType !== null}
         type={infoModalType}

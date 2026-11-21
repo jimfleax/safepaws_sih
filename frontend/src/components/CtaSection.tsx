@@ -1,32 +1,38 @@
 import React, { useRef, useEffect } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { Camera, Plus, ArrowRight, Heart } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Button } from './ui/Button';
+import { Badge } from './ui/Badge';
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface CtaSectionProps {
   onStartClick: () => void;
+  onScanClick?: () => void;
 }
 
-export const CtaSection: React.FC<CtaSectionProps> = ({ onStartClick }) => {
+export const CtaSection: React.FC<CtaSectionProps> = ({ onStartClick, onScanClick }) => {
   const containerRef = useRef<HTMLElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      gsap.from(contentRef.current?.children || [], {
+      gsap.from(cardRef.current?.children || [], {
         scrollTrigger: {
           trigger: containerRef.current,
           start: 'top 85%',
         },
-        y: 40,
+        y: 35,
         opacity: 0,
         duration: 0.8,
-        stagger: 0.15,
+        stagger: 0.12,
         ease: 'power3.out',
       });
     }, containerRef);
@@ -37,37 +43,69 @@ export const CtaSection: React.FC<CtaSectionProps> = ({ onStartClick }) => {
   return (
     <section
       ref={containerRef}
-      className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16 sm:py-24"
+      className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-16 sm:py-24"
+      aria-label="Closing Call to Action"
     >
-      <div className="w-full bg-[var(--color-ink)] rounded-[var(--radius-28)] px-8 sm:px-16 py-16 sm:py-24 relative overflow-hidden flex flex-col items-center text-center">
-        {/* Subtle decorative ring */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border-[1px] border-[var(--color-bone)]/5 pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border-[1px] border-[var(--color-bone)]/5 pointer-events-none" />
+      <div
+        ref={cardRef}
+        className="relative overflow-hidden rounded-[var(--radius-28)] bg-[var(--color-ink)] text-[var(--color-bone)] p-8 sm:p-14 lg:p-20 text-center flex flex-col items-center shadow-2xl"
+      >
+        {/* Ambient Warm Gradient Orb */}
+        <div
+          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-b from-[var(--color-marigold)]/25 to-transparent rounded-full blur-3xl"
+          aria-hidden="true"
+        />
 
-        <div ref={contentRef} className="relative z-10 max-w-2xl flex flex-col items-center">
-          {/* Eyebrow */}
-          <span className="inline-flex items-center gap-3 text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-[var(--color-bone)]/60 uppercase mb-8">
-            <span className="w-6 h-[1px] bg-[var(--color-bone)]/60" />
-            Join the network
-            <span className="w-6 h-[1px] bg-[var(--color-bone)]/60" />
-          </span>
-
-          {/* Big serif heading */}
-          <h2 className="font-serif text-[44px] sm:text-[60px] lg:text-[72px] leading-[1.05] tracking-tight text-[var(--color-bone)] font-normal mb-12">
-            The best search party is the one{' '}
-            <em className="not-italic text-[var(--color-accent)] relative inline-block">
-              already there.
-            </em>
-          </h2>
-
-          {/* CTA Button */}
-          <button
-            onClick={onStartClick}
-            className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-[var(--color-accent)] text-[var(--color-bone)] font-bold text-[14px] uppercase tracking-[0.1em] rounded-full shadow-[0_8px_24px_rgba(226,129,31,0.25)] transition-all duration-300 hover:shadow-[0_16px_32px_rgba(226,129,31,0.35)] hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-accent)] cursor-pointer"
+        {/* Eyebrow */}
+        <div className="relative z-10 mb-6">
+          <Badge
+            variant="scout"
+            className="bg-white/10 text-white border-white/20 font-mono tracking-widest text-[11px]"
           >
-            <span>Start with SafePaws</span>
-            <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-          </button>
+            PEACE OF MIND BEFORE THE LEASH UNCLIPS
+          </Badge>
+        </div>
+
+        {/* Headline */}
+        <h2 className="relative z-10 font-serif text-[38px] sm:text-[54px] lg:text-[68px] leading-[1.05] tracking-tight max-w-3xl mb-8">
+          Because every minute matters when a companion is missing.
+        </h2>
+
+        {/* Supporting text */}
+        <p className="relative z-10 text-[length:var(--text-body-large)] text-[var(--color-bone)]/80 max-w-xl leading-relaxed mb-12">
+          Registration takes less than 3 minutes with your smartphone camera. Give your dog an immutable, unlosable identity and join a community that looks out for every tail.
+        </p>
+
+        {/* Dual CTA Buttons */}
+        <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+          <Button
+            variant="accent"
+            size="lg"
+            onClick={onStartClick}
+            leftIcon={<Plus className="w-5 h-5" />}
+            rightIcon={<ArrowRight className="w-4 h-4" />}
+            className="w-full sm:w-auto shadow-lg hover:shadow-xl font-bold"
+          >
+            REGISTER YOUR COMPANION
+          </Button>
+
+          {onScanClick && (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={onScanClick}
+              leftIcon={<Camera className="w-5 h-5 text-[var(--color-bone)]" />}
+              className="w-full sm:w-auto border-white/30 text-[var(--color-bone)] hover:bg-white/10 hover:text-white"
+            >
+              SCAN A FOUND DOG
+            </Button>
+          )}
+        </div>
+
+        {/* Bottom Guarantee */}
+        <div className="relative z-10 mt-10 pt-8 border-t border-white/10 flex items-center justify-center gap-2 text-xs text-white/60">
+          <Heart className="w-4 h-4 text-[var(--color-marigold)]" />
+          <span>Non-invasive optical identification. No special equipment required.</span>
         </div>
       </div>
     </section>
