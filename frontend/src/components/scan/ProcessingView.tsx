@@ -66,9 +66,9 @@ export default function ProcessingView({ phase }: ProcessingViewProps) {
              <line x1="55" y1="35" x2="50" y2="58" stroke="var(--color-bone)" strokeWidth="0.5" strokeOpacity="0.3" />
           </svg>
 
-          {/* Sweeping High-Precision Scanner Ray (Honors motion-reduce:hidden for a11y, off-thread GPU animation) */}
+          {/* Sweeping High-Precision Scanner Ray (Honors motion-reduce:hidden for a11y, off-thread GPU compositor animation) */}
           <div 
-            className="absolute left-0 right-0 h-16 bg-gradient-to-b from-transparent via-[var(--color-bone)]/[0.15] to-transparent pointer-events-none motion-reduce:hidden animate-scan-ray -translate-y-1/2"
+            className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent via-[var(--color-bone)]/[0.15] to-transparent pointer-events-none motion-reduce:hidden animate-scan-ray"
           >
              <div className="absolute top-1/2 left-0 right-0 h-[1.5px] bg-[var(--color-bone)]/50 shadow-[0_0_12px_var(--color-bone)]" />
           </div>

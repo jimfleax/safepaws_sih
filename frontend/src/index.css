@@ -242,18 +242,19 @@
 
 @keyframes scan-ray-sweep {
   0% {
-    top: 5%;
+    transform: translateY(0);
   }
   50% {
-    top: 95%;
+    transform: translateY(135px);
   }
   100% {
-    top: 5%;
+    transform: translateY(0);
   }
 }
 
 .animate-scan-ray {
   animation: scan-ray-sweep 2.4s ease-in-out infinite;
+  will-change: transform;
 }
 
 /* 3D Perspective Utility Classes */
