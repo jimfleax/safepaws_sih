@@ -197,7 +197,7 @@ export default function NewPet() {
                 <button
                   type="button"
                   onClick={handleSkipMlAndFinish}
-                  className="mt-3 text-xs font-bold uppercase tracking-wider text-[var(--color-accent-text)] hover:underline inline-block"
+                  className="mt-3 text-xs font-bold uppercase tracking-wider text-[var(--color-accent-text)] hover:underline inline-flex items-center min-h-[44px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-md"
                 >
                   Skip image for now & view profile →
                 </button>

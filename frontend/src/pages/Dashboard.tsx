@@ -14,22 +14,24 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'row'>('grid');
 
-  // Rigorous 3-tier status separation: lost or sightings_reported trigger crisis mode
+  // Rigorous status separation:
   const lostPets = useMemo(() => pets.filter(p => p.status === 'lost' || p.status === 'sightings_reported'), [pets]);
-  const safePets = useMemo(() => pets.filter(p => p.status !== 'lost' && p.status !== 'sightings_reported'), [pets]);
+  const activePets = useMemo(() => pets.filter(p => p.status !== 'lost' && p.status !== 'sightings_reported'), [pets]);
+  const safePets = useMemo(() => pets.filter(p => p.status === 'safe'), [pets]);
+  const unreviewedPets = useMemo(() => pets.filter(p => p.status !== 'lost' && p.status !== 'sightings_reported' && p.status !== 'safe'), [pets]);
   const hasLostPet = lostPets.length > 0;
 
-  // Filtered safe pets based on search query
-  const filteredSafePets = useMemo(() => {
-    if (!searchQuery.trim()) return safePets;
+  // Filtered active pets based on search query
+  const filteredActivePets = useMemo(() => {
+    if (!searchQuery.trim()) return activePets;
     const query = searchQuery.toLowerCase();
-    return safePets.filter(p => 
+    return activePets.filter(p => 
       p.name.toLowerCase().includes(query) || 
       p.breed.toLowerCase().includes(query) ||
       (p.color && p.color.toLowerCase().includes(query)) ||
       (p.microchipId && p.microchipId.toLowerCase().includes(query))
     );
-  }, [safePets, searchQuery]);
+  }, [activePets, searchQuery]);
 
   return (
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans selection:bg-[var(--color-ink)] selection:text-white">
@@ -51,14 +53,39 @@ export default function Dashboard() {
                     <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[var(--color-alert-clay)]"></span>
                   </span>
                   <span className="text-xs font-bold text-[var(--color-alert-clay)] uppercase tracking-[0.2em]">
-                    Active Recovery Protocol
+                    Active Recovery Protocol ({lostPets.length})
                   </span>
+                </>
+              ) : pets.length > 0 ? (
+                <>
+                  {error ? (
+                    <>
+                      <span className="h-3 w-3 rounded-full bg-[var(--color-marigold)]" aria-hidden="true"></span>
+                      <span className="text-xs font-bold text-[var(--color-accent-text)] uppercase tracking-[0.2em]">
+                        Offline Notice
+                      </span>
+                    </>
+                  ) : unreviewedPets.length > 0 ? (
+                    <>
+                      <span className="h-3 w-3 rounded-full bg-[var(--color-marigold)]" aria-hidden="true"></span>
+                      <span className="text-xs font-bold text-[var(--color-accent-text)] uppercase tracking-[0.2em]">
+                        Review Required ({unreviewedPets.length})
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="h-3 w-3 rounded-full bg-[var(--color-success)]" aria-hidden="true"></span>
+                      <span className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-[0.2em]">
+                        All Companions Safe ({safePets.length})
+                      </span>
+                    </>
+                  )}
                 </>
               ) : (
                 <>
-                  <span className="h-3 w-3 rounded-full bg-[var(--color-success)]" aria-hidden="true"></span>
+                  <span className={`h-3 w-3 rounded-full ${error ? 'bg-[var(--color-alert-clay)]' : 'bg-[var(--color-border)]'}`} aria-hidden="true"></span>
                   <span className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-[0.2em]">
-                    Network Secure
+                    {error ? 'Sync Unavailable' : isLoading ? 'Connecting...' : 'Console Ready'}
                   </span>
                 </>
               )}
@@ -75,14 +102,18 @@ export default function Dashboard() {
           </Link>
         </header>
 
-        {/* 2. ERROR STATE (If API hydration failed) */}
-        {error && pets.length === 0 && (
-          <div className="mb-12 p-6 rounded-[var(--radius-24)] bg-[var(--color-alert-clay)]/10 border border-[var(--color-alert-clay)]/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* 2. ERROR STATE (If API hydration failed or network error occurred) */}
+        {error && (
+          <div className="mb-12 p-6 rounded-[var(--radius-24)] bg-[var(--color-alert-clay)]/10 border border-[var(--color-alert-clay)]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <AlertCircle size={24} className="text-[var(--color-alert-clay)] shrink-0" />
               <div>
-                <p className="font-bold text-sm text-[var(--color-ink)]">Network Synchronization Error</p>
-                <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">{error}</p>
+                <p className="font-bold text-sm text-[var(--color-ink)]">
+                  {pets.length === 0 ? "Network Synchronization Error" : "Companion Records Out of Sync"}
+                </p>
+                <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
+                  {error} {pets.length > 0 && "Displaying currently loaded records."}
+                </p>
               </div>
             </div>
             <Button 
@@ -163,19 +194,19 @@ export default function Dashboard() {
           </section>
         )}
 
-        {/* 6. SECURED IDENTITIES (Normal calm operations with ZERO dimming) */}
-        {safePets.length > 0 && (
+        {/* 6. COMPANION PROFILES (Active records with explicit status badges) */}
+        {activePets.length > 0 && (
           <section className="mt-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-[var(--color-border)] pb-4">
               <div>
                 <h2 className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-[0.2em]">
-                  Secured Profiles ({safePets.length})
+                  Companion Profiles ({activePets.length})
                 </h2>
               </div>
               
               <div className="flex items-center gap-3">
                 {/* Search Bar if 4+ pets */}
-                {safePets.length >= 4 && (
+                {activePets.length >= 4 && (
                   <div className="relative">
                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-ink-soft)]" />
                     <input
@@ -183,40 +214,44 @@ export default function Dashboard() {
                       placeholder="Search pets..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 pr-4 py-1.5 text-xs rounded-full bg-white border border-[var(--color-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] w-40 sm:w-48"
+                      className="pl-9 pr-4 py-2 text-xs rounded-full bg-white border border-[var(--color-border)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] w-40 sm:w-48 min-h-[44px]"
                       aria-label="Filter pets by name or breed"
                     />
                   </div>
                 )}
 
                 {/* View Mode Toggle if 3+ pets */}
-                {safePets.length >= 3 && (
-                  <div className="inline-flex rounded-full bg-white border border-[var(--color-border)] p-1">
+                {activePets.length >= 3 && (
+                  <div className="inline-flex rounded-full bg-white border border-[var(--color-border)] p-1 gap-1" role="group" aria-label="Layout view options">
                     <button
                       type="button"
                       onClick={() => setViewMode('grid')}
-                      className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                      aria-pressed={viewMode === 'grid'}
+                      className={`min-h-[44px] min-w-[44px] px-3 py-2 rounded-full transition-colors cursor-pointer flex items-center justify-center gap-1.5 text-xs font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] ${
                         viewMode === 'grid' 
-                          ? 'bg-[var(--color-bone)] text-[var(--color-ink)] font-bold shadow-xs' 
-                          : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'
+                          ? 'bg-[var(--color-ink)] text-white shadow-xs font-bold' 
+                          : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] hover:bg-[var(--color-bone)]'
                       }`}
                       aria-label="Grid view"
                       title="Grid view"
                     >
-                      <LayoutGrid size={15} />
+                      <LayoutGrid size={16} aria-hidden="true" />
+                      <span className="hidden sm:inline">Grid</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setViewMode('row')}
-                      className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                      aria-pressed={viewMode === 'row'}
+                      className={`min-h-[44px] min-w-[44px] px-3 py-2 rounded-full transition-colors cursor-pointer flex items-center justify-center gap-1.5 text-xs font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] ${
                         viewMode === 'row' 
-                          ? 'bg-[var(--color-bone)] text-[var(--color-ink)] font-bold shadow-xs' 
-                          : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'
+                          ? 'bg-[var(--color-ink)] text-white shadow-xs font-bold' 
+                          : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] hover:bg-[var(--color-bone)]'
                       }`}
                       aria-label="List row view"
                       title="List row view"
                     >
-                      <ListIcon size={15} />
+                      <ListIcon size={16} aria-hidden="true" />
+                      <span className="hidden sm:inline">List</span>
                     </button>
                   </div>
                 )}
@@ -226,7 +261,7 @@ export default function Dashboard() {
             {/* Cards Display */}
             {viewMode === 'row' ? (
               <div className="flex flex-col gap-4">
-                {filteredSafePets.map((pet) => (
+                {filteredActivePets.map((pet) => (
                   <PetCard 
                     key={pet.id} 
                     pet={pet} 
@@ -236,7 +271,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredSafePets.map((pet) => (
+                {filteredActivePets.map((pet) => (
                   <PetCard 
                     key={pet.id} 
                     pet={pet} 
@@ -246,7 +281,7 @@ export default function Dashboard() {
               </div>
             )}
 
-            {filteredSafePets.length === 0 && searchQuery && (
+            {filteredActivePets.length === 0 && searchQuery && (
               <div className="text-center py-12 text-[var(--color-ink-soft)] text-sm">
                 No pets matching &ldquo;{searchQuery}&rdquo;
               </div>

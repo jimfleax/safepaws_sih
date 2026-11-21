@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, Share2, Check, ExternalLink, ShieldCheck } from 'lucide-react';
+import { QrCode, Share2, Check, ExternalLink, ShieldCheck, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '../ui/Dialog';
 import QRCode from 'qrcode';
 import { Pet } from '../../types';
@@ -25,11 +25,17 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
   const baseUrl = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://safepaws.app';
-  const tagIdentifier = pet.qrTagId || pet.id;
-  const tagUrl = `${baseUrl}/p/${tagIdentifier}`;
+  const hasValidQrTag = Boolean(pet.qrTagId && pet.qrTagId.trim());
+  const tagIdentifier = hasValidQrTag ? pet.qrTagId.trim() : '';
+  const tagUrl = hasValidQrTag ? `${baseUrl}/p/${tagIdentifier}` : '';
 
   useEffect(() => {
     let isMounted = true;
+    if (!tagUrl) {
+      setQrDataUrl('');
+      return;
+    }
+
     QRCode.toDataURL(tagUrl, {
       width: 260,
       margin: 1,
@@ -52,6 +58,7 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
   }, [tagUrl]);
 
   const handleCopyLink = () => {
+    if (!tagUrl) return;
     navigator.clipboard.writeText(tagUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
@@ -95,20 +102,29 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
 
                 {/* Scannable QR Code */}
                 <div className="relative p-2 bg-white rounded-2xl shadow-xs border border-[var(--color-border)] my-1">
-                  {qrDataUrl ? (
-                    <div className="relative w-24 h-24">
-                      <img
-                        src={qrDataUrl}
-                        alt={`Scannable QR collar tag for ${pet.name}`}
-                        className="w-24 h-24 rounded-lg block"
-                      />
-                      {/* Elegant micro paw badge in center of QR code */}
-                      <div className="absolute inset-0 m-auto w-5 h-5 rounded-full bg-white shadow-xs border border-[var(--color-border)] flex items-center justify-center pointer-events-none">
-                        <TagPawIcon className="w-3 h-3 text-[var(--color-marigold)]" />
+                  {hasValidQrTag ? (
+                    qrDataUrl ? (
+                      <div className="relative w-24 h-24">
+                        <img
+                          src={qrDataUrl}
+                          alt={`Scannable QR collar tag for ${pet.name}`}
+                          className="w-24 h-24 rounded-lg block"
+                        />
+                        {/* Elegant micro paw badge in center of QR code */}
+                        <div className="absolute inset-0 m-auto w-5 h-5 rounded-full bg-white shadow-xs border border-[var(--color-border)] flex items-center justify-center pointer-events-none">
+                          <TagPawIcon className="w-3 h-3 text-[var(--color-marigold)]" />
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="w-24 h-24 bg-[var(--color-bone)] rounded-lg animate-pulse" />
+                    )
                   ) : (
-                    <div className="w-24 h-24 bg-[var(--color-bone)] rounded-lg animate-pulse" />
+                    <div className="w-24 h-24 rounded-lg bg-[var(--color-bone)] border border-dashed border-[var(--color-border)] flex flex-col items-center justify-center p-2 text-center">
+                      <AlertCircle className="w-6 h-6 text-[var(--color-marigold)] mb-1" />
+                      <span className="text-[9px] font-bold text-[var(--color-ink-soft)] uppercase tracking-wider leading-tight">
+                        Tag Pending
+                      </span>
+                    </div>
                   )}
                 </div>
 
@@ -116,10 +132,10 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
                   {pet.name}
                 </div>
                 <div className="text-[10px] font-mono text-[var(--color-ink-soft)] tracking-wider">
-                  {tagIdentifier}
+                  {hasValidQrTag ? tagIdentifier : 'PROVISIONING'}
                 </div>
                 <div className="text-[9px] text-[var(--color-accent-text)] font-bold uppercase tracking-wider mt-0.5">
-                  Scan to help me home
+                  {hasValidQrTag ? 'Scan to help me home' : 'Collar Tag In Preparation'}
                 </div>
               </div>
             </div>
@@ -127,10 +143,13 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
             {/* Description & Privacy Notice */}
             <div className="max-w-md space-y-2">
               <h3 className="font-serif font-bold text-lg text-[var(--color-ink)]">
-                Tag Linked to {pet.name} ({pet.breed})
+                {hasValidQrTag ? `Tag Linked to ${pet.name} (${pet.breed})` : `Tag In Preparation for ${pet.name}`}
               </h3>
               <p className="text-xs sm:text-sm text-[var(--color-ink-soft)] leading-relaxed">
-                When scanned by a rescuer or neighbor, your private phone number remains protected by default. Finders can instantly send a verified GPS location ping or file an emergency sighting directly into the SafePaws recovery network.
+                {hasValidQrTag 
+                  ? "When scanned by a rescuer or neighbor, your private phone number remains protected by default. Finders can instantly send a verified GPS location ping or file an emergency sighting directly into the SafePaws recovery network."
+                  : "A verifiable smart collar tag identifier has not been assigned to this companion yet. Once finalized by the network, rescuers and neighbors can scan this tag to initiate mediated contact without exposing your private phone number."
+                }
               </p>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-success)]/10 text-[var(--color-success)] text-xs font-bold uppercase tracking-wider mt-2">
                 <ShieldCheck size={14} /> Guardian Privacy Shield Active
@@ -139,24 +158,32 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full pt-4 border-t border-[var(--color-border)]">
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className="w-full sm:w-auto px-6 py-3 rounded-full bg-white hover:bg-[var(--color-bone)] border border-[var(--color-border)] text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] inline-flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-xs min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
-              >
-                {copiedLink ? <Check className="w-4 h-4 text-[var(--color-success)]" /> : <Share2 className="w-4 h-4 text-[var(--color-marigold)]" />}
-                <span>{copiedLink ? 'Link Copied!' : 'Copy Web Tag URL'}</span>
-              </button>
+              {hasValidQrTag ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleCopyLink}
+                    className="w-full sm:w-auto px-6 py-3 rounded-full bg-white hover:bg-[var(--color-bone)] border border-[var(--color-border)] text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] inline-flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-xs min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
+                  >
+                    {copiedLink ? <Check className="w-4 h-4 text-[var(--color-success)]" /> : <Share2 className="w-4 h-4 text-[var(--color-marigold)]" />}
+                    <span>{copiedLink ? 'Link Copied!' : 'Copy Web Tag URL'}</span>
+                  </button>
 
-              <a
-                href={`/p/${tagIdentifier}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto px-6 py-3 rounded-full bg-[var(--color-ink)] hover:bg-[var(--color-surface-dark-raised)] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)]"
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span>Test Finder Scan View</span>
-              </a>
+                  <a
+                    href={`/p/${tagIdentifier}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto px-6 py-3 rounded-full bg-[var(--color-ink)] hover:bg-[var(--color-surface-dark-raised)] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)]"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Test Finder Scan View</span>
+                  </a>
+                </>
+              ) : (
+                <div className="text-xs text-[var(--color-ink-soft)] font-medium py-2 px-4 bg-[var(--color-bone)] rounded-full border border-[var(--color-border)]">
+                  Actions disabled until collar tag is assigned
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import ProcessingView from '../components/scan/ProcessingView';
 import ResultView from '../components/scan/ResultView';
 import { ScanPhase, ScanResult } from '../components/scan/types';
 import { ApiClient } from '../utils/apiClient';
+import { X, Fingerprint } from 'lucide-react';
 
 export default function Scan() {
   const [phase, setPhase] = useState<ScanPhase>('SCAN');
@@ -18,7 +19,7 @@ export default function Scan() {
       
       setPhase('COMPARE');
       
-      // Priority 0: Treat backend status as authoritative. Never auto-promote single candidate to MATCH.
+      // Invariant: Treat backend status as authoritative. Never auto-promote single candidate to MATCH.
       if (apiResult.status === 'MATCH' && apiResult.matches && apiResult.matches.length > 0) {
         setResult({
           state: 'MATCH',
@@ -84,21 +85,27 @@ export default function Scan() {
   };
 
   return (
-    <div className="fixed inset-0 bg-[var(--color-ink)] z-50 flex flex-col">
+    <div className="fixed inset-0 bg-[var(--color-ink)] z-50 flex flex-col select-none">
       <div className="w-full h-full relative overflow-hidden" data-cursor="scan">
         
-        {/* Close Button */}
+        {/* Spatial Chamber Telemetry Header Tag */}
+        <div className="absolute top-6 left-6 z-50 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[var(--color-ink)]/70 text-[var(--color-bone)] backdrop-blur-md border border-white/10 pointer-events-none shadow-lg">
+          <Fingerprint className="w-4 h-4 text-[var(--color-marigold)]" />
+          <span className="text-xs font-mono font-medium tracking-wider uppercase text-[var(--color-bone)]/80">
+            SAFEPAWS // BIOMETRIC HUD
+          </span>
+        </div>
+
+        {/* Accessible Close / Exit Button */}
         <button 
-          onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/dashboard'}
-          className="absolute top-6 right-6 z-50 p-4 rounded-full bg-[var(--color-ink)]/40 text-[var(--color-bone)] backdrop-blur-md border border-[var(--color-bone)]/10 hover:bg-[var(--color-bone)]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)]/50"
+          onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = '/dashboard')}
+          className="absolute top-6 right-6 z-50 p-3.5 rounded-full bg-[var(--color-ink)]/70 text-[var(--color-bone)] backdrop-blur-md border border-[var(--color-bone)]/15 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)]/50 min-h-[44px] min-w-[44px] flex items-center justify-center shadow-lg"
           aria-label="Close scan"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
+          <X className="w-5 h-5" />
         </button>
 
+        {/* Screen Reader ARIA Live Region */}
         <div aria-live="polite" className="sr-only">
            {phase === 'SCAN' && 'Camera ready. Position nose within the frame.'}
            {phase === 'ALIGN' && 'Hold still.'}
@@ -111,6 +118,7 @@ export default function Scan() {
            {phase === 'RESULT' && result?.state === 'SYSTEM_FAILURE' && 'System unavailable.'}
         </div>
 
+        {/* Phase Viewport Router */}
         {(phase === 'SCAN' || phase === 'ALIGN' || phase === 'CAPTURE') && (
           <CameraView 
             phase={phase} 

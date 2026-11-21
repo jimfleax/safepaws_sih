@@ -36,9 +36,16 @@ export const PetCard: React.FC<PetCardProps> = ({
         </Badge>
       );
     }
+    if (pet.status === 'safe') {
+      return (
+        <Badge variant="success" size="sm">
+          Safe
+        </Badge>
+      );
+    }
     return (
-      <Badge variant="success" size="sm">
-        Safe
+      <Badge variant="neutral" size="sm">
+        Needs Review
       </Badge>
     );
   };

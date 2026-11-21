@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, MessageSquare, AlertTriangle, Eye, Clock, Shield } from 'lucide-react';
+import { MapPin, MessageSquare, AlertTriangle, Clock, Shield } from 'lucide-react';
 
 export type Post = {
   id: string;
@@ -23,26 +23,35 @@ export function PostCard({ post }: { post: Post; key?: React.Key }) {
   const getInitials = (name: string) => name ? name.charAt(0).toUpperCase() : '?';
 
   return (
-    <div className={`p-4 rounded-xl border transition-shadow shadow-sm hover:shadow-md bg-[var(--color-surface)] animate-in slide-in-from-bottom-4 fade-in duration-300 ${
-      isUrgent ? 'border-red-500/30' : 
-      isSighting ? 'border-blue-500/30' : 
-      isLost ? 'border-amber-500/30' : 
+    <div className={`p-5 rounded-2xl border transition-all shadow-xs hover:shadow-md bg-white ${
+      isUrgent ? 'border-[var(--color-alert-clay)]/40 bg-[var(--color-alert-clay)]/[0.02]' : 
+      isSighting ? 'border-emerald-500/30' : 
+      isLost ? 'border-[var(--color-marigold)]/30' : 
       'border-[var(--color-border)]'
     }`}>
       {/* Header Context */}
       <div className="flex items-start justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 text-gray-700 flex items-center justify-center font-bold text-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-ink)] flex items-center justify-center font-bold text-xs uppercase font-mono">
             {getInitials(post.author_name)}
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-sm text-[var(--color-ink)]">{post.author_name}</span>
-              {isUrgent && <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-red-100 text-red-600 flex items-center gap-1"><Shield size={10} /> Urgent</span>}
+              {isUrgent && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] flex items-center gap-1">
+                  <Shield size={10} /> Urgent
+                </span>
+              )}
             </div>
-            <span className="text-[11px] text-[var(--color-ink-soft)] flex items-center gap-1">
+            <span className="text-[11px] text-[var(--color-ink-soft)] font-light flex items-center gap-1 mt-0.5">
               <Clock size={10} />
-              {new Date(post.created_at).toLocaleString('en-IN', { hour: 'numeric', minute: 'numeric', day: 'numeric', month: 'short' })}
+              {new Date(post.created_at).toLocaleString(undefined, { 
+                hour: 'numeric', 
+                minute: 'numeric', 
+                day: 'numeric', 
+                month: 'short' 
+              })}
             </span>
           </div>
         </div>
@@ -50,36 +59,47 @@ export function PostCard({ post }: { post: Post; key?: React.Key }) {
 
       {/* Content */}
       <Link to={`/community/post/${post.id}`} className="block mt-3 mb-3 group">
-        {post.title && <h3 className="text-base font-bold text-[var(--color-ink)] mb-1 group-hover:text-[var(--color-accent)] transition-colors">{post.title}</h3>}
+        {post.title && (
+          <h3 className="text-base font-serif font-bold text-[var(--color-ink)] mb-1 group-hover:text-[var(--color-marigold)] transition-colors leading-snug">
+            {post.title}
+          </h3>
+        )}
         
-        {/* Prominent Contexts */}
+        {/* Prominent Context Badges */}
         {(isSighting && post.location) && (
-          <div className="flex items-center gap-1.5 text-sm font-medium text-blue-700 bg-blue-50 px-2 py-1.5 rounded-md mb-2">
-            <MapPin size={14} /> {post.location}
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg mb-2 w-fit">
+            <MapPin size={13} /> <span>Reported near: {post.location}</span>
           </div>
         )}
         
         {(isLost && post.pet_name) && (
-          <div className="flex items-center gap-1.5 text-sm font-bold text-amber-700 bg-amber-50 px-2 py-1.5 rounded-md mb-2">
-            <AlertTriangle size={14} /> Looking for {post.pet_name}
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--color-alert-clay)] bg-[var(--color-alert-clay)]/10 px-3 py-1.5 rounded-lg mb-2 w-fit">
+            <AlertTriangle size={13} /> <span>Searching for {post.pet_name}</span>
           </div>
         )}
 
-        <p className="text-sm text-[var(--color-ink)]/90 line-clamp-3 leading-relaxed">
+        <p className="text-xs text-[var(--color-ink)]/80 line-clamp-3 leading-relaxed font-light">
           {post.content}
         </p>
       </Link>
 
       {/* Footer Actions */}
       <div className="flex items-center justify-between pt-3 border-t border-[var(--color-border)] mt-2">
-        <Link to={`/community/post/${post.id}`} className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-ink-soft)] hover:text-[var(--color-accent)] transition-colors">
+        <Link 
+          to={`/community/post/${post.id}`} 
+          className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors min-h-[36px] py-1"
+        >
           <MessageSquare size={14} />
-          {post.reply_count || 0} Replies
+          <span>{post.reply_count || 0} Replies</span>
         </Link>
         
         {post.associated_alert_id && (
-           <Link to={`/alerts/${post.associated_alert_id}`} className="flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:underline">
-             <AlertTriangle size={12} /> View Alert
+           <Link 
+             to={`/alerts/${post.associated_alert_id}`} 
+             className="flex items-center gap-1 text-[11px] font-mono font-bold text-[var(--color-alert-clay)] hover:underline uppercase tracking-wider min-h-[36px] py-1"
+           >
+             <AlertTriangle size={12} /> 
+             <span>View Emergency Incident</span>
            </Link>
         )}
       </div>

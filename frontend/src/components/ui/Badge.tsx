@@ -17,8 +17,8 @@ export const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
           {
             // Default: Carbon Ink on Bone
             'bg-[var(--color-ink)] text-[var(--color-bone)]': variant === 'default',
-            // Accent: Safety Gold / Marigold
-            'bg-[var(--color-accent)] text-white': variant === 'accent',
+            // Accent: Safety Gold / Marigold with dark ink text for WCAG AA compliance (6.11:1 contrast)
+            'bg-[var(--color-accent)] text-[var(--color-ink)] font-semibold': variant === 'accent',
             // Success: Verified Emerald
             'bg-[var(--color-success)] text-white': variant === 'success',
             // Danger: Destructive Red

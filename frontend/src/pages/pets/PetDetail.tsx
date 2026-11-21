@@ -287,7 +287,7 @@ export default function PetDetail() {
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(true)}
-                  className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent-text)] hover:underline"
+                  className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent-text)] hover:underline min-h-[44px] min-w-[44px] inline-flex items-center justify-center px-3 py-2 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] cursor-pointer"
                 >
                   Edit
                 </button>
@@ -407,7 +407,7 @@ export default function PetDetail() {
                 Cancel
               </Button>
               <Button
-                variant="destructive"
+                variant="danger"
                 className="flex-1 min-h-[44px]"
                 onClick={handleDelete}
                 disabled={isDeleting}
@@ -509,7 +509,7 @@ export default function PetDetail() {
               </Button>
               <Button
                 type="submit"
-                variant="default"
+                variant="primary"
                 className="flex-1 min-h-[44px]"
                 disabled={isUpdating}
               >

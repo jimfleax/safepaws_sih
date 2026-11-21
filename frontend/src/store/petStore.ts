@@ -41,15 +41,8 @@ export const usePetStore = create<PetState>((set) => ({
   hydrate: async () => {
     set({ isLoading: true, error: null });
     try {
-      let pets: Pet[] = [];
-      try {
-        pets = await ApiClient.getAllPets();
-      } catch (e: any) {
-        // Unauthenticated or network error on pets endpoint
-        console.warn('Pets fetch failed during hydration:', e?.message);
-      }
-      
-      const [alerts, sightings] = await Promise.all([
+      const [pets, alerts, sightings] = await Promise.all([
+        ApiClient.getAllPets(),
         ApiClient.getAllAlerts().catch(() => []),
         ApiClient.getAllSightings().catch(() => [])
       ]);
@@ -98,12 +91,14 @@ export const usePetStore = create<PetState>((set) => ({
         };
       });
     } catch (e: any) {
-      console.error('Failed to hydrate store from API', e);
-      set({ 
+      console.error('Failed to sync pets with SafePaws network:', e);
+      set((state) => ({ 
+        // Preserve previously loaded valid records rather than wiping them on network failure
+        pets: state.pets,
         hydrated: true, 
         isLoading: false, 
-        error: e.message || 'Unable to sync with SafePaws network. Please check your connection.' 
-      });
+        error: e?.message || 'Unable to sync with SafePaws network. Please check your connection.' 
+      }));
     }
   },
 

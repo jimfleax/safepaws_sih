@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { DashboardNav } from '../components/DashboardNav';
 import { usePetStore } from '../store/petStore';
+import { useAuthStore } from '../store/authStore';
 import { ApiClient } from '../utils/apiClient';
 import { Eye, MapPin, ArrowLeft, AlertTriangle } from 'lucide-react';
 
@@ -37,10 +38,19 @@ export default function ReportSighting() {
       // Hydrate the store so it has the latest sightings from the server
       await usePetStore.getState().hydrate();
       
-      if (serverSighting.alert_id) {
+      const { isAuthenticated } = useAuthStore.getState();
+      const reportedAlert = activeAlerts.find(a => a.id === alertId);
+      const targetPetName = reportedAlert?.petName || 'companion';
+
+      if (isAuthenticated && serverSighting.alert_id) {
         navigate(`/alerts/${serverSighting.alert_id}`);
       } else {
-        navigate('/community');
+        navigate('/community', {
+          state: {
+            sightingSubmitted: true,
+            petName: targetPetName,
+          }
+        });
       }
     } catch (err: any) {
       setError(err.message || 'Failed to submit sighting');

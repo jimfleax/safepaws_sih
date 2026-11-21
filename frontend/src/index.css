@@ -101,10 +101,23 @@
   --shadow-glow-marigold: 0 0 24px rgba(226, 129, 31, 0.25);
   --shadow-glow-emerald: 0 0 24px rgba(76, 122, 82, 0.35);
 
-  /* MOTION TOKENS */
-  --animate-duration-micro: 150ms;
-  --animate-duration-dialog: 300ms;
-  --animate-duration-page: 200ms;
+  /* MOTION TOKENS — "SAFEPAWS: QUIETLY CINEMATIC, INTENTIONALLY ALIVE" */
+  /* 5-tier global timing hierarchy */
+  --duration-micro: 140ms;       /* 100-160ms: micro feedback, hover, active tap */
+  --duration-component: 200ms;   /* 160-240ms: small component, toggle, dropdown */
+  --duration-card: 280ms;        /* 220-350ms: card lift, modal dialog entrance */
+  --duration-page: 350ms;        /* 280-450ms: page transition, route crossfade */
+  --duration-reveal: 600ms;      /* 400-750ms: editorial reveal, scroll storytelling */
+
+  /* Standardized easing curves */
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);    /* Smooth outQuint curve for natural deceleration */
+  --ease-editorial: cubic-bezier(0.25, 1, 0.5, 1);   /* Gentle editorial narrative curve */
+  --ease-micro: cubic-bezier(0.4, 0, 0.2, 1);        /* Snappy standard micro feedback */
+
+  /* Backward compatibility aliases */
+  --animate-duration-micro: var(--duration-micro);
+  --animate-duration-dialog: var(--duration-card);
+  --animate-duration-page: var(--duration-page);
 }
 
 @layer base {
@@ -225,6 +238,22 @@
 
 .animate-shimmer-slide {
   animation: shimmer-slide 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes scan-ray-sweep {
+  0% {
+    top: 5%;
+  }
+  50% {
+    top: 95%;
+  }
+  100% {
+    top: 5%;
+  }
+}
+
+.animate-scan-ray {
+  animation: scan-ray-sweep 2.4s ease-in-out infinite;
 }
 
 /* 3D Perspective Utility Classes */

@@ -10,9 +10,13 @@ export const DashboardNav = () => {
   const location = useLocation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    setShowLogoutConfirm(false);
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      setShowLogoutConfirm(false);
+      window.location.href = '/';
+    }
   };
 
   const isCurrent = (path: string) => {
@@ -46,7 +50,7 @@ export const DashboardNav = () => {
           {/* Quick Scan Action */}
           <Link 
             to="/scan" 
-            className="flex items-center gap-3 px-4 py-3 bg-[var(--color-marigold)] text-white rounded-[var(--radius-16)] font-semibold hover:bg-[var(--color-accent-hover)] transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)] min-h-[44px]"
+            className="flex items-center gap-3 px-4 py-3 bg-[var(--color-marigold)] text-[var(--color-ink)] rounded-[var(--radius-16)] font-semibold hover:bg-[var(--color-accent-hover)] transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)] min-h-[44px]"
             aria-label="Scan a dog"
           >
             <ScanLine size={20} className="shrink-0" />
@@ -163,7 +167,7 @@ export const DashboardNav = () => {
           className="flex flex-col items-center gap-1 -mt-6 focus:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-focus)] rounded-full"
           aria-label="Scan a dog"
         >
-          <div className="w-13 h-13 bg-[var(--color-marigold)] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-[var(--color-bone)] transition-transform active:scale-95">
+          <div className="w-13 h-13 bg-[var(--color-marigold)] rounded-full flex items-center justify-center text-[var(--color-ink)] shadow-lg border-2 border-[var(--color-bone)] transition-transform active:scale-95">
             <ScanLine size={24} />
           </div>
           <span className="text-[11px] text-[var(--color-accent-text)] font-bold tracking-tight">Scan</span>
@@ -216,7 +220,7 @@ export const DashboardNav = () => {
                 Stay Signed In
               </Button>
               <Button
-                variant="destructive"
+                variant="danger"
                 className="flex-1 min-h-[44px]"
                 onClick={handleLogout}
               >

@@ -30,9 +30,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     } catch (e) {
-      console.error('Logout failed on backend', e);
+      console.warn('Backend logout call failed or expired session, clearing client session:', e);
+    } finally {
+      set({ user: null, isAuthenticated: false, isInitializing: false });
     }
-    set({ user: null, isAuthenticated: false, isInitializing: false });
   },
   setProfileCompleted: (status) => 
     set((state) => ({
