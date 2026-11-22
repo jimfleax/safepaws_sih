@@ -41,18 +41,19 @@ async def identify_pet(
     file_bytes = await file.read()
     response = await service.identify(file_bytes)
     
-    # Populate pet details for each match
-    for match in response.matches:
-        # We also need the photo url from the pet's photos
-        # Let's just fetch the Pet object
-        stmt = select(Pet).options(selectinload(Pet.photos)).where(Pet.id == match.pet_id)
+    # Populate pet details for each match via batched query (eliminates N+1 loop)
+    candidate_ids = [m.pet_id for m in response.matches if m.pet_id]
+    if candidate_ids:
+        stmt = select(Pet).options(selectinload(Pet.photos)).where(Pet.id.in_(candidate_ids))
         result = await db.execute(stmt)
-        pet = result.scalar_one_or_none()
-        if pet:
-            match.qr_tag_id = pet.qr_tag_id
-            match.name = pet.name
-            match.breed = pet.breed
-            match.photo_url = pet.photo_url
+        pets_by_id = {pet.id: pet for pet in result.scalars().all()}
+        for match in response.matches:
+            pet = pets_by_id.get(match.pet_id)
+            if pet:
+                match.qr_tag_id = pet.qr_tag_id
+                match.name = pet.name
+                match.breed = pet.breed
+                match.photo_url = pet.photo_url
     
     return response
 

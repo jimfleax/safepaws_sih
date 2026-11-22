@@ -16,6 +16,7 @@ export interface Pet {
   neighborhood?: string;
   consentGiven?: boolean;
   medicalNotes?: string;
+  shareMedicalNotes?: boolean;
   dietNotes?: string;
   reward?: string;
   distinctiveFeatures: string[];

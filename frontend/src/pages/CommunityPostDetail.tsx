@@ -127,11 +127,11 @@ export default function CommunityPostDetail() {
   const isLost = post.channel === 'lost-found';
 
   return (
-    <div className="flex flex-col h-screen bg-[var(--color-background)]">
+    <div className="flex flex-col md:flex-row h-screen bg-[var(--color-bone)]">
       <DashboardNav />
 
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto w-full px-4 py-6 md:py-8">
+        <div className="max-w-3xl mx-auto w-full px-4 py-6 md:py-8 pb-32">
           
           <button 
             onClick={() => navigate('/community')}

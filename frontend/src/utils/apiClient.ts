@@ -13,6 +13,7 @@ export class ApiClient {
       owner_phone: petData.ownerPhone,
       neighborhood: petData.neighborhood,
       medical_notes: petData.medicalNotes,
+      share_medical_notes: petData.shareMedicalNotes ?? false,
       distinctive_features: petData.distinctiveFeatures || [],
       microchip_id: petData.microchipId,
       consent_given: (petData as any).consentGiven === undefined ? true : (petData as any).consentGiven,
@@ -37,6 +38,7 @@ export class ApiClient {
       ownerPhone: data.owner_phone,
       neighborhood: data.neighborhood,
       medicalNotes: data.medical_notes,
+      shareMedicalNotes: data.share_medical_notes ?? false,
       distinctiveFeatures: data.distinctive_features,
       microchipId: data.microchip_id,
       photoUrl: data.photo_url || "",
@@ -61,6 +63,7 @@ export class ApiClient {
       ownerPhone: data.owner_phone,
       neighborhood: data.neighborhood,
       medicalNotes: data.medical_notes,
+      shareMedicalNotes: data.share_medical_notes ?? false,
       distinctiveFeatures: data.distinctive_features,
       microchipId: data.microchip_id,
       photoUrl: data.photo_url || "",
@@ -85,6 +88,7 @@ export class ApiClient {
       ownerPhone: data.owner_phone,
       neighborhood: data.neighborhood,
       medicalNotes: data.medical_notes,
+      shareMedicalNotes: data.share_medical_notes ?? false,
       distinctiveFeatures: data.distinctive_features,
       microchipId: data.microchip_id,
       photoUrl: data.photo_url || "",
@@ -190,6 +194,7 @@ export class ApiClient {
       ownerPhone: d.owner_phone,
       neighborhood: d.neighborhood,
       medicalNotes: d.medical_notes,
+      shareMedicalNotes: d.share_medical_notes ?? false,
       distinctiveFeatures: d.distinctive_features,
       microchipId: d.microchip_id,
       photoUrl: d.photo_url || "",
@@ -228,6 +233,7 @@ export class ApiClient {
     if (petData.age !== undefined) payload.age = petData.age;
     if (petData.weight !== undefined) payload.weight = petData.weight;
     if (petData.medicalNotes !== undefined) payload.medical_notes = petData.medicalNotes;
+    if (petData.shareMedicalNotes !== undefined) payload.share_medical_notes = petData.shareMedicalNotes;
     if (petData.distinctiveFeatures !== undefined) payload.distinctive_features = petData.distinctiveFeatures;
     if (petData.microchipId !== undefined) payload.microchip_id = petData.microchipId;
 
@@ -251,6 +257,7 @@ export class ApiClient {
       ownerPhone: data.owner_phone,
       neighborhood: data.neighborhood,
       medicalNotes: data.medical_notes,
+      shareMedicalNotes: data.share_medical_notes ?? false,
       distinctiveFeatures: data.distinctive_features,
       microchipId: data.microchip_id,
       photoUrl: data.photo_url || "",

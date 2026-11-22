@@ -21,6 +21,10 @@ for mod in ["fastapi", "asyncpg", "faiss", "torch", "torchvision", "ultralytics"
             __import__(mod)
         except ImportError:
             m = MagicMock()
+            if mod == "torch":
+                class MockTensor:
+                    pass
+                m.Tensor = MockTensor
             if mod == "fastapi":
                 class MockHTTPException(Exception):
                     def __init__(self, status_code: int = 400, detail: str = ""):

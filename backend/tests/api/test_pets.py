@@ -19,13 +19,28 @@ def test_register_pet(client: TestClient):
 
 def test_get_pet_not_found(client: TestClient):
     """
-    GET /pets/{id} returns 404 for all IDs until Panel 5 DB integration is wired.
-    Previously this tested a hardcoded mock — now it correctly tests the scaffold 404.
+    GET /pets/{id} returns 404 for all non-existent IDs for an authenticated owner.
     """
-    response = client.get("/api/v1/pets/mock-pet-id-123")
-    assert response.status_code == 404
+    from app.api.dependencies import get_current_owner
+    from app.db.models import Owner
+    from app.main import app
+
+    app.dependency_overrides[get_current_owner] = lambda: Owner(id="mock-owner", name="Mock", phone="123")
+    try:
+        response = client.get("/api/v1/pets/mock-pet-id-123")
+        assert response.status_code == 404
+    finally:
+        app.dependency_overrides.pop(get_current_owner, None)
 
 
 def test_get_pet_not_found_special(client: TestClient):
-    response = client.get("/api/v1/pets/not-found")
-    assert response.status_code == 404
+    from app.api.dependencies import get_current_owner
+    from app.db.models import Owner
+    from app.main import app
+
+    app.dependency_overrides[get_current_owner] = lambda: Owner(id="mock-owner", name="Mock", phone="123")
+    try:
+        response = client.get("/api/v1/pets/not-found")
+        assert response.status_code == 404
+    finally:
+        app.dependency_overrides.pop(get_current_owner, None)

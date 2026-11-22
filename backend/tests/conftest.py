@@ -19,6 +19,7 @@ if HAS_FASTAPI:
                 def scalars(self):
                     class MockScalars:
                         def first(self): return None
+                        def all(self): return []
                     return MockScalars()
             return MockResult()
 

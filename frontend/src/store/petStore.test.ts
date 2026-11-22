@@ -56,7 +56,7 @@ describe('petStore', () => {
 
   it('5. alert creation/resolution remains intact', () => {
     const pet = initialPets[0];
-    const alert: NeighborhoodAlert = { ...sampleAlerts[0], id: 'new-alert' };
+    const alert: NeighborhoodAlert = { ...sampleAlerts[0], id: 'new-alert', petId: pet.id };
     
     // Trigger Lost Alert
     usePetStore.getState().triggerLostAlert(pet, alert);

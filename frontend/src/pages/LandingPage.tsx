@@ -29,7 +29,7 @@ import { usePetStore } from '../store/petStore';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const [hasEntered, setHasEntered] = useState<boolean>(false);
+  const [hasEntered, setHasEntered] = useState<boolean>(() => sessionStorage.getItem('hasEntered') === 'true');
   const [infoModalType, setInfoModalType] = useState<'privacy' | 'guidelines' | 'contact' | null>(null);
 
   const { alerts } = usePetStore();

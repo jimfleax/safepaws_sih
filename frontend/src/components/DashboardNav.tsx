@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } fr
 import { Button } from './ui/Button';
 
 export const DashboardNav = () => {
-  const { user, logout } = useAuthStore();
+  const { user, logout, isAuthenticated } = useAuthStore();
   const location = useLocation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
@@ -40,7 +40,7 @@ export const DashboardNav = () => {
         className="hidden md:flex flex-col w-64 bg-[var(--color-bone)] border-r border-[var(--color-border)] h-screen sticky top-0 px-6 py-8 select-none"
       >
         <Link 
-          to="/dashboard" 
+          to={isAuthenticated ? "/dashboard" : "/"} 
           className="text-[length:var(--text-section-heading)] font-serif font-bold text-[var(--color-accent-text)] mb-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-[var(--radius-12)] inline-block transition-opacity hover:opacity-90"
         >
           SafePaws
@@ -60,7 +60,7 @@ export const DashboardNav = () => {
           <div className="h-4" role="separator" />
           
           <Link 
-            to="/dashboard" 
+            to={isAuthenticated ? "/dashboard" : "/"} 
             aria-current={isCurrent('/dashboard') ? 'page' : undefined}
             className={`flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] min-h-[44px] ${
               isCurrent('/dashboard') 
@@ -101,36 +101,49 @@ export const DashboardNav = () => {
 
         {/* User Card & Logout Trigger */}
         <div className="mt-auto flex flex-col gap-2 border-t border-[var(--color-border)] pt-4">
-          <div className="flex items-center gap-3 px-4 py-2">
-            {user?.picture ? (
-              <img 
-                src={user.picture} 
-                alt={user?.name || 'Owner Profile'} 
-                className="w-10 h-10 rounded-full border-2 border-[var(--color-accent-text)] object-cover" 
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[var(--color-ink)] font-bold shadow-sm border border-[var(--color-border)]">
-                {user?.name?.charAt(0) || 'O'}
+          {isAuthenticated ? (
+            <>
+              <div className="flex items-center gap-3 px-4 py-2">
+                {user?.picture ? (
+                  <img 
+                    src={user.picture} 
+                    alt={user?.name || 'Owner Profile'} 
+                    className="w-10 h-10 rounded-full border-2 border-[var(--color-accent-text)] object-cover" 
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[var(--color-ink)] font-bold shadow-sm border border-[var(--color-border)]">
+                    {user?.name?.charAt(0) || 'O'}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <span className="block text-[length:var(--text-label-button)] text-[var(--color-ink)] font-semibold truncate">
+                    {user?.name || 'Account'}
+                  </span>
+                  <span className="block text-xs text-[var(--color-ink-soft)] truncate">
+                    {user?.neighborhood || 'Guardian'}
+                  </span>
+                </div>
               </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <span className="block text-[length:var(--text-label-button)] text-[var(--color-ink)] font-semibold truncate">
-                {user?.name || 'Account'}
-              </span>
-              <span className="block text-xs text-[var(--color-ink-soft)] truncate">
-                {user?.neighborhood || 'Guardian'}
-              </span>
-            </div>
-          </div>
-          
-          <button 
-            type="button"
-            onClick={() => setShowLogoutConfirm(true)} 
-            className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium text-[var(--color-alert-clay)] hover:bg-[var(--color-alert-clay)]/10 transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-danger)] min-h-[44px] cursor-pointer"
-          >
-            <LogOut size={20} className="shrink-0" />
-            <span>Logout</span>
-          </button>
+              
+              <button 
+                type="button"
+                onClick={() => setShowLogoutConfirm(true)} 
+                className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-16)] font-medium text-[var(--color-alert-clay)] hover:bg-[var(--color-alert-clay)]/10 transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-danger)] min-h-[44px] cursor-pointer"
+              >
+                <LogOut size={20} className="shrink-0" />
+                <span>Logout</span>
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/"
+              className="flex items-center justify-center gap-2.5 px-4 py-3 rounded-[var(--radius-16)] font-semibold bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink)]/90 transition-colors min-h-[44px] shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
+              aria-label="Sign In"
+            >
+              <User size={18} className="shrink-0" />
+              <span>Sign In</span>
+            </Link>
+          )}
         </div>
       </nav>
 
@@ -184,15 +197,26 @@ export const DashboardNav = () => {
           <span className="text-[11px]">Community</span>
         </Link>
 
-        <button 
-          type="button"
-          onClick={() => setShowLogoutConfirm(true)} 
-          className="flex flex-col items-center justify-center gap-1 text-[var(--color-ink-soft)] hover:text-[var(--color-alert-clay)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] px-2 cursor-pointer"
-          aria-label="Logout"
-        >
-          <LogOut size={20} />
-          <span className="text-[11px]">Logout</span>
-        </button>
+        {isAuthenticated ? (
+          <button 
+            type="button"
+            onClick={() => setShowLogoutConfirm(true)} 
+            className="flex flex-col items-center justify-center gap-1 text-[var(--color-ink-soft)] hover:text-[var(--color-alert-clay)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] px-2 cursor-pointer"
+            aria-label="Logout"
+          >
+            <LogOut size={20} />
+            <span className="text-[11px]">Logout</span>
+          </button>
+        ) : (
+          <Link
+            to="/"
+            className="flex flex-col items-center justify-center gap-1 text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-[var(--radius-12)] min-h-[44px] min-w-[44px] px-2 cursor-pointer"
+            aria-label="Sign In"
+          >
+            <User size={20} />
+            <span className="text-[11px]">Sign In</span>
+          </Link>
+        )}
       </nav>
 
       {/* Accessible Logout Confirmation Modal */}

@@ -145,7 +145,7 @@ export default function PublicTagProfile() {
             
             {/* Identity Headline */}
             <div className="text-center mb-8">
-              <span className="text-xs font-mono font-medium tracking-widest text-[var(--color-marigold)] uppercase block mb-1">
+              <span className="text-xs font-mono font-medium tracking-widest text-[var(--color-accent-text)] uppercase block mb-1">
                 COMPANION IDENTITY
               </span>
               <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-ink)] mb-2">

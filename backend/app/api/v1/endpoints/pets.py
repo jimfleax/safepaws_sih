@@ -57,6 +57,7 @@ async def enroll_image(
     Enroll a biometric image for an existing pet profile.
     Requires authentication. Only the registered pet owner can enroll biometric images.
     """
+    validate_image(file)
     stmt = select(Pet).where(Pet.id == pet_id)
     result = await db.execute(stmt)
     pet = result.scalars().first()
@@ -73,7 +74,6 @@ async def enroll_image(
             detail="You are not authorized to enroll images for this pet."
         )
 
-    validate_image(file)
     file_bytes = await file.read()
     return await service.enroll_image(
         pet_id=pet_id,
@@ -99,6 +99,16 @@ async def get_pet_by_tag(
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")
         
+    # Medical notes consent and automated PII scrubbing (phone & email regex)
+    scrubbed_medical_notes = None
+    if getattr(pet, "share_medical_notes", False) and pet.medical_notes:
+        import re
+        # Scrub email addresses
+        notes = re.sub(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", "[REDACTED EMAIL]", pet.medical_notes)
+        # Scrub phone numbers (US/international formats, 7+ digits)
+        notes = re.sub(r"(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}", "[REDACTED PHONE]", notes)
+        scrubbed_medical_notes = notes
+
     return PetResponse(
         id=pet.id,
         name=pet.name,
@@ -110,7 +120,10 @@ async def get_pet_by_tag(
         owner_name=None,
         owner_phone=None,
         neighborhood=pet.neighborhood,
-        medical_notes=pet.medical_notes,
+        medical_notes=scrubbed_medical_notes,
+        share_medical_notes=getattr(pet, "share_medical_notes", False),
+        diet_notes=pet.diet_notes,
+        reward=pet.reward,
         distinctive_features=pet.distinctive_features,
         microchip_id=None,
         consent_given=True,
@@ -159,6 +172,7 @@ async def get_pet(
         microchip_id=pet.microchip_id,
         owner_email=current_owner.email,
         medical_notes=pet.medical_notes,
+        share_medical_notes=getattr(pet, "share_medical_notes", False),
         diet_notes=pet.diet_notes,
         reward=pet.reward,
         distinctive_features=pet.distinctive_features or [],
@@ -196,6 +210,7 @@ async def list_pets(
             microchip_id=pet.microchip_id,
             owner_email=current_owner.email,
             medical_notes=pet.medical_notes,
+            share_medical_notes=getattr(pet, "share_medical_notes", False),
             diet_notes=pet.diet_notes,
             reward=pet.reward,
             distinctive_features=pet.distinctive_features or [],
@@ -247,6 +262,7 @@ async def update_pet(
         microchip_id=pet.microchip_id,
         owner_email=current_owner.email,
         medical_notes=pet.medical_notes,
+        share_medical_notes=getattr(pet, "share_medical_notes", False),
         diet_notes=pet.diet_notes,
         reward=pet.reward,
         distinctive_features=pet.distinctive_features or [],

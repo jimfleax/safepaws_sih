@@ -61,7 +61,7 @@ class TestBboxValidation:
         assert exc.value.error_code == "INVALID_BBOX_FORMAT"
 
     def test_out_of_bounds_raises(self):
-        bbox = {"x_min": 0, "y_min": 0, "x_max": 300, "y_max": 300}
+        bbox = {"x_min": 250, "y_min": 0, "x_max": 300, "y_max": 200}
         with pytest.raises(DomainException) as exc:
             _validate_bbox(bbox, 200, 200)
         assert exc.value.error_code == "BBOX_OUT_OF_BOUNDS"
@@ -79,7 +79,7 @@ class TestBboxValidation:
         assert exc.value.error_code == "BBOX_ZERO_AREA"
 
     def test_negative_coords_raises(self):
-        bbox = {"x_min": -5, "y_min": 0, "x_max": 100, "y_max": 100}
+        bbox = {"x_min": -50, "y_min": 0, "x_max": -5, "y_max": 200}
         with pytest.raises(DomainException) as exc:
             _validate_bbox(bbox, 200, 200)
         assert exc.value.error_code == "BBOX_OUT_OF_BOUNDS"

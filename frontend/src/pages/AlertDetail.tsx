@@ -108,9 +108,9 @@ export default function AlertDetail() {
         
         {/* Top Header Row */}
         <div className="px-6 lg:px-12 py-6 border-b border-[var(--color-ink)]/10 flex justify-between items-center bg-white/40 sticky top-0 z-10 backdrop-blur-md">
-          <Link to="/dashboard" className="group inline-flex items-center gap-2 text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors font-bold text-xs tracking-widest uppercase">
+          <Link to="/lost" className="group inline-flex items-center gap-2 text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors font-bold text-xs tracking-widest uppercase">
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            Console
+            Recovery Board
           </Link>
 
           {isOwner && isActive && (

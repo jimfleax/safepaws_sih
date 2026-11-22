@@ -40,6 +40,7 @@ class RegistrationService:
             microchip_id=pet_in.microchip_id.strip() if (pet_in.microchip_id and pet_in.microchip_id.strip()) else None,
             status="safe",
             medical_notes=pet_in.medical_notes,
+            share_medical_notes=getattr(pet_in, "share_medical_notes", False),
             diet_notes=pet_in.diet_notes,
             reward=pet_in.reward,
             distinctive_features=pet_in.distinctive_features,

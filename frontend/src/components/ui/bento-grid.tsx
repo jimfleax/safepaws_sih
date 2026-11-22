@@ -79,7 +79,7 @@ export const BentoCard = ({
         </p>
 
         {cta && (
-          <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-marigold)] group-hover:text-[var(--color-accent-hover)] transition-colors">
+          <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-accent-text)] group-hover:text-[var(--color-accent-hover)] transition-colors">
             <span>{cta}</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
           </div>

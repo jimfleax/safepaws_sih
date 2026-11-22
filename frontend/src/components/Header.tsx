@@ -236,7 +236,7 @@ export const Header: React.FC<HeaderProps> = ({
                   Development Sign In
                 </button>
               )}
-              <button onClick={() => googleLogin()} className="px-4 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white rounded-[var(--radius-12)] text-[length:var(--text-label-button)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] focus:ring-offset-2 min-h-[44px] transition-colors">Sign In</button>
+              <button onClick={() => googleLogin()} className="px-4 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-ink)] font-semibold rounded-[var(--radius-12)] text-[length:var(--text-label-button)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] focus:ring-offset-2 min-h-[44px] transition-colors">Sign In</button>
             </div>
           )}
 

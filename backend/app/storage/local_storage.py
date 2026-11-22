@@ -12,7 +12,8 @@ class LocalFileSystemStorage(ImageStorage):
 
     async def upload_image(self, file_name: str, file_bytes: bytes, content_type: str) -> str:
         try:
-            unique_name = f"{uuid.uuid4().hex}_{file_name}"
+            safe_name = os.path.basename(file_name).replace(" ", "_")
+            unique_name = f"{uuid.uuid4().hex}_{safe_name}"
             file_path = os.path.join(self.base_dir, unique_name)
             
             with open(file_path, "wb") as out_file:

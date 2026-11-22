@@ -27,6 +27,7 @@ export default function NewPet() {
   const [weight, setWeight] = useState('');
   const [distinctiveFeatures, setDistinctiveFeatures] = useState('');
   const [medicalNotes, setMedicalNotes] = useState('');
+  const [shareMedicalNotes, setShareMedicalNotes] = useState(false);
   const [microchipId, setMicrochipId] = useState('');
 
   // Biometrics State
@@ -85,6 +86,7 @@ export default function NewPet() {
           weight: weight.trim(),
           distinctiveFeatures: featuresArray,
           medicalNotes: medicalNotes.trim(),
+          shareMedicalNotes: shareMedicalNotes,
           microchipId: microchipId.trim(),
           ownerName: user?.name || undefined,
           ownerPhone: user?.phone || undefined,
@@ -339,7 +341,7 @@ export default function NewPet() {
               </div>
 
               {/* Medical Advisories */}
-              <div className="space-y-2 border-t border-[var(--color-border)] pt-6">
+              <div className="space-y-3 border-t border-[var(--color-border)] pt-6">
                 <label htmlFor="pet-medical" className="text-xs font-bold uppercase tracking-widest text-[var(--color-ink-soft)] block">
                   Medical Advisories & Allergies
                 </label>
@@ -351,6 +353,20 @@ export default function NewPet() {
                   placeholder="e.g. Requires daily insulin, sensitive to chicken, nervous around large dogs"
                   className="w-full bg-[var(--color-bone)] border border-[var(--color-border)] rounded-xl p-4 text-sm text-[var(--color-ink)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] transition-colors placeholder:text-[var(--color-ink-soft)]/40 resize-none" 
                 />
+                {medicalNotes.trim() && (
+                  <label className="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-[var(--color-bone)]/80 border border-[var(--color-border)]">
+                    <input
+                      type="checkbox"
+                      checked={shareMedicalNotes}
+                      onChange={e => setShareMedicalNotes(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-[var(--color-border)] text-[var(--color-moss)] focus:ring-[var(--color-focus)]"
+                    />
+                    <div className="text-xs text-[var(--color-ink-soft)] leading-relaxed">
+                      <span className="font-semibold text-[var(--color-ink)] block">Share emergency medical notes on collar tag</span>
+                      <span>Allow finders scanning the public QR tag to view life-saving medical alerts. Phone numbers and email addresses are automatically scrubbed for privacy.</span>
+                    </div>
+                  </label>
+                )}
               </div>
 
               <div className="pt-4 flex justify-end">

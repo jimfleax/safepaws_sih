@@ -12,6 +12,7 @@ class PetBase(BaseModel):
     weight: str | None = None
     microchip_id: str | None = None
     medical_notes: str | None = None
+    share_medical_notes: bool = False
     diet_notes: str | None = None
     reward: str | None = None
     distinctive_features: list[str] | None = []
@@ -51,6 +52,7 @@ class PetUpdate(BaseModel):
     weight: str | None = None
     microchip_id: str | None = None
     medical_notes: str | None = None
+    share_medical_notes: bool | None = None
     diet_notes: str | None = None
     reward: str | None = None
     distinctive_features: list[str] | None = None

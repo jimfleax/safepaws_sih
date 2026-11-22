@@ -35,6 +35,7 @@ export default function PetDetail() {
   const [editMicrochip, setEditMicrochip] = useState('');
   const [editFeatures, setEditFeatures] = useState('');
   const [editMedical, setEditMedical] = useState('');
+  const [editShareMedical, setEditShareMedical] = useState(false);
 
   useEffect(() => {
     async function loadPet() {
@@ -47,6 +48,7 @@ export default function PetDetail() {
         setEditMicrochip(fetchedPet.microchipId || '');
         setEditFeatures(fetchedPet.distinctiveFeatures?.join(', ') || '');
         setEditMedical(fetchedPet.medicalNotes || '');
+        setEditShareMedical(fetchedPet.shareMedicalNotes ?? false);
       } catch (err: any) {
         setError(err.message || 'Failed to load companion identity record');
       } finally {
@@ -107,6 +109,7 @@ export default function PetDetail() {
         microchipId: editMicrochip.trim(),
         distinctiveFeatures: featuresArray,
         medicalNotes: editMedical.trim(),
+        shareMedicalNotes: editShareMedical,
       });
 
       setPet(updated);
@@ -333,9 +336,14 @@ export default function PetDetail() {
             {/* Medical Advisories */}
             {pet.medicalNotes && (
               <section aria-labelledby="medical-advisories-heading">
-                <h3 id="medical-advisories-heading" className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-[0.2em] mb-4 border-b border-[var(--color-border)] pb-3">
-                  Medical Advisories
-                </h3>
+                <div className="flex items-center justify-between mb-4 border-b border-[var(--color-border)] pb-3">
+                  <h3 id="medical-advisories-heading" className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-[0.2em]">
+                    Medical Advisories
+                  </h3>
+                  <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full ${pet.shareMedicalNotes ? 'bg-[var(--color-moss)]/10 text-[var(--color-moss)]' : 'bg-gray-100 text-gray-500'}`}>
+                    {pet.shareMedicalNotes ? 'Public on Collar Tag' : 'Private (Owner Only)'}
+                  </span>
+                </div>
                 <p className="text-base font-serif text-[var(--color-ink)] italic leading-relaxed pt-1 bg-white border border-[var(--color-border)] rounded-2xl p-4">
                   &ldquo;{pet.medicalNotes}&rdquo;
                 </p>
@@ -495,6 +503,18 @@ export default function PetDetail() {
                 onChange={(e) => setEditMedical(e.target.value)}
                 className="w-full bg-white border border-[var(--color-border)] rounded-xl p-3 text-sm text-[var(--color-ink)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] resize-none"
               />
+              <label className="flex items-start gap-2.5 cursor-pointer mt-2 p-2.5 rounded-lg bg-[var(--color-bone)] border border-[var(--color-border)]">
+                <input
+                  type="checkbox"
+                  checked={editShareMedical}
+                  onChange={(e) => setEditShareMedical(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-[var(--color-border)] text-[var(--color-moss)] focus:ring-[var(--color-focus)]"
+                />
+                <span className="text-xs text-[var(--color-ink-soft)] leading-snug">
+                  <strong className="text-[var(--color-ink)] block font-semibold">Share on public collar tag</strong>
+                  Allow finders scanning QR tag to view emergency medical notes (emails & phones auto-redacted).
+                </span>
+              </label>
             </div>
 
             <div className="pt-4 flex gap-3">

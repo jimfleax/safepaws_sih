@@ -245,7 +245,7 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(135px);
+    transform: translateY(calc(208px - 100%));
   }
   100% {
     transform: translateY(0);

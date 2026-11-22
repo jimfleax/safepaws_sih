@@ -69,6 +69,7 @@ class Pet(Base):
     reward = Column(String, nullable=True)
     distinctive_features = Column(ArrayType(String), nullable=True)
     qr_tag_id = Column(String, nullable=True, unique=True)
+    share_medical_notes = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     owner = relationship("Owner", back_populates="pets")
