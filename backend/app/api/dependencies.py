@@ -32,19 +32,49 @@ from app.vector_store.interfaces import VectorStore
 # ------------------------------------------------------------------
 
 # ------------------------------------------------------------------
-# Global Singletons
+# Global Singletons with Production Fail-Closed Invariants
 # ------------------------------------------------------------------
+import os
+from app.core.config import settings
+from app.core.exceptions import DomainException
+
+is_production = (os.getenv("ENVIRONMENT", "").lower() == "production") or (not settings.DEBUG)
+
+class UnavailableNoseDetector(NoseDetector):
+    def __init__(self, reason: str):
+        self.reason = reason
+    async def detect(self, image: bytes) -> list[dict]:
+        raise DomainException(
+            message=f"Biometric detection engine unavailable in production: {self.reason}",
+            error_code="BIOMETRIC_DETECTOR_UNAVAILABLE",
+            status_code=503,
+        )
+
+class UnavailableEmbeddingModel(EmbeddingModel):
+    def __init__(self, reason: str):
+        self.reason = reason
+        self.is_scaffold_mode = False
+    async def extract_features(self, image: bytes, bbox: dict) -> list[float]:
+        raise DomainException(
+            message=f"Biometric embedding engine unavailable in production: {self.reason}",
+            error_code="BIOMETRIC_EMBEDDER_UNAVAILABLE",
+            status_code=503,
+        )
+
 try:
     _detector = YoloNoseDetector()
 except Exception as e:
-    logger.warning("YoloNoseDetector failed to initialize, using fallback: %s", e)
-    class FallbackNoseDetector(NoseDetector):
-        async def detect(self, image: bytes) -> list[dict]:
-            return [{"box": [10, 10, 50, 50], "confidence": 0.95}]
-    _detector = FallbackNoseDetector()
+    if is_production:
+        logger.error("PRODUCTION FAIL-CLOSED: YoloNoseDetector failed to initialize: %s", e)
+        _detector = UnavailableNoseDetector(str(e))
+    else:
+        logger.warning("YoloNoseDetector failed to initialize, using development fallback: %s", e)
+        class FallbackNoseDetector(NoseDetector):
+            async def detect(self, image: bytes) -> list[dict]:
+                return [{"box": [10, 10, 50, 50], "confidence": 0.95}]
+        _detector = FallbackNoseDetector()
 
 _quality_gate = ClassicalQualityGate()
-from app.core.config import settings
 
 try:
     _embedder = BiometricEmbeddingModel(config=EmbeddingModelConfig(
@@ -53,12 +83,16 @@ try:
         backbone_architecture="mobilenet_v2"
     ))
 except Exception as e:
-    logger.warning("BiometricEmbeddingModel failed in production mode, falling back to scaffold: %s", e)
-    _embedder = BiometricEmbeddingModel(config=EmbeddingModelConfig(
-        scaffold_mode=True,
-        embedding_dimension=settings.EMBEDDING_DIMENSION,
-        backbone_architecture="mobilenet_v2"
-    ))
+    if is_production:
+        logger.error("PRODUCTION FAIL-CLOSED: BiometricEmbeddingModel failed to initialize: %s", e)
+        _embedder = UnavailableEmbeddingModel(str(e))
+    else:
+        logger.warning("BiometricEmbeddingModel failed in production mode, falling back to scaffold: %s", e)
+        _embedder = BiometricEmbeddingModel(config=EmbeddingModelConfig(
+            scaffold_mode=True,
+            embedding_dimension=settings.EMBEDDING_DIMENSION,
+            backbone_architecture="mobilenet_v2"
+        ))
 
 _vector_store = FAISSVectorStore()
 _image_storage = LocalFileSystemStorage()

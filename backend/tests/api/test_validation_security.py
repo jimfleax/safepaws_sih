@@ -45,6 +45,30 @@ async def test_cors_rejects_wildcard_with_credentials():
             if allow_credentials:
                 assert "*" not in allow_origins, "CORS allow_origins cannot contain '*' when allow_credentials is True"
 
+def test_cors_production_fails_closed_when_missing_origins(monkeypatch):
+    """Verify configure_cors_origins raises RuntimeError if ALLOWED_ORIGINS is unset in production."""
+    from app.main import configure_cors_origins
+    from app.core.config import settings
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    monkeypatch.setenv("ALLOWED_ORIGINS", "")
+    with pytest.raises(RuntimeError, match="ALLOWED_ORIGINS must be explicitly configured"):
+        configure_cors_origins()
+
+def test_cors_rejects_wildcard_origin(monkeypatch):
+    """Verify configure_cors_origins raises RuntimeError if wildcard origin is provided with credentials."""
+    from app.main import configure_cors_origins
+    monkeypatch.setenv("ALLOWED_ORIGINS", "https://example.com, *")
+    with pytest.raises(RuntimeError, match="Wildcard origin '\\*' is forbidden"):
+        configure_cors_origins()
+
+def test_cors_accepts_valid_production_origins(monkeypatch):
+    """Verify configure_cors_origins correctly parses valid production origins."""
+    from app.main import configure_cors_origins
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    monkeypatch.setenv("ALLOWED_ORIGINS", "https://safepaws.app, https://admin.safepaws.app")
+    origins = configure_cors_origins()
+    assert origins == ["https://safepaws.app", "https://admin.safepaws.app"]
+
 @pytest.mark.asyncio
 async def test_medical_notes_pii_redaction_and_consent():
     """Verify PII regex redaction on medical notes when shared, and omission when consent is false."""

@@ -18,16 +18,30 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-# CORS - Explicit origins only (reject wildcard '*' when credentials are true)
-allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
-raw_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
-# Disallow wildcard origin with credentials per CORS security standard
-allowed_origins = [o for o in raw_origins if o != "*"] if raw_origins else [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:3000",
-]
+# CORS - Strict production fail-closed & explicit origins (reject wildcard '*' when credentials are true)
+def configure_cors_origins() -> list[str]:
+    is_production = (os.getenv("ENVIRONMENT", "").lower() == "production") or (not settings.DEBUG)
+    allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+    raw_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
+
+    if "*" in raw_origins:
+        raise RuntimeError("Wildcard origin '*' is forbidden when allow_credentials=True.")
+
+    if is_production:
+        if not raw_origins:
+            raise RuntimeError("ALLOWED_ORIGINS must be explicitly configured in production mode.")
+        return raw_origins
+    else:
+        if raw_origins:
+            return raw_origins
+        return [
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:3000",
+        ]
+
+allowed_origins = configure_cors_origins()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
