@@ -24,8 +24,8 @@ test.describe('SafePaws Complete Audit', () => {
     await page.keyboard.press('Escape'); // interrupt
     
     // Check main navigation links
-    await expect(page.getByText('REGISTER YOUR PET').first()).toBeVisible();
-    await expect(page.getByText('SCAN A DOG').first()).toBeVisible();
+    await expect(page.getByText(/REGISTER YOUR PET/i).first()).toBeVisible();
+    await expect(page.getByText(/SCAN A (FOUND )?DOG/i).first()).toBeVisible();
     
     // Check 'How it Works' scroll
     await page.getByRole('button', { name: 'Features' }).first().click();

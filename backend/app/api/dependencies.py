@@ -53,13 +53,20 @@ class UnavailableNoseDetector(NoseDetector):
 class UnavailableEmbeddingModel(EmbeddingModel):
     def __init__(self, reason: str):
         self.reason = reason
-        self.is_scaffold_mode = False
-    async def extract_features(self, image: bytes, bbox: dict) -> list[float]:
+
+    @property
+    def is_scaffold_mode(self) -> bool:
+        return False
+
+    async def generate_embedding(self, image: bytes, bounding_box: dict):
         raise DomainException(
             message=f"Biometric embedding engine unavailable in production: {self.reason}",
             error_code="BIOMETRIC_EMBEDDER_UNAVAILABLE",
             status_code=503,
         )
+
+    async def extract_features(self, image: bytes, bbox: dict):
+        return await self.generate_embedding(image, bbox)
 
 try:
     _detector = YoloNoseDetector()
