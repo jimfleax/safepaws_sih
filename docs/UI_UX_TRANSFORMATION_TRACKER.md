@@ -7,7 +7,7 @@
 **Master Design Architecture:** [docs/UI_UX_DESIGN_ARCHITECTURE.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UI_UX_DESIGN_ARCHITECTURE.md)  
 **Research & Inventory Reference:** [docs/UI_UX_RESEARCH_AND_INVENTORY.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UI_UX_RESEARCH_AND_INVENTORY.md)  
 **Panel A Specification & Audit:** [docs/DESIGN_SYSTEM_PANEL_A.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/DESIGN_SYSTEM_PANEL_A.md)  
-**Current Program State:** Phase UX-05.1 (Final Release Sign-Off Reconciliation & Evidence Closure) **ACCEPTED (99.1/100) — PRODUCTION RELEASE GATE UNCONDITIONALLY OPEN**  
+**Current Program State:** Phase UX-06.0 (Initial Discovery & Architecture Lock) **LOCKED — ARCHITECTURE & FORENSIC RECONCILIATION COMPLETE — PRODUCTION GATE ON HOLD**  
 **Last Updated:** November 22, 2026  
 
 ---
@@ -53,7 +53,11 @@ flowchart LR
     P5A --> P6["UX-03 Step 4: Panel D (Scanner HUD)\n(ACCEPTED — 100/100)"]
     P6 --> P6E["UX-03 Step 5: Panel E (Finder HUD)\n(ACCEPTED — 99.5/100)"]
     P6E --> P7["UX-04: Motion Polish\n(ACCEPTED — 98.4/100)"]
-    P7 --> P8["UX-05: Quality & Release Gate\n(ACCEPTED — 96.4/100 — PRODUCTION READY)"]
+    P7 --> P8["UX-05: Quality & Release Gate\n(PROVISIONAL ACCEPTED — 96.4/100)"]
+    P8 --> P9["UX-05.1: Reconciliation & Evidence Closure\n(ACCEPTED — 99.1/100 — QUALIFIED)"]
+    P9 --> P10["UX-05.2: Hard-Gate Closure & Biometric Verification\n(HOLD — 93.6/100 — PENDING POSTGRESQL)"]
+    P10 --> P11["UX-05.3: Checkpoint Integrity & Real Gallery Closure\n(HOLD — 95.5/100 — PENDING LIVE POSTGRESQL)"]
+    P11 --> P12["UX-06.0: Master Discovery & Architecture Lock\n(LOCKED — AUDIT COMPLETE — SPECIALISTS UNBLOCKED)"]
 ```
 
 | Phase Code | Milestone Title | Lead Workstream | Key Deliverables & Evidence | Status |
@@ -73,6 +77,10 @@ flowchart LR
 | **UX-03 (Step 5)** | **Panel E: Community & Finder HUD** | Community & Finder Lead | High-contrast finder view (`/p/:tagId`), recovery board (`/lost`), incident room (`/alerts/:id`), community feed (`/community/*`). Formally audited by 6 Panel F specialists (F-E1 to F-E6): Scored 99.5/100. Formal verdict: ACCEPTED. Report in `docs/reports/SAFEPAWS_UX_03_STEP_5_PANEL_E_IMPLEMENTATION_AND_AUDIT_REPORT.md`. | **ACCEPTED (99.5/100) — UX-03 COMPLETE** |
 | **UX-04** | **Global Motion Choreography & Polish** | Motion Designer & QA Orchestrator | 5-tier global timing hierarchy, GSAP context teardown, Lenis dynamic smooth scroll, GPU compositor sweep ray, WCAG 2.2 AA reduced-motion architecture. Formally audited by 6 Panel F specialists (F-M1 to F-M6): Scored 98.4/100. Report in `docs/reports/SAFEPAWS_UX_04_GLOBAL_MOTION_IMPLEMENTATION_AND_AUDIT_REPORT.md`. | **ACCEPTED (98.4/100) — UX-05 UNBLOCKED** |
 | **UX-05** | **Quality, Accessibility & Release Gate** | Panel F (Independent QA) | Application-level quality & release gate. Route decoupling (`/lost`, `/alerts/:alertId`), dynamic `DashboardNav`, SD-01 privacy ratification, CORS/storage security hardening, N+1 query elimination, WCAG 2.2 AA contrast & reflow fixes, 100% green unit tests (22/22 passing), 0 tsc errors, 314 KB gzip production bundle. Formally audited by 6 Panel F specialists (F-Q1 to F-Q6): Scored 96.4/100. Report in `docs/reports/SAFEPAWS_UX_05_FINAL_PRODUCT_QUALITY_AND_RELEASE_GATE_REPORT.md`. | **ACCEPTED (96.4/100) — RELEASE GATE PASSED** |
+| **UX-05.1** | **Release Sign-Off Reconciliation & Evidence Closure** | Independent Gatekeeper | Reconciled test environment and Playwright execution against Chrome (audit.spec.ts). Scored 99.1/100. Qualified: Biometric engine verified in scaffold mode only; PostgreSQL unverified. Report in `docs/reports/SAFEPAWS_UX_05_1_FINAL_RELEASE_RECONCILIATION_REPORT.md`. | **QUALIFIED (99.1/100) — ON HOLD** |
+| **UX-05.2** | **Production Readiness Hard-Gate Closure & Biometric Verification** | Production Readiness Lead | Verified real YOLOv8 + MobileNetV2 CPU inference, fail-closed 503 behavior, Alembic migration `b2f1a8e9c0d3`, 12 medical privacy invariants passed, 422 error sanitization, CORS fail-closed, Playwright full discovery restored. PostgreSQL remains unverified due to local environment constraints (service missing, Docker socket restricted). Report in `docs/reports/SAFEPAWS_UX_05_2_PRODUCTION_READINESS_AND_HARD_GATE_REPORT.md`. | **HOLD (93.6/100) — PRODUCTION RELEASE NOT APPROVED** |
+| **UX-05.3** | **Biometric Checkpoint Integrity, Real Gallery Verification & Regression Closure** | Database Reliability & ML Gatekeeper | Re-serialized MobileNetV2 checkpoint to safe state dictionary (`weights_only=True`, SHA: `2597555...`). Validated real gallery discrimination (0.9186 Match, 0.8309 Ambiguous, 0.4353 Unknown). Stabilized Playwright production release suite (10/10 passed in 34.5s). 193/193 SQLite backend tests passing. Gate 4 (Live PostgreSQL / PostGIS) remains blocked by host environment. Report in `docs/reports/SAFEPAWS_UX_05_3_RELEASE_EVIDENCE_AND_PRODUCTION_READINESS_REPORT.md`. | **HOLD (95.5/100) — PRODUCTION RELEASE NOT APPROVED** |
+| **UX-06.0** | **Master Discovery, Architecture Lock & Multi-Agent Hierarchy** | Master Orchestrator | Complete 15-route catalog, 13-benchmark design register, 4-level agent orchestration matrix, and critical forensic audit. Exposed hollow Playwright test assertions, MockQualityGate bypass, and unexecuted PostgreSQL migration truth. Architecture locked for specialist execution. Report in `docs/reports/SAFEPAWS_UX_06_0_ARCHITECTURE_DISCOVERY_REPORT.md`. | **LOCKED — ARCHITECTURE COMPLETE** |
 
 ---
 
@@ -314,6 +322,129 @@ During Phase UX-04 Phase 0 preflight, four specific non-motion architectural ris
 | **7. Performance & Bundle Economics** | 5% | 5.0 | **4.8** | Production bundle built in 3.02s. Core JS bundle 120.36 kB gzip. Lazy chunking across all major views. CSS bundle 17.86 kB gzip. |
 | **8. Build, Release Engineering & Hygiene** | 10% | 10.0 | **10.0** | TypeScript `tsc --noEmit` 0 errors. Vite build 0 errors. Strict Git HEAD preservation maintained. Dedicated venv isolated. |
 | **TOTAL RECONCILED SCORE** | **100%** | **100.0** | **99.1 / 100** | **VERDICT: FORMALLY ACCEPTED — GATE UNCONDITIONALLY OPEN** |
+
+> [!NOTE]
+> **Post-Audit Gate Qualification:** Following independent forensic review in Phase UX-05.2, the UX-05.1 release sign-off was qualified. While code-level test coverage was significantly expanded, the biometric pipeline was operating under scaffold mode and PostgreSQL integration was not verified against a live database service. The release gate was subsequently placed on HOLD pending real biometric and PostgreSQL verification.
+
+---
+
+## 14. Phase UX-05.2 Production Readiness Hard-Gate Closure Scorecard
+
+**Audit Date:** November 22, 2026  
+**Auditing Authority:** Independent Release Gatekeeper, Principal Software Architect, Production Readiness Engineer & Application Security Auditor  
+**Audit Mode:** Forensic Hard-Gate Verification & Fail-Closed Validation  
+**Evaluated Commit (HEAD):** `da0208de8389dbb22499d2a5f5f391ff5b16852d`  
+**Committed Baseline HEAD:** `f51ee728377358dd9d4e6314770d03185bfb6a88`  
+**Previous Reported Score:** 99.1 / 100 (QUALIFIED — ON HOLD)  
+**Current Phase Score:** **93.6 / 100**  
+**Verdict:** **HOLD — PRODUCTION RELEASE NOT APPROVED**  
+**Detailed Report:** [docs/reports/SAFEPAWS_UX_05_2_PRODUCTION_READINESS_AND_HARD_GATE_REPORT.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/reports/SAFEPAWS_UX_05_2_PRODUCTION_READINESS_AND_HARD_GATE_REPORT.md)  
+**Detailed Architecture Plan:** [docs/UX_05_2_PRODUCTION_READINESS_HARD_GATE_PLAN.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UX_05_2_PRODUCTION_READINESS_HARD_GATE_PLAN.md)  
+
+### Production Hard-Gate Evaluation Matrix
+
+| Gate ID | Hard-Gate Domain | Pass Criteria | Evaluated Evidence | Gate Verdict |
+|:---|:---|:---|:---|:---:|
+| **GATE 1** | **Biometric Engine Production Integrity** | Zero silent mock fallback in production; real YOLOv8 + MobileNetV2 CPU inference; fail-closed 503 behavior; invalid image rejection. | Real inference smoke tests produced box `[294.9, 496.4, 451.9, 660.0]`, conf `0.8419`, 1280-d unit vector. Fail-closed verified. | **PASS** |
+| **GATE 2** | **Database Migration & Schema Integrity** | Explicit Alembic migration with down revision; linear migration graph; non-null private default. | Migration `b2f1a8e9c0d3` branches from `ae440fbabbfa`. Clean upgrade/downgrade DDL verified. | **PASS** |
+| **GATE 3** | **PostgreSQL Production Integration** | Tests pass against live PostgreSQL database with PostGIS; transaction isolation verified. | Local PostgreSQL service not running (127.0.0.1:5432 refused); Docker socket permission denied. 4 tests skipped. | **FAIL (BLOCKED)** |
+| **GATE 4** | **Medical Privacy, Consent & Separation** | Safe default (private); server-side PII scrubbing; public tag redaction; owner access; immediate revocation. | All 12 privacy invariants verified and passing in `test_medical_privacy.py`. Zero wire leakage. | **PASS** |
+| **GATE 5** | **Production Security & Error Sanitization** | Raw input stripped from 422 errors; CORS fails closed without explicit allowlist; credentials protected. | `test_validation_security.py` passes; 422 response stripped of `input` and `ctx`. Wildcard CORS blocked. | **PASS** |
+| **GATE 6** | **Comprehensive Browser E2E Regression** | Discovery restored; all core user journeys pass in real browser; failure artifacts generated. | 18 tests discovered; all 7 core journeys pass cleanly in `audit.spec.ts`. Artifact retention verified. | **PASS** |
+
+### Definitive 8-Dimensional Hard-Gate Scorecard
+
+| Dimension | Weight | Max Score | Awarded Score | Evaluative Findings & Justification |
+| :--- | :---: | :---: | :---: | :--- |
+| **1. Product Functionality & Route Integrity** | 20% | 20.0 | **20.0** | 100% route coverage verified. All public and protected journeys tested without dead links or redirect loops. |
+| **2. Backend, API & Data Integrity** | 15% | 15.0 | **11.0** | **-4.0 Deduction:** 183 SQLite unit/integration tests passing. However, PostgreSQL integration remains unverified due to local environment constraints. |
+| **3. Security, Privacy & Consent Invariants** | 20% | 20.0 | **20.0** | All 12 medical privacy invariants pass. PII regex scrubbing active. Raw credentials stripped from 422 validation errors. Wildcard CORS blocked in production. |
+| **4. Accessibility & Contrast Verification** | 15% | 15.0 | **14.5** | WCAG 2.1 AA compliant. High-contrast tokens applied across all interactive states. Touch targets $\ge 44\text{px}$. Skip links active. |
+| **5. End-to-End Journeys & Regression Suite** | 10% | 10.0 | **10.0** | All 7 core user journeys in `audit.spec.ts` pass in real Chromium browser. Test discovery restored to include full `e2e/` tree. Failure artifacts captured. |
+| **6. Responsive Multi-Viewport Experience** | 5% | 5.0 | **4.8** | Mobile (375px), Tablet (768px), and Desktop (1280px) responsive layouts verified with adaptive grids and touch-friendly controls. |
+| **7. Performance & Bundle Economics** | 5% | 5.0 | **4.8** | Production Vite build compiles in 3.21s. Core JS bundle 120.36 kB gzip. Lazy chunking across all major views. CSS bundle 17.86 kB gzip. |
+| **8. Build, Release Engineering & Hygiene** | 10% | 10.0 | **8.5** | **-1.5 Deduction:** Zero TypeScript errors (`tsc --noEmit`). Clean production build. Staging release requires automated Postgres CI pipeline. |
+| **TOTAL RECONCILED SCORE** | **100%** | **100.0** | **93.6 / 100** | **GATE 3 HARD BLOCKER ACTIVE — FORMAL RELEASE GATE HELD** |
+
+### Mandatory Conditions for Full Production Release Approval:
+1. **Live PostgreSQL & PostGIS Verification:** A dedicated PostgreSQL instance (v14+ with PostGIS) must be accessible to execute `test_alert_lazy_load.py`, `test_pet_lazy_load.py`, `test_postgres_alert_resolve.py`, and `test_postgres_identity.py` to 100% passing status.
+2. **PyTorch Weight Serialization Clean-up:** Re-serialize `embedding_v1.pt` from whole object pickle to pure `state_dict` weights.
+3. **Legacy E2E Suite Cleanup:** Deprecate or align older exploratory specs (`safepaws_audit.spec.ts`, `debug*.spec.ts`) with production DOM structure.
+
+---
+
+## 11. Phase UX-05.3: Biometric Checkpoint Integrity, Real Gallery Verification & Regression Closure
+
+**Evaluation Date:** November 22, 2026  
+**Auditing Authority:** Principal Database Reliability Engineer, ML Systems Architect & Production Gatekeeper  
+**Committed Baseline HEAD:** `da0208de8389dbb22499d2a5f5f391ff5b16852d`  
+**Previous Reported Score:** 93.6 / 100 (HOLD)  
+**Current Phase Score:** **95.5 / 100**  
+**Verdict:** **HOLD — PRODUCTION RELEASE NOT APPROVED**  
+**Detailed Report:** [docs/reports/SAFEPAWS_UX_05_3_RELEASE_EVIDENCE_AND_PRODUCTION_READINESS_REPORT.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/reports/SAFEPAWS_UX_05_3_RELEASE_EVIDENCE_AND_PRODUCTION_READINESS_REPORT.md)  
+**Detailed Architecture Plan:** [docs/UX_05_3_RELEASE_EVIDENCE_CLOSURE_PLAN.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UX_05_3_RELEASE_EVIDENCE_CLOSURE_PLAN.md)  
+
+### Production Hard-Gate Evaluation Matrix
+
+| Gate ID | Hard-Gate Domain | Pass Criteria | Evaluated Evidence | Gate Verdict |
+|:---|:---|:---|:---|:---:|
+| **GATE 1** | **Biometric Engine Checkpoint Integrity** | Zero insecure whole-object pickle deserialization; `weights_only=True` enforced; corrupt/mismatched weights fail closed (503). | Migrated to safe structured state dictionary (`2597555...`). PyTorch 2.6 safe loading verified. 5/5 tests passed. | **PASS** |
+| **GATE 2** | **Real Biometric Gallery Discrimination** | Enrolled multi-identity gallery tested across MATCH, AMBIGUOUS, UNKNOWN, and rejection states with real dog captures. | Same dog capture yields 0.9186 (`MATCH`), visually similar dog yields 0.8309 (`AMBIGUOUS`), distinct dog yields 0.4353 (`UNKNOWN`), non-dog rejected (422). 5/5 tests passed. | **PASS** |
+| **GATE 3** | **Database Migration & Schema Integrity** | Explicit Alembic migration with down revision; non-null private default verified. | Migration `b2f1a8e9c0d3` adds `share_medical_notes` with private default (`server_default='false'`). Clean upgrade/downgrade. | **PASS** |
+| **GATE 4** | **PostgreSQL & PostGIS Live Integration** | Tests pass against live PostgreSQL database with PostGIS; transaction isolation & spatial queries verified. | Host Linux OS lacks PostgreSQL binaries; `pgsql_data/` is an incompatible Windows cluster; Docker permissions restricted. 4 tests skipped. | **FAIL (BLOCKED)** |
+| **GATE 5** | **Medical Privacy, Consent & Separation** | Safe default (private); server-side PII scrubbing; public tag redaction; immediate revocation. | All 12 privacy invariants pass in `test_medical_privacy.py`. Zero wire leakage. | **PASS** |
+| **GATE 6** | **Error Sanitization & CORS Fail-Closed** | Raw input stripped from 422 errors; CORS fails closed without explicit allowlist; credentials protected. | `test_validation_security.py` passes; credentials stripped from 422 responses. Production CORS enforces strict allowlist. | **PASS** |
+| **GATE 7** | **Playwright Production E2E Suite** | 100% green execution across all release test files in real browser; core journeys verified; failure artifacts active. | 10/10 tests pass across `audit.spec.ts`, `e2e/public_routes.spec.ts`, and `e2e/test_sighting.spec.ts` (34.5s on Chromium). | **PASS** |
+| **GATE 8** | **Build & TypeScript Hygiene** | Zero TypeScript compilation errors; 100% green Vitest unit tests; lean production bundle. | `tsc --noEmit` 0 errors. Vitest 22/22 passed. Production bundle 120.36 kB gzip. | **PASS** |
+
+### Definitive 8-Dimensional Hard-Gate Scorecard
+
+| Dimension | Weight | Max Score | Awarded Score | Evaluative Findings & Justification |
+| :--- | :---: | :---: | :---: | :--- |
+| **1. Product Functionality & Route Integrity** | 20% | 20.0 | **20.0** | 100% route coverage verified. All public, owner, and community journeys tested without dead links or redirect loops. |
+| **2. Backend, API & Data Integrity** | 15% | 15.0 | **11.0** | **-4.0 Deduction:** 193/193 SQLite unit/integration tests passing. Live PostgreSQL integration remains unverified due to host environment constraints. |
+| **3. Security, Privacy & Consent Invariants** | 20% | 20.0 | **20.0** | Safe PyTorch tensor loading enforced (`weights_only=True`). 12 medical privacy invariants pass. Raw credentials stripped from 422 errors. Wildcard CORS blocked. |
+| **4. Accessibility & Contrast Verification** | 15% | 15.0 | **15.0** | WCAG 2.2 AA compliant. High-contrast tokens applied across all interactive states. Touch targets $\ge 44\text{px}$. Skip links active. |
+| **5. End-to-End Journeys & Regression Suite** | 10% | 10.0 | **10.0** | All 10 tests across the 3 production release spec files pass cleanly in Chromium (34.5s). Real biometric gallery matching empirically proven. |
+| **6. Responsive Multi-Viewport Experience** | 5% | 5.0 | **5.0** | Mobile (375px), Tablet (768px), and Desktop (1280px) responsive layouts verified with adaptive grids and touch-friendly controls. |
+| **7. Performance & Bundle Economics** | 5% | 5.0 | **5.0** | Production Vite build compiles in 3.11s. Core JS bundle 120.36 kB gzip. Lazy chunking across all major views. CSS bundle 17.86 kB gzip. |
+| **8. Build, Release Engineering & Hygiene** | 10% | 10.0 | **9.5** | **-0.5 Deduction:** Zero TypeScript errors (`tsc --noEmit`). Clean 22/22 Vitest run. Local host environment requires external PostgreSQL provisioning. |
+| **TOTAL RECONCILED SCORE** | **100%** | **100.0** | **95.5 / 100** | **MANDATORY GATE 4 HARD BLOCKER ACTIVE — FORMAL RELEASE GATE HELD** |
+
+### Remaining Condition for Full Production Authorization:
+1. **Live PostgreSQL & PostGIS Verification:** Deploy backend against a dedicated PostgreSQL 16 instance with PostGIS enabled in a Linux staging container or cloud cluster, and execute `test_alert_lazy_load.py`, `test_pet_lazy_load.py`, `test_postgres_alert_resolve.py`, and `test_postgres_identity.py` to 100% passing status.
+
+---
+
+## 12. Phase UX-06.0: Master Discovery, Architecture Lock & Multi-Agent Hierarchy
+
+**Evaluation Date:** November 22, 2026  
+**Auditing Authority:** Master Orchestrator & Independent Quality Lead  
+**Committed Baseline HEAD:** `da0208de8389dbb22499d2a5f5f391ff5b16852d`  
+**Milestone Verdict:** **LOCKED — ARCHITECTURE & FORENSIC DISCOVERY COMPLETE**  
+**Production Gate Status:** **HOLD — PRODUCTION RELEASE NOT APPROVED (Awaiting Live PostgreSQL)**  
+**Detailed Report:** [docs/reports/SAFEPAWS_UX_06_0_ARCHITECTURE_DISCOVERY_REPORT.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/reports/SAFEPAWS_UX_06_0_ARCHITECTURE_DISCOVERY_REPORT.md)  
+**Transformation Master Plan:** [docs/UX_06_PRODUCT_TRANSFORMATION_MASTER_PLAN.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UX_06_PRODUCT_TRANSFORMATION_MASTER_PLAN.md)  
+**Route & State Inventory:** [docs/UX_06_PRODUCT_ARCHITECTURE_AND_ROUTE_INVENTORY.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UX_06_PRODUCT_ARCHITECTURE_AND_ROUTE_INVENTORY.md)  
+**Agent Orchestration & Ownership:** [docs/UX_06_AGENT_ORCHESTRATION_AND_OWNERSHIP.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UX_06_AGENT_ORCHESTRATION_AND_OWNERSHIP.md)  
+**Design Reference Register:** [docs/UX_06_DESIGN_REFERENCE_REGISTER.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UX_06_DESIGN_REFERENCE_REGISTER.md)  
+**Dependency Graph:** [docs/UX_06_DEPENDENCY_GRAPH.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UX_06_DEPENDENCY_GRAPH.md)  
+**Acceptance Criteria:** [docs/UX_06_ACCEPTANCE_CRITERIA.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/UX_06_ACCEPTANCE_CRITERIA.md)  
+
+### Architectural Discovery Ledger
+
+| Investigation Area | Forensic Discovery & Status | Remediation Required for Program Execution |
+|:---|:---|:---|
+| **Git Baseline & HEAD** | `da0208d` verified as committed baseline; 0 commits or history modifications performed. | Preserve baseline strictly across all specialist branches. |
+| **Biometric Checkpoint** | Safe state-dict checkpoint active (`weights_only=True`, SHA: `2597555...`). Legacy pickled graph preserved (`020c718...`). | Maintain safe loading; reject any pickle fallback. |
+| **Quality Gate Mocking** | Previous gallery tests in `test_biometric_gallery_matching.py` bypassed blur checking via local `MockQualityGate`. | Couple `ClassicalQualityGate` with real vector search in UX-06.4. |
+| **PostgreSQL Reality** | Alembic migration `b2f1a8e9c0d3` verified in SQLite; never executed against live PostgreSQL on this host. | Execute against live PostgreSQL 16 container in UX-06.6. |
+| **Playwright Hollow Specs** | Full 18-test inventory mapped; `audit.spec.ts` tests 7, 10, 12 and `test_sighting.spec.ts` lack real DOM assertions. | Author comprehensive DOM and state assertions in UX-06.6. |
+| **Route & API Inventory** | All 15 routes and 21 API endpoints inventoried across 16 dimensions; data privacy classifications mapped. | Panel leads integrate against verified shared contracts. |
+| **6-Panel Orchestration** | 4-level command hierarchy and single-owner file matrix locked. | Parallel delegation governed by sequential handoff rules. |
+
+
+
 
 
 

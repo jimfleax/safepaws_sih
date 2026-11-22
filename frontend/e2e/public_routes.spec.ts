@@ -3,7 +3,7 @@ import * as path from 'path';
 
 test('Scan page loads and scan works', async ({ page }) => {
   await page.goto('/scan');
-  await expect(page.getByText(/scan a dog/i).first()).toBeVisible();
+  await expect(page.getByText(/biometric hud|camera/i).first()).toBeVisible();
 });
 
 test('Public Profile loads', async ({ page }) => {

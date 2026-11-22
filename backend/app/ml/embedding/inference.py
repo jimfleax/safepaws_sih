@@ -205,27 +205,47 @@ class BiometricEmbeddingModel:
             if torch is None:
                 raise RuntimeError("torch package is required for real inference")
             
-            # Use MobileNetV2 pretrained as feature extractor
-            self._model = models.mobilenet_v2(pretrained=False)
-            # Remove classification head to get features
+            # Use MobileNetV2 as feature extractor
+            self._model = models.mobilenet_v2(weights=None)
             self._model.classifier = torch.nn.Identity() 
             
-            # Override dimension check since mobilenet outputs 1280
             self.config.embedding_dimension = 1280
             
-            # Load weights if it's a state dict, but since we are just 
-            # falling back to pretrained in absence of real biometric data
-            try:
-                self._model.load_state_dict(torch.load(weights_path, map_location="cpu", weights_only=True))
-            except Exception as e:
-                logger.warning(f"Failed to load weights dict, loading model directly or falling back: {e}")
-                self._model = torch.load(weights_path, map_location="cpu", weights_only=False)
-                if hasattr(self._model, "classifier"):
-                    self._model.classifier = torch.nn.Identity()
+            # Safe loading: always enforce weights_only=True
+            checkpoint_payload = torch.load(weights_path, map_location="cpu", weights_only=True)
+            
+            if isinstance(checkpoint_payload, dict) and "state_dict" in checkpoint_payload:
+                # Structured checkpoint
+                arch = checkpoint_payload.get("architecture")
+                if arch and self.config.backbone_architecture and arch != self.config.backbone_architecture:
+                    raise DomainException(
+                        message=f"Checkpoint architecture mismatch: expected {self.config.backbone_architecture}, got {arch}",
+                        error_code="CHECKPOINT_ARCH_MISMATCH",
+                        status_code=503
+                    )
+                dim = checkpoint_payload.get("embedding_dimension")
+                if dim and self.config.embedding_dimension and dim != self.config.embedding_dimension:
+                    raise DomainException(
+                        message=f"Checkpoint dimension mismatch: expected {self.config.embedding_dimension}, got {dim}",
+                        error_code="CHECKPOINT_DIM_MISMATCH",
+                        status_code=503
+                    )
+                state_dict = checkpoint_payload["state_dict"]
+            elif isinstance(checkpoint_payload, dict):
+                state_dict = checkpoint_payload
+            else:
+                raise DomainException(
+                    message="Invalid checkpoint format: expected state_dict or structured checkpoint dict.",
+                    error_code="INVALID_CHECKPOINT_FORMAT",
+                    status_code=503
+                )
 
+            self._model.load_state_dict(state_dict)
             self._model.eval()
             self.is_loaded = True
             
+        except DomainException:
+            raise
         except Exception as exc:
             raise DomainException(
                 message=f"Failed to load model weights from '{weights_path}': {exc}",

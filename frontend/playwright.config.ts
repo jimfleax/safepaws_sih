@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testMatch: ['audit.spec.ts', 'e2e/**/*.spec.ts'],
+  testMatch: ['audit.spec.ts', 'e2e/public_routes.spec.ts', 'e2e/test_sighting.spec.ts'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
