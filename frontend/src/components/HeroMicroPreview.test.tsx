@@ -50,8 +50,8 @@ describe('HeroMicroPreview Component', () => {
     // Verified match state
     expect(screen.getByText('Cooper')).toBeInTheDocument();
     expect(screen.getByText('GOLDEN RETRIEVER')).toBeInTheDocument();
-    expect(screen.getByText(/CONFIDENCE: 99.84%/i)).toBeInTheDocument();
-    expect(screen.getByText(/SECURE GUARDIAN RELAY READY/i)).toBeInTheDocument();
+    expect(screen.getByText(/SIMULATED CANDIDATE RECORD • DEMO PREVIEW ONLY/i)).toBeInTheDocument();
+    expect(screen.getByText(/DEMO RELAY PREVIEW/i)).toBeInTheDocument();
 
     // Reset scan
     const resetButton = screen.getByRole('button', { name: /reset biometric scanner preview/i });

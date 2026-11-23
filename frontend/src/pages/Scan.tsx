@@ -1,16 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CameraView from '../components/scan/CameraView';
 import ProcessingView from '../components/scan/ProcessingView';
 import ResultView from '../components/scan/ResultView';
 import { ScanPhase, ScanResult } from '../components/scan/types';
 import { ApiClient } from '../utils/apiClient';
-import { X, Fingerprint } from 'lucide-react';
+import { X, Fingerprint, RefreshCw } from 'lucide-react';
 
 export default function Scan() {
   const [phase, setPhase] = useState<ScanPhase>('SCAN');
   const [result, setResult] = useState<ScanResult | null>(null);
+  const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null);
+  const [capturedPreviewUrl, setCapturedPreviewUrl] = useState<string | null>(null);
 
-  const handleCapture = async (blob: Blob) => {
+  // Clean up object URL on unmount or reset
+  useEffect(() => {
+    return () => {
+      if (capturedPreviewUrl) {
+        URL.revokeObjectURL(capturedPreviewUrl);
+      }
+    };
+  }, [capturedPreviewUrl]);
+
+  // Direct capture or file fallback upload
+  const handleDirectCapture = async (blob: Blob) => {
+    await executeIdentification(blob);
+  };
+
+  // Review stage initiation
+  const handleReview = (blob: Blob, previewUrl: string) => {
+    setCapturedBlob(blob);
+    setCapturedPreviewUrl(previewUrl);
+    setPhase('REVIEW');
+  };
+
+  // Confirmation from Review dock
+  const handleConfirmReview = async () => {
+    if (capturedBlob) {
+      await executeIdentification(capturedBlob);
+    }
+  };
+
+  // Retake from Review dock
+  const handleRetake = () => {
+    if (capturedPreviewUrl) {
+      URL.revokeObjectURL(capturedPreviewUrl);
+      setCapturedPreviewUrl(null);
+    }
+    setCapturedBlob(null);
+    setPhase('SCAN');
+  };
+
+  // Execution pipeline to ApiClient
+  const executeIdentification = async (blob: Blob) => {
     setPhase('ANALYZE');
     
     try {
@@ -80,12 +121,17 @@ export default function Scan() {
   };
 
   const resetScan = () => {
+    if (capturedPreviewUrl) {
+      URL.revokeObjectURL(capturedPreviewUrl);
+      setCapturedPreviewUrl(null);
+    }
+    setCapturedBlob(null);
     setResult(null);
     setPhase('SCAN');
   };
 
   return (
-    <main id="main-content" tabIndex={-1} className="outline-none fixed inset-0 bg-[var(--color-ink)] z-50 flex flex-col select-none">
+    <main id="main-content" tabIndex={-1} className="outline-none fixed inset-0 bg-[var(--color-canvas-dark)] z-50 flex flex-col select-none">
       <div className="w-full h-full relative overflow-hidden" data-cursor="scan">
         
         {/* Spatial Chamber Telemetry Header Tag */}
@@ -99,7 +145,7 @@ export default function Scan() {
         {/* Accessible Close / Exit Button */}
         <button 
           onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = '/dashboard')}
-          className="absolute top-6 right-6 z-50 p-3.5 rounded-full bg-[var(--color-ink)]/70 text-[var(--color-bone)] backdrop-blur-md border border-[var(--color-bone)]/15 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)]/50 min-h-[44px] min-w-[44px] flex items-center justify-center shadow-lg"
+          className="absolute top-6 right-6 z-50 p-3.5 rounded-full bg-[var(--color-ink)]/70 text-[var(--color-bone)] backdrop-blur-md border border-[var(--color-bone)]/15 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)]/50 min-h-[44px] min-w-[44px] flex items-center justify-center shadow-lg cursor-pointer"
           aria-label="Close scan"
         >
           <X className="w-5 h-5" />
@@ -108,7 +154,8 @@ export default function Scan() {
         {/* Screen Reader ARIA Live Region */}
         <div aria-live="polite" className="sr-only">
            {phase === 'SCAN' && 'Camera ready. Position nose within the frame.'}
-           {phase === 'ALIGN' && 'Hold still.'}
+           {phase === 'ALIGN' && 'Hold still for optical calibration.'}
+           {phase === 'REVIEW' && 'Photo captured. Review clarity and confirm or retake.'}
            {phase === 'ANALYZE' && 'Reading the nose pattern.'}
            {phase === 'COMPARE' && 'Comparing against registered pets.'}
            {phase === 'RESULT' && result?.state === 'MATCH' && 'Match found.'}
@@ -116,14 +163,19 @@ export default function Scan() {
            {phase === 'RESULT' && result?.state === 'UNKNOWN' && 'No match found.'}
            {phase === 'RESULT' && result?.state === 'QUALITY_FAILURE' && 'Scan unclear.'}
            {phase === 'RESULT' && result?.state === 'SYSTEM_FAILURE' && 'System unavailable.'}
+           {phase === 'RESULT' && result?.state === 'CANDIDATE_SELECTED' && 'Candidate selected by finder.'}
         </div>
 
         {/* Phase Viewport Router */}
-        {(phase === 'SCAN' || phase === 'ALIGN' || phase === 'CAPTURE') && (
+        {(phase === 'SCAN' || phase === 'ALIGN' || phase === 'CAPTURE' || phase === 'REVIEW') && (
           <CameraView 
             phase={phase} 
-            onCapture={handleCapture} 
-            onAlign={() => setPhase('ALIGN')} 
+            onCapture={handleDirectCapture} 
+            onAlign={() => setPhase('ALIGN')}
+            onReview={handleReview}
+            capturedImageUrl={capturedPreviewUrl}
+            onRetake={handleRetake}
+            onConfirmCapture={handleConfirmReview}
           />
         )}
         

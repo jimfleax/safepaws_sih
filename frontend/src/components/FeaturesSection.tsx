@@ -128,7 +128,7 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({
                   <div className="w-48 h-28 rounded-2xl border border-dashed border-[var(--color-marigold)]/50 bg-[var(--color-marigold)]/5 backdrop-blur-sm p-3 flex flex-col justify-between">
                     <div className="flex justify-between items-center text-[10px] font-mono text-[var(--color-ink-soft)]">
                       <span>FAISS COSINE</span>
-                      <span className="text-[var(--color-accent-text)] font-bold">99.84% MATCH</span>
+                      <span className="text-[var(--color-accent-text)] font-bold">SIMULATED VECTOR</span>
                     </div>
                     {/* Simulated ridge lines */}
                     <div className="space-y-1">

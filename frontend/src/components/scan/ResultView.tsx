@@ -11,8 +11,9 @@ import {
   PlusCircle, 
   Megaphone, 
   ShieldCheck, 
-  ArrowRight,
-  Info
+  Info,
+  Radio,
+  FileQuestion
 } from 'lucide-react';
 import { usePetStore } from '../../store/petStore';
 import { useNavigate } from 'react-router-dom';
@@ -47,12 +48,24 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
   };
 
   const ViewWrapper = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-    <div className={`w-full h-full bg-[var(--color-ink)] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden animate-in fade-in duration-500 ease-out motion-reduce:transition-none motion-reduce:animate-none ${className}`}>
+    <div className={`w-full h-full bg-[var(--color-canvas-dark)] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden animate-in fade-in duration-400 ease-out motion-reduce:transition-none motion-reduce:animate-none ${className}`}>
       {/* Ambient optical spotlight */}
       <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
-      <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto relative z-10 animate-in slide-in-from-bottom-4 duration-500 ease-out delay-100 fill-mode-both motion-reduce:animate-none">
+      <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto relative z-10 animate-in slide-in-from-bottom-4 duration-400 ease-out fill-mode-both motion-reduce:animate-none">
         {children}
       </div>
+    </div>
+  );
+
+  // Simulation Mode Banner Component
+  const SimulationBanner = () => (
+    <div 
+      className="w-full bg-[var(--color-marigold)]/15 border border-[var(--color-marigold)]/30 text-[var(--color-bone)] rounded-xl px-4 py-2.5 mb-5 text-xs font-mono font-bold tracking-wider uppercase text-center shadow-md flex items-center justify-center gap-2"
+      role="status"
+      aria-label="Simulation Mode Banner"
+    >
+      <Radio className="w-3.5 h-3.5 text-[var(--color-marigold)] animate-pulse" />
+      <span>SIMULATION MODE — NOT A VERIFIED BIOMETRIC RESULT</span>
     </div>
   );
 
@@ -65,6 +78,8 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
 
     return (
       <ViewWrapper>
+        {result.isSimulated && <SimulationBanner />}
+
         {/* Status Icon */}
         <div className="relative mb-5">
           <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full" />
@@ -74,7 +89,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         </div>
 
         {/* Telemetry Status Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono tracking-wider uppercase mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono tracking-wider uppercase mb-3">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>POTENTIAL MATCH DETECTED — CONFIRMATION REQUIRED</span>
         </div>
@@ -113,19 +128,19 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         <div className="w-full flex flex-col gap-3 relative z-10">
           <button 
             onClick={() => handleViewProfile(result.petId!, result.qrTagId)}
-            className="w-full bg-[var(--color-bone)] hover:bg-white text-[var(--color-ink)] font-semibold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] min-h-[44px] shadow-lg"
+            className="w-full bg-[var(--color-bone)] hover:bg-white text-[var(--color-ink)] font-semibold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] min-h-[44px] shadow-lg cursor-pointer"
           >
             <Eye className="w-5 h-5" /> View Pet Profile
           </button>
           <button 
             onClick={() => navigate('/sightings/new')}
-            className="w-full bg-white/5 hover:bg-white/10 text-[var(--color-bone)] border border-white/10 font-medium py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] min-h-[44px]"
+            className="w-full bg-white/5 hover:bg-white/10 text-[var(--color-bone)] border border-white/10 font-medium py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] min-h-[44px] cursor-pointer"
           >
             <Megaphone className="w-5 h-5" /> Report a Sighting
           </button>
           <button 
             onClick={onRetry}
-            className="text-[var(--color-bone)]/60 hover:text-white font-medium py-2.5 px-4 transition-colors min-h-[44px] text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)]/40 rounded-lg"
+            className="text-[var(--color-bone)]/60 hover:text-white font-medium py-2.5 px-4 transition-colors min-h-[44px] text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)]/40 rounded-lg cursor-pointer"
           >
             <RefreshCw className="w-4 h-4" /> Scan Another Pet
           </button>
@@ -143,6 +158,8 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
 
     return (
       <ViewWrapper>
+        {result.isSimulated && <SimulationBanner />}
+
         <div className="relative mb-5">
           <div className="absolute inset-0 bg-[var(--color-marigold)]/15 blur-2xl rounded-full" />
           <div className="w-20 h-20 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center relative z-10 shadow-xl">
@@ -175,7 +192,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
           </div>
         </div>
 
-        {/* Preserved Finder Disclaimer */}
+        {/* Mandatory Finder Disclaimer */}
         <div className="mb-6 p-3.5 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-[var(--color-bone)]/75 max-w-md text-center leading-relaxed">
           Note: This identity was visually selected by the finder, not verified by an automated biometric confidence threshold.
         </div>
@@ -183,19 +200,19 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         <div className="w-full flex flex-col gap-3 relative z-10">
           <button 
             onClick={() => handleViewProfile(result.petId!, result.qrTagId)}
-            className="w-full bg-[var(--color-bone)] hover:bg-white text-[var(--color-ink)] font-semibold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] min-h-[44px] shadow-lg"
+            className="w-full bg-[var(--color-bone)] hover:bg-white text-[var(--color-ink)] font-semibold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] min-h-[44px] shadow-lg cursor-pointer"
           >
             <Eye className="w-5 h-5" /> View Candidate Profile
           </button>
           <button 
             onClick={() => navigate('/sightings/new')}
-            className="w-full bg-white/5 hover:bg-white/10 text-[var(--color-bone)] border border-white/10 font-medium py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] min-h-[44px]"
+            className="w-full bg-white/5 hover:bg-white/10 text-[var(--color-bone)] border border-white/10 font-medium py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] min-h-[44px] cursor-pointer"
           >
             <Megaphone className="w-5 h-5" /> Report Sighting for this Pet
           </button>
           <button 
             onClick={onRetry}
-            className="text-[var(--color-bone)]/60 hover:text-white font-medium py-2.5 px-4 transition-colors min-h-[44px] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)]/40 rounded-lg"
+            className="text-[var(--color-bone)]/60 hover:text-white font-medium py-2.5 px-4 transition-colors min-h-[44px] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)]/40 rounded-lg cursor-pointer"
           >
             Back to Scanner
           </button>
@@ -207,31 +224,37 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
   // 3. AMBIGUOUS CANDIDATES STATE
   if (result.state === 'AMBIGUOUS' && result.candidates) {
     return (
-      <div className="w-full h-full bg-[var(--color-ink)] flex flex-col items-center justify-start p-6 pt-10 overflow-y-auto relative animate-in fade-in duration-500 ease-out motion-reduce:transition-none motion-reduce:animate-none">
+      <div className="w-full h-full bg-[var(--color-canvas-dark)] flex flex-col items-center justify-start p-6 pt-10 overflow-y-auto relative animate-in fade-in duration-400 ease-out motion-reduce:transition-none motion-reduce:animate-none">
         <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
         
-        <div className="relative mb-3 shrink-0 animate-in slide-in-from-bottom-4 duration-500 ease-out delay-100 fill-mode-both motion-reduce:animate-none">
+        {result.isSimulated && (
+          <div className="w-full max-w-md z-10">
+            <SimulationBanner />
+          </div>
+        )}
+
+        <div className="relative mb-3 shrink-0 animate-in slide-in-from-bottom-4 duration-400 ease-out fill-mode-both motion-reduce:animate-none">
           <div className="absolute inset-0 bg-[var(--color-bone)]/10 blur-xl rounded-full" />
           <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center relative z-10 shadow-xl">
             <AlertCircle className="w-8 h-8 text-[var(--color-bone)]" strokeWidth={1.75} />
           </div>
         </div>
         
-        <h2 className="text-2xl font-serif font-bold text-white mb-2 text-center animate-in slide-in-from-bottom-4 duration-500 ease-out delay-100 fill-mode-both motion-reduce:animate-none">
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-2 text-center animate-in slide-in-from-bottom-4 duration-400 ease-out fill-mode-both motion-reduce:animate-none">
           Multiple Similar Profiles
         </h2>
         
-        <p className="text-[var(--color-bone)]/70 mb-3 text-center max-w-md font-light text-sm animate-in slide-in-from-bottom-4 duration-500 ease-out delay-100 fill-mode-both motion-reduce:animate-none">
+        <p className="text-[var(--color-bone)]/70 mb-3 text-center max-w-md font-light text-sm animate-in slide-in-from-bottom-4 duration-400 ease-out fill-mode-both motion-reduce:animate-none">
           This scan closely resembles multiple pets. Please carefully review the candidates below.
         </p>
 
         {/* Preserved Warning Note */}
-        <div className="mb-6 px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-[var(--color-bone)]/80 max-w-md text-center animate-in slide-in-from-bottom-4 duration-500 ease-out delay-120 fill-mode-both motion-reduce:animate-none leading-relaxed">
+        <div className="mb-6 px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-[var(--color-bone)]/80 max-w-md text-center animate-in slide-in-from-bottom-4 duration-400 ease-out delay-75 fill-mode-both motion-reduce:animate-none leading-relaxed">
           Selecting a candidate indicates finder visual choice, not an automated ML biometric certainty.
         </div>
         
         {/* Candidate Bento Cards */}
-        <div className="w-full max-w-md flex flex-col gap-3 mb-8 relative z-10 animate-in slide-in-from-bottom-4 duration-500 ease-out delay-150 fill-mode-both motion-reduce:animate-none">
+        <div className="w-full max-w-md flex flex-col gap-3 mb-8 relative z-10 animate-in slide-in-from-bottom-4 duration-400 ease-out delay-100 fill-mode-both motion-reduce:animate-none">
           {result.candidates.map(candidate => {
             const pet = pets.find(p => p.id === candidate.pet_id) || {
               name: candidate.name || 'Unknown Pet',
@@ -260,7 +283,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
                 </div>
                 <button 
                   onClick={() => onConfirmCandidate(candidate.pet_id, candidate.qr_tag_id, pet.name)}
-                  className="bg-[var(--color-bone)] text-[var(--color-ink)] hover:bg-white border border-[var(--color-bone)] px-4 py-2.5 rounded-xl font-semibold transition-all duration-150 active:scale-[0.98] text-sm whitespace-nowrap min-h-[44px] focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)] shadow-md shrink-0"
+                  className="bg-[var(--color-bone)] text-[var(--color-ink)] hover:bg-white border border-[var(--color-bone)] px-4 py-2.5 rounded-xl font-semibold transition-all duration-150 active:scale-[0.98] text-sm whitespace-nowrap min-h-[44px] focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)] shadow-md shrink-0 cursor-pointer"
                 >
                   Select Candidate
                 </button>
@@ -271,7 +294,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         
         <button 
           onClick={onRetry}
-          className="text-[var(--color-bone)]/60 hover:text-white font-medium py-3 px-4 transition-colors mt-auto relative z-10 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)] rounded-lg animate-in slide-in-from-bottom-4 duration-500 ease-out delay-200 fill-mode-both motion-reduce:animate-none text-sm"
+          className="text-[var(--color-bone)]/60 hover:text-white font-medium py-3 px-4 transition-colors mt-auto relative z-10 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-[var(--color-bone)] rounded-lg animate-in slide-in-from-bottom-4 duration-400 ease-out fill-mode-both motion-reduce:animate-none text-sm cursor-pointer"
         >
           None of these? Try scanning again
         </button>
@@ -283,6 +306,8 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
   if (result.state === 'UNKNOWN') {
     return (
       <ViewWrapper>
+        {result.isSimulated && <SimulationBanner />}
+
         <div className="relative mb-5">
           <div className="absolute inset-0 bg-[var(--color-bone)]/10 blur-2xl rounded-full" />
           <div className="w-20 h-20 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center relative z-10 shadow-xl">
@@ -301,13 +326,13 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         <div className="w-full flex flex-col gap-3 relative z-10">
           <button 
             onClick={handleRegister}
-            className="w-full bg-[var(--color-bone)] hover:bg-white text-[var(--color-ink)] font-semibold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] shadow-lg"
+            className="w-full bg-[var(--color-bone)] hover:bg-white text-[var(--color-ink)] font-semibold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] shadow-lg cursor-pointer"
           >
             <PlusCircle className="w-5 h-5" /> Register this pet
           </button>
           <button 
             onClick={onRetry}
-            className="w-full bg-white/5 hover:bg-white/10 text-[var(--color-bone)]/90 border border-white/10 font-medium py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)]"
+            className="w-full bg-white/5 hover:bg-white/10 text-[var(--color-bone)]/90 border border-white/10 font-medium py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-[var(--color-bone)] cursor-pointer"
           >
             <RefreshCw className="w-5 h-5" /> Try again
           </button>
@@ -354,7 +379,7 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         
         <button 
           onClick={onRetry}
-          className="w-full max-w-xs bg-white text-[var(--color-ink)] font-bold py-3.5 px-8 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] relative z-10 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-white shadow-xl"
+          className="w-full max-w-xs bg-white text-[var(--color-ink)] font-bold py-3.5 px-8 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] relative z-10 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-white shadow-xl cursor-pointer"
         >
           <RefreshCw className="w-5 h-5" /> Scan Again
         </button>
@@ -388,10 +413,49 @@ export default function ResultView({ result, onRetry, onConfirmCandidate }: Resu
         
         <button 
           onClick={onRetry}
-          className="w-full max-w-xs bg-white text-[var(--color-ink)] font-bold py-3.5 px-8 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] relative z-10 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-white shadow-xl"
+          className="w-full max-w-xs bg-white text-[var(--color-ink)] font-bold py-3.5 px-8 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] relative z-10 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-ink)] focus:ring-white shadow-xl cursor-pointer"
         >
           <RefreshCw className="w-5 h-5" /> Retry Connection
         </button>
+      </ViewWrapper>
+    );
+  }
+
+  // 7. IDENTIFICATION UNAVAILABLE / DEMO MODE STATE
+  if (result.state === 'IDENTIFICATION_UNAVAILABLE' || result.state === 'DEMO_MODE') {
+    return (
+      <ViewWrapper>
+        <SimulationBanner />
+
+        <div className="relative mb-5">
+          <div className="absolute inset-0 bg-[var(--color-marigold)]/15 blur-2xl rounded-full" />
+          <div className="w-20 h-20 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center relative z-10 shadow-xl">
+            <FileQuestion className="w-10 h-10 text-[var(--color-marigold)]" strokeWidth={1.75} />
+          </div>
+        </div>
+
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-2 tracking-wide">
+          Identification In Demonstration Mode
+        </h2>
+
+        <p className="text-base text-[var(--color-bone)]/80 mb-6 max-w-md font-light leading-relaxed">
+          Live neural model inference is scheduled for a future milestone. The scanner interface is currently operating in simulation mode.
+        </p>
+
+        <div className="w-full flex flex-col gap-3 relative z-10">
+          <button 
+            onClick={handleRegister}
+            className="w-full bg-[var(--color-bone)] hover:bg-white text-[var(--color-ink)] font-semibold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] min-h-[44px] shadow-lg cursor-pointer"
+          >
+            <PlusCircle className="w-5 h-5" /> Register a Pet
+          </button>
+          <button 
+            onClick={onRetry}
+            className="w-full bg-white/5 hover:bg-white/10 text-[var(--color-bone)] border border-white/10 font-medium py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] min-h-[44px] cursor-pointer"
+          >
+            <RefreshCw className="w-5 h-5" /> Return to Scanner
+          </button>
+        </div>
       </ViewWrapper>
     );
   }

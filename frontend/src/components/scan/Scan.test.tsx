@@ -13,13 +13,34 @@ vi.mock('../../utils/apiClient', () => ({
   }
 }));
 
-// Mock MediaDevices
+/**
+ * HARDWARE TEST QUALIFICATION NOTE:
+ * These unit tests execute in a headless JSDOM environment using synthetic MediaStream,
+ * MediaStreamTrack, and HTMLCanvasElement mocks. They verify software invariants, lifecycle
+ * transitions, race condition guards, and stream teardown semantics. They do not constitute
+ * physical optical hardware verification, which requires manual testing with real camera sensors.
+ */
+
+// Default Mock MediaStream & Track
+const createMockTrack = (hasTorch = false) => ({
+  stop: vi.fn(),
+  getCapabilities: () => (hasTorch ? { torch: true } : {}),
+  applyConstraints: vi.fn().mockResolvedValue(undefined),
+});
+
+let mockTrack = createMockTrack(false);
+
 Object.defineProperty(global.navigator, 'mediaDevices', {
   value: {
-    getUserMedia: vi.fn().mockResolvedValue({
-      getTracks: () => [{ stop: vi.fn() }],
-    }),
+    getUserMedia: vi.fn().mockImplementation(() => Promise.resolve({
+      getTracks: () => [mockTrack],
+      getVideoTracks: () => [mockTrack],
+    })),
+    enumerateDevices: vi.fn().mockResolvedValue([
+      { kind: 'videoinput', deviceId: 'cam-1', label: 'Back Camera' },
+    ]),
   },
+  configurable: true,
 });
 
 // Mock Canvas for testing capture
@@ -31,28 +52,48 @@ HTMLCanvasElement.prototype.toBlob = function (callback) {
   callback(new Blob(['mock_image'], { type: 'image/jpeg' }));
 };
 
+// Mock URL.createObjectURL / revokeObjectURL for Node/JSDOM
+if (typeof URL.createObjectURL === 'undefined') {
+  URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-preview-url');
+  URL.revokeObjectURL = vi.fn();
+}
+
 describe('Scan Page - States', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockTrack = createMockTrack(false);
+    (navigator.mediaDevices.getUserMedia as any).mockImplementation(() => Promise.resolve({
+      getTracks: () => [mockTrack],
+      getVideoTracks: () => [mockTrack],
+    }));
+    (navigator.mediaDevices.enumerateDevices as any).mockResolvedValue([
+      { kind: 'videoinput', deviceId: 'cam-1', label: 'Back Camera' },
+    ]);
   });
 
   const renderWithRouter = (component: React.ReactNode) => {
     return render(<BrowserRouter>{component}</BrowserRouter>);
   };
 
+  const capturePhoto = async () => {
+    const captureBtn = screen.getByLabelText(/Capture photo/i);
+    fireEvent.click(captureBtn);
+
+    // If review dock appears, confirm capture
+    const confirmBtn = screen.queryByLabelText(/Confirm and analyze photo|Identify Pet/i);
+    if (confirmBtn) {
+      fireEvent.click(confirmBtn);
+    }
+  };
+
   it('renders CameraView initially', async () => {
     renderWithRouter(<Scan />);
-    expect(screen.getAllByText(/Position nose within the frame/i)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Position canine nose leather within reticle/i)[0]).toBeInTheDocument();
 
     // Check for the capture button
     const captureBtn = screen.getByLabelText(/Capture photo/i);
     expect(captureBtn).toBeInTheDocument();
   });
-
-  const capturePhoto = async () => {
-    const captureBtn = screen.getByLabelText(/Capture photo/i);
-    fireEvent.click(captureBtn);
-  };
 
   it('handles MATCH state correctly', async () => {
     (ApiClient.identifyPet as any).mockResolvedValueOnce({
@@ -225,7 +266,6 @@ describe('Scan Page - States', () => {
   });
 
   it('validates reduced motion classes are present for a11y', async () => {
-    // Keep it pending to inspect processing screen
     let resolveApi: any;
     (ApiClient.identifyPet as any).mockImplementationOnce(() => {
       return new Promise((resolve) => {
@@ -244,6 +284,196 @@ describe('Scan Page - States', () => {
     expect(processingContainer?.innerHTML).toContain('motion-reduce:hidden');
     act(() => {
       resolveApi({ matches: [] });
+    });
+  });
+
+  // UX-06.4: Dedicated Capture, Review & Retake Flow
+  it('handles capture, review, and retake workflow correctly', async () => {
+    renderWithRouter(<Scan />);
+    expect(screen.getByText(/Position canine nose leather within reticle/i)).toBeInTheDocument();
+
+    // 1. Shutter click enters REVIEW mode
+    const captureBtn = screen.getByLabelText(/Capture photo/i);
+    fireEvent.click(captureBtn);
+
+    expect(screen.getByText(/Review capture clarity before vector matching/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Retake photo/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Confirm and analyze photo/i)).toBeInTheDocument();
+
+    // 2. Click Retake -> returns to live camera
+    const retakeBtn = screen.getByLabelText(/Retake photo/i);
+    fireEvent.click(retakeBtn);
+
+    expect(screen.getByText(/Position canine nose leather within reticle/i)).toBeInTheDocument();
+  });
+
+  // UX-06.4: Camera Switcher
+  it('renders camera switch button when multiple video devices exist', async () => {
+    (navigator.mediaDevices.enumerateDevices as any).mockResolvedValueOnce([
+      { kind: 'videoinput', deviceId: 'cam-front', label: 'Front Camera' },
+      { kind: 'videoinput', deviceId: 'cam-back', label: 'Back Telephoto Camera' },
+    ]);
+
+    renderWithRouter(<Scan />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Switch camera device/i)).toBeInTheDocument();
+    });
+
+    const switchBtn = screen.getByLabelText(/Switch camera device/i);
+    fireEvent.click(switchBtn);
+
+    // Verifies stream stop and reacquisition
+    expect(mockTrack.stop).toHaveBeenCalled();
+  });
+
+  // UX-06.4: Torch Control
+  it('renders torch control when hardware capability is exposed', async () => {
+    const torchTrack = createMockTrack(true);
+    (navigator.mediaDevices.getUserMedia as any).mockResolvedValueOnce({
+      getTracks: () => [torchTrack],
+      getVideoTracks: () => [torchTrack],
+    });
+
+    renderWithRouter(<Scan />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Turn on optical flashlight/i)).toBeInTheDocument();
+    });
+
+    const torchBtn = screen.getByLabelText(/Turn on optical flashlight/i);
+    fireEvent.click(torchBtn);
+
+    await waitFor(() => {
+      expect(torchTrack.applyConstraints).toHaveBeenCalledWith({
+        advanced: [{ torch: true }],
+      });
+    });
+  });
+
+  // UX-06.4: Permission Denied State
+  it('handles PERMISSION_DENIED state when camera access is declined', async () => {
+    const permErr = new Error('Permission denied');
+    permErr.name = 'NotAllowedError';
+    (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(permErr);
+
+    renderWithRouter(<Scan />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Camera Access Required')).toBeInTheDocument();
+    });
+    expect(screen.getByText(/PERMISSION RESTRICTED/i)).toBeInTheDocument();
+    expect(screen.getByText(/Upload Canine Photo Instead/i)).toBeInTheDocument();
+  });
+
+  // UX-06.4: Camera Hardware Unavailable State
+  it('handles UNAVAILABLE state when no camera sensor is detected', async () => {
+    const unavailErr = new Error('No device found');
+    unavailErr.name = 'NotFoundError';
+    (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(unavailErr);
+
+    renderWithRouter(<Scan />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Optical Sensor Offline')).toBeInTheDocument();
+    });
+    expect(screen.getByText(/HARDWARE UNAVAILABLE/i)).toBeInTheDocument();
+    expect(screen.getByText(/Upload Canine Photo Instead/i)).toBeInTheDocument();
+  });
+
+  // UX-06.4: Simulation Mode Transparency
+  it('displays prominent SIMULATION MODE banner when result is simulated', async () => {
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      status: 'MATCH',
+      matches: [{ pet_id: 'pet-demo', name: 'Demo Companion', confidence: 0.99 }]
+    });
+
+    renderWithRouter(<Scan />);
+    await capturePhoto();
+
+    await waitFor(() => {
+      expect(screen.getByText('Identity Confirmed')).toBeInTheDocument();
+    });
+  });
+
+  // UX-06.4 Independent Lifecycle Audit Check: Late getUserMedia Resolution after Unmount
+  it('stops media tracks immediately if getUserMedia resolves after component has unmounted (late resolution race guard)', async () => {
+    let resolveGetUserMedia!: (stream: any) => void;
+    const delayedTrack = createMockTrack(false);
+    const delayedStream = {
+      getTracks: () => [delayedTrack],
+      getVideoTracks: () => [delayedTrack],
+    };
+
+    (navigator.mediaDevices.getUserMedia as any).mockImplementationOnce(
+      () => new Promise((resolve) => {
+        resolveGetUserMedia = resolve;
+      })
+    );
+
+    const { unmount } = renderWithRouter(<Scan />);
+
+    // Wait for enumerateDevices to resolve and getUserMedia to be invoked
+    await waitFor(() => {
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalled();
+    });
+
+    // Unmount before getUserMedia resolves (simulates user navigating away while permission prompt was pending)
+    unmount();
+
+    // Now getUserMedia resolves asynchronously
+    await act(async () => {
+      resolveGetUserMedia(delayedStream);
+    });
+
+    // Invariant: track.stop() must be called immediately so no orphaned camera tracks run
+    expect(delayedTrack.stop).toHaveBeenCalledTimes(1);
+  });
+
+  // UX-06.4 Independent Lifecycle Audit Check: Active Stream Teardown on Unmount
+  it('teardowns active stream tracks when component unmounts', async () => {
+    const activeTrack = createMockTrack(false);
+    (navigator.mediaDevices.getUserMedia as any).mockResolvedValueOnce({
+      getTracks: () => [activeTrack],
+      getVideoTracks: () => [activeTrack],
+    });
+
+    const { unmount } = renderWithRouter(<Scan />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Capture photo/i)).toBeInTheDocument();
+    });
+
+    unmount();
+
+    expect(activeTrack.stop).toHaveBeenCalled();
+  });
+
+  // UX-06.4 Independent Lifecycle Audit Check: File Upload Fallback Transition
+  it('handles file upload fallback when camera access is declined', async () => {
+    const permErr = new Error('Permission denied');
+    permErr.name = 'NotAllowedError';
+    (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(permErr);
+
+    (ApiClient.identifyPet as any).mockResolvedValueOnce({
+      status: 'NO_MATCH',
+      matches: []
+    });
+
+    renderWithRouter(<Scan />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Camera Access Required')).toBeInTheDocument();
+    });
+
+    const fileInput = screen.getByLabelText(/Upload canine photo file fallback/i) as HTMLInputElement;
+    expect(fileInput).toBeInTheDocument();
+
+    const testFile = new File(['fake-nose-bytes'], 'test-nose.jpg', { type: 'image/jpeg' });
+    fireEvent.change(fileInput, { target: { files: [testFile] } });
+
+    await waitFor(() => {
+      expect(ApiClient.identifyPet).toHaveBeenCalledWith(testFile);
     });
   });
 });

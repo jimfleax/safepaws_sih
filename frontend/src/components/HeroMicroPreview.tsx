@@ -84,7 +84,7 @@ export const HeroMicroPreview: React.FC<HeroMicroPreviewProps> = ({
       <div id={statusLiveRegionId} className="sr-only" aria-live="polite">
         {scanState === 'calibrating' && 'Optical scan: Calibrating dorsal apex reticle...'}
         {scanState === 'extracting' && 'Optical scan: Extracting 128-dimensional ridge vector...'}
-        {scanState === 'matched' && 'Optical scan complete: Golden Retriever Cooper verified with 99.8% confidence.'}
+        {scanState === 'matched' && 'Optical scan complete: Simulated companion profile loaded for preview.'}
       </div>
 
       {/* Mode-Specific Visual Overlays */}
@@ -235,6 +235,11 @@ export const HeroMicroPreview: React.FC<HeroMicroPreviewProps> = ({
           {/* State: Match Found Card */}
           {scanState === 'matched' ? (
             <div className="bg-[var(--color-surface)]/95 backdrop-blur-md border border-[var(--color-border)] rounded-[var(--radius-16)] p-4 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+              {/* Simulation Mode Mandatory Transparency Banner */}
+              <div className="w-full bg-[var(--color-marigold)]/10 border border-[var(--color-marigold)]/25 rounded-md px-2 py-1 mb-2.5 text-[10px] font-mono text-[var(--color-accent-text)] font-bold text-center tracking-wider uppercase">
+                SIMULATION MODE — NOT A VERIFIED BIOMETRIC RESULT
+              </div>
+
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[var(--color-success)]/15 border border-[var(--color-success)]/30 flex items-center justify-center text-[var(--color-success)] shrink-0">
@@ -248,9 +253,12 @@ export const HeroMicroPreview: React.FC<HeroMicroPreviewProps> = ({
                       <Badge variant="scout" className="text-[10px] py-0 px-2 font-mono">
                         GOLDEN RETRIEVER
                       </Badge>
+                      <span className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[var(--color-marigold)]/15 text-[var(--color-accent-text)]">
+                        DEMO
+                      </span>
                     </div>
                     <p className="text-[length:var(--text-metadata)] text-[var(--color-ink-soft)] font-mono">
-                      CONFIDENCE: 99.84% • 0.4 KM AWAY
+                      SIMULATED CANDIDATE RECORD • DEMO PREVIEW ONLY
                     </p>
                   </div>
                 </div>
@@ -268,7 +276,7 @@ export const HeroMicroPreview: React.FC<HeroMicroPreviewProps> = ({
               <div className="mt-3 pt-3 border-t border-[var(--color-border)] flex items-center justify-between">
                 <span className="text-[11px] font-mono text-[var(--color-success)] font-semibold flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4" aria-hidden="true" />
-                  SECURE GUARDIAN RELAY READY
+                  DEMO RELAY PREVIEW
                 </span>
                 {onScanMatchClick && (
                   <Button
@@ -277,7 +285,7 @@ export const HeroMicroPreview: React.FC<HeroMicroPreviewProps> = ({
                     onClick={onScanMatchClick}
                     className="text-xs h-8 px-3"
                   >
-                    View Record
+                    View Demo Record
                   </Button>
                 )}
               </div>
