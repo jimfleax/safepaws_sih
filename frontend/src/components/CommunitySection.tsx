@@ -197,7 +197,15 @@ export const CommunitySection: React.FC<CommunitySectionProps> = ({
             <div
               key={alert.id}
               onClick={onOpenAlerts}
-              className="group p-6 rounded-[var(--radius-24)] bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-alert-clay)] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onOpenAlerts?.();
+                }
+              }}
+              className="group p-6 rounded-[var(--radius-24)] bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-alert-clay)] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -227,7 +235,15 @@ export const CommunitySection: React.FC<CommunitySectionProps> = ({
           <>
             <div
               onClick={onOpenAlerts}
-              className="group p-6 rounded-[var(--radius-24)] bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-accent)] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onOpenAlerts?.();
+                }
+              }}
+              className="group p-6 rounded-[var(--radius-24)] bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-accent)] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -258,7 +274,15 @@ export const CommunitySection: React.FC<CommunitySectionProps> = ({
 
             <div
               onClick={onOpenReportSighting}
-              className="group p-6 rounded-[var(--radius-24)] bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-trail)] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onOpenReportSighting?.();
+                }
+              }}
+              className="group p-6 rounded-[var(--radius-24)] bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-trail)] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -289,7 +313,15 @@ export const CommunitySection: React.FC<CommunitySectionProps> = ({
 
             <div
               onClick={onOpenCommunity}
-              className="group p-6 rounded-[var(--radius-24)] bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-ink)] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onOpenCommunity?.();
+                }
+              }}
+              className="group p-6 rounded-[var(--radius-24)] bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-ink)] shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">

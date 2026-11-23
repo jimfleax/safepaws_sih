@@ -137,7 +137,7 @@ export default function NewPet() {
   return (
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
       <DashboardNav />
-      <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-10 md:py-16 md:pb-16 pb-32">
+      <main id="main-content" tabIndex={-1} className="outline-none flex-1 max-w-4xl w-full mx-auto px-6 py-10 md:py-16 md:pb-16 pb-32">
         
         <Link 
           to="/dashboard" 

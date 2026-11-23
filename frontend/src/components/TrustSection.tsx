@@ -28,18 +28,20 @@ export const TrustSection: React.FC = () => {
         ease: 'power3.out',
       });
 
-      // Subtle parallax: image drifts on scroll
-      const st = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1,
-        },
-      });
-      st.fromTo(imgRef.current, { scale: 1.08 }, { scale: 1.0, ease: 'none' }, 0);
-      st.fromTo(imgWrapRef.current, { y: 20 }, { y: -20, ease: 'none' }, 0);
-      st.fromTo(textRef.current, { y: 40 }, { y: -40, ease: 'none' }, 0);
+      // Subtle parallax: image drifts on scroll (desktop only >= 768px, mobile bypass for 60fps composite)
+      if (containerRef.current && window.innerWidth >= 768) {
+        const st = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1,
+          },
+        });
+        st.fromTo(imgRef.current, { scale: 1.08 }, { scale: 1.0, ease: 'none' }, 0);
+        st.fromTo(imgWrapRef.current, { y: 20 }, { y: -20, ease: 'none' }, 0);
+        st.fromTo(textRef.current, { y: 40 }, { y: -40, ease: 'none' }, 0);
+      }
     }, containerRef);
 
     return () => ctx.revert();

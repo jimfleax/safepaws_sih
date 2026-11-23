@@ -56,7 +56,7 @@ export default function CommunityOnboarding() {
     <div className="min-h-screen bg-[var(--color-background)] flex flex-col font-sans">
       <DashboardNav />
       
-      <main className="flex-1 w-full max-w-2xl mx-auto px-4 py-12 md:py-20 flex flex-col">
+      <main id="main-content" tabIndex={-1} className="outline-none flex-1 w-full max-w-2xl mx-auto px-4 py-12 md:py-20 flex flex-col">
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 md:p-12 shadow-sm">
           
           <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6">

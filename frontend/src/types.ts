@@ -13,6 +13,7 @@ export interface Pet {
   ownerName?: string;
   ownerPhone?: string;
   ownerEmail?: string;
+  ownerAddress?: string;
   neighborhood?: string;
   consentGiven?: boolean;
   medicalNotes?: string;

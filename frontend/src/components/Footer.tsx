@@ -57,12 +57,12 @@ export const Footer: React.FC<FooterProps> = ({
             <h4 className="font-serif font-bold text-base text-[var(--color-ink)] tracking-tight mb-2">
               Recovery Tools
             </h4>
-            <ul className="space-y-2 text-sm text-[var(--color-ink-soft)]">
+            <ul className="space-y-1 text-sm text-[var(--color-ink-soft)]">
               <li>
                 <button
                   type="button"
                   onClick={() => navigate('/scan')}
-                  className="hover:text-[var(--color-accent-text)] transition-colors text-left"
+                  className="hover:text-[var(--color-accent-text)] transition-colors text-left min-h-[44px] inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
                 >
                   Biometric Scanner
                 </button>
@@ -71,7 +71,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => navigate('/lost/new')}
-                  className="hover:text-[var(--color-accent-text)] transition-colors text-left"
+                  className="hover:text-[var(--color-accent-text)] transition-colors text-left min-h-[44px] inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
                 >
                   Report Lost Pet
                 </button>
@@ -80,7 +80,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => navigate('/sightings/new')}
-                  className="hover:text-[var(--color-accent-text)] transition-colors text-left"
+                  className="hover:text-[var(--color-accent-text)] transition-colors text-left min-h-[44px] inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
                 >
                   Submit a Sighting
                 </button>
@@ -89,7 +89,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => navigate('/lost')}
-                  className="hover:text-[var(--color-accent-text)] transition-colors text-left"
+                  className="hover:text-[var(--color-accent-text)] transition-colors text-left min-h-[44px] inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
                 >
                   Active Lost Alerts
                 </button>
@@ -102,12 +102,12 @@ export const Footer: React.FC<FooterProps> = ({
             <h4 className="font-serif font-bold text-base text-[var(--color-ink)] tracking-tight mb-2">
               Community Watch
             </h4>
-            <ul className="space-y-2 text-sm text-[var(--color-ink-soft)]">
+            <ul className="space-y-1 text-sm text-[var(--color-ink-soft)]">
               <li>
                 <button
                   type="button"
                   onClick={() => navigate('/community')}
-                  className="hover:text-[var(--color-accent-text)] transition-colors text-left"
+                  className="hover:text-[var(--color-accent-text)] transition-colors text-left min-h-[44px] inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
                 >
                   Local Scout Feed
                 </button>
@@ -116,7 +116,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => navigate('/dashboard')}
-                  className="hover:text-[var(--color-accent-text)] transition-colors text-left"
+                  className="hover:text-[var(--color-accent-text)] transition-colors text-left min-h-[44px] inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
                 >
                   Pet Dossier Management
                 </button>
@@ -125,7 +125,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={onOpenGuidelines}
-                  className="hover:text-[var(--color-accent-text)] transition-colors text-left"
+                  className="hover:text-[var(--color-accent-text)] transition-colors text-left min-h-[44px] inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
                 >
                   Community Guidelines
                 </button>
@@ -138,12 +138,12 @@ export const Footer: React.FC<FooterProps> = ({
             <h4 className="font-serif font-bold text-base text-[var(--color-ink)] tracking-tight mb-2">
               Governance & Safety
             </h4>
-            <ul className="space-y-2 text-sm text-[var(--color-ink-soft)]">
+            <ul className="space-y-1 text-sm text-[var(--color-ink-soft)]">
               <li>
                 <button
                   type="button"
                   onClick={onOpenPrivacy}
-                  className="hover:text-[var(--color-accent-text)] transition-colors text-left"
+                  className="hover:text-[var(--color-accent-text)] transition-colors text-left min-h-[44px] inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
                 >
                   Privacy Architecture
                 </button>
@@ -152,7 +152,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={onOpenContact}
-                  className="hover:text-[var(--color-accent-text)] transition-colors text-left"
+                  className="hover:text-[var(--color-accent-text)] transition-colors text-left min-h-[44px] inline-flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
                 >
                   Emergency Contact & Support
                 </button>
@@ -168,7 +168,7 @@ export const Footer: React.FC<FooterProps> = ({
           <button
             type="button"
             onClick={scrollToTop}
-            className="inline-flex items-center gap-1.5 hover:text-[var(--color-ink)] transition-colors font-medium p-2 rounded-lg hover:bg-[var(--color-bone)]"
+            className="inline-flex items-center gap-1.5 hover:text-[var(--color-ink)] transition-colors font-medium p-2 rounded-lg hover:bg-[var(--color-bone)] min-h-[44px] min-w-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
             aria-label="Scroll back to top of page"
           >
             <span>Back to top</span>

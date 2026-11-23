@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pet, NeighborhoodAlert } from '../types';
 import { Link } from 'react-router-dom';
 import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
-import { ArrowRight, ScanFace, MapPin, Activity, ShieldAlert, Sparkles } from 'lucide-react';
+import { ArrowRight, ScanFace, MapPin, Activity, ShieldAlert, Sparkles, Copy, Check } from 'lucide-react';
 
 export interface PetCardProps {
   pet: Pet;
@@ -20,6 +20,20 @@ export const PetCard: React.FC<PetCardProps> = ({
 }) => {
   const isLost = pet.status === 'lost';
   const isSighted = pet.status === 'sightings_reported';
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyTag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const tagToCopy = pet.qrTagId || pet.id;
+    if (!tagToCopy) return;
+    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(tagToCopy).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }).catch(() => {});
+    }
+  };
 
   const renderBadge = () => {
     if (isLost) {
@@ -161,14 +175,29 @@ export const PetCard: React.FC<PetCardProps> = ({
           <p className="text-xs md:text-sm text-[var(--color-ink-soft)] truncate mt-0.5 font-medium">
             {pet.breed} {pet.color ? `• ${pet.color}` : ''}
           </p>
+          {/* Responsive wrapping identifier & copy affordance - accessible on touch/mobile and desktop */}
+          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <span className="text-[11px] text-[var(--color-ink-soft)] font-mono tracking-wider break-all select-all font-semibold" title={pet.qrTagId || 'SECURED'}>
+              {pet.qrTagId || 'SECURED'}
+            </span>
+            {pet.qrTagId && (
+              <button
+                type="button"
+                onClick={handleCopyTag}
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] hover:bg-[var(--color-bone)] border border-[var(--color-border)]/60 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-focus)] cursor-pointer"
+                aria-label={`Copy identifier ${pet.qrTagId}`}
+                title={`Copy identifier ${pet.qrTagId}`}
+              >
+                {copied ? <Check size={11} className="text-[var(--color-success)]" /> : <Copy size={11} />}
+                <span>{copied ? 'Copied' : 'Copy'}</span>
+              </button>
+            )}
+          </div>
         </div>
         
         {/* Desktop Status Badge */}
         <div className="hidden md:flex flex-col items-end shrink-0 mr-2">
           {renderBadge()}
-          <span className="text-[10px] text-[var(--color-ink-soft)] font-mono tracking-wider mt-1">
-            {pet.qrTagId ? `${pet.qrTagId.slice(0, 8)}-TAG` : 'SECURED'}
-          </span>
         </div>
         
         {/* Arrow Action */}
@@ -212,10 +241,21 @@ export const PetCard: React.FC<PetCardProps> = ({
         </div>
 
         {/* Biometric Chip Indicator */}
-        <div className="absolute bottom-3 left-3 z-10">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-bold text-[var(--color-ink)] border border-white/60 shadow-xs">
-            <ScanFace size={12} className="text-[var(--color-accent-text)]" />
-            <span className="font-mono">{pet.qrTagId?.slice(0, 6) || pet.id.slice(0, 6).toUpperCase()}</span>
+        <div className="absolute bottom-3 left-3 z-10 max-w-[85%]">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-[10px] font-bold text-[var(--color-ink)] border border-white/60 shadow-xs flex-wrap" title={pet.qrTagId || pet.id}>
+            <ScanFace size={12} className="text-[var(--color-accent-text)] shrink-0" />
+            <span className="font-mono break-all">{pet.qrTagId || pet.id.toUpperCase()}</span>
+            {pet.qrTagId && (
+              <button
+                type="button"
+                onClick={handleCopyTag}
+                className="ml-0.5 p-0.5 hover:text-[var(--color-accent-text)] text-[var(--color-ink-soft)] transition-colors inline-flex items-center cursor-pointer"
+                aria-label={`Copy identifier ${pet.qrTagId}`}
+                title={`Copy identifier ${pet.qrTagId}`}
+              >
+                {copied ? <Check size={11} className="text-[var(--color-success)]" /> : <Copy size={11} />}
+              </button>
+            )}
           </div>
         </div>
       </div>

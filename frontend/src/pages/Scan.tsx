@@ -85,7 +85,7 @@ export default function Scan() {
   };
 
   return (
-    <div className="fixed inset-0 bg-[var(--color-ink)] z-50 flex flex-col select-none">
+    <main id="main-content" tabIndex={-1} className="outline-none fixed inset-0 bg-[var(--color-ink)] z-50 flex flex-col select-none">
       <div className="w-full h-full relative overflow-hidden" data-cursor="scan">
         
         {/* Spatial Chamber Telemetry Header Tag */}
@@ -140,6 +140,6 @@ export default function Scan() {
         )}
         
       </div>
-    </div>
+    </main>
   );
 }

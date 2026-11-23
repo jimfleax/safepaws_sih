@@ -63,26 +63,26 @@ export default function AlertDetail() {
     return (
       <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row">
         <DashboardNav />
-        <div className="flex-1 flex items-center justify-center p-6 text-center">
+        <main id="main-content" tabIndex={-1} className="outline-none flex-1 flex items-center justify-center p-6 text-center">
           <div className="w-8 h-8 border-4 border-[var(--color-alert)] border-t-transparent rounded-full animate-spin mb-4" />
           <span className="sr-only">Loading alert details...</span>
-        </div>
+        </main>
       </div>
     );
   }
 
   if (!alert) {
     return (
-      <div className="min-h-screen bg-[var(--color-bone)] flex items-center justify-center p-6 text-center">
+      <main id="main-content" tabIndex={-1} className="outline-none min-h-screen bg-[var(--color-bone)] flex items-center justify-center p-6 text-center">
         <div className="max-w-md w-full">
           <AlertCircle className="text-[var(--color-alert)] mx-auto mb-6" size={48} />
-          <h2 className="text-3xl font-serif text-[var(--color-ink)] mb-4">{fetchError || 'Record Purged'}</h2>
+          <h1 className="text-3xl font-serif text-[var(--color-ink)] mb-4">{fetchError || 'Record Purged'}</h1>
           <p className="text-[var(--color-ink-soft)] text-lg mb-8 leading-relaxed">This alert may have been resolved, archived, or deleted by the network.</p>
-          <button onClick={() => navigate('/lost')} className="px-8 py-4 border-2 border-[var(--color-ink)] text-[var(--color-ink)] hover:bg-[var(--color-ink)] hover:text-[var(--color-bone)] font-bold text-xs uppercase tracking-widest transition-colors">
+          <button onClick={() => navigate('/lost')} className="min-h-[44px] px-8 py-4 border-2 border-[var(--color-ink)] text-[var(--color-ink)] hover:bg-[var(--color-ink)] hover:text-[var(--color-bone)] font-bold text-xs uppercase tracking-widest transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]">
             Return to Directory
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -104,11 +104,11 @@ export default function AlertDetail() {
   return (
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
       <DashboardNav />
-      <main className="flex-1 w-full flex flex-col">
+      <main id="main-content" tabIndex={-1} className="outline-none flex-1 w-full flex flex-col">
         
         {/* Top Header Row */}
         <div className="px-6 lg:px-12 py-6 border-b border-[var(--color-ink)]/10 flex justify-between items-center bg-white/40 sticky top-0 z-10 backdrop-blur-md">
-          <Link to="/lost" className="group inline-flex items-center gap-2 text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors font-bold text-xs tracking-widest uppercase">
+          <Link to="/lost" className="group inline-flex items-center gap-2 text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors font-bold text-xs tracking-widest uppercase min-h-[44px] min-w-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm">
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             Recovery Board
           </Link>
@@ -116,7 +116,7 @@ export default function AlertDetail() {
           {isOwner && isActive && (
             <button 
               onClick={handleResolve}
-              className="px-6 py-2 bg-[var(--color-ink)] hover:bg-opacity-90 text-[var(--color-bone)] font-bold text-[10px] uppercase tracking-widest transition-colors flex items-center gap-2 shadow-sm"
+              className="px-6 py-2 bg-[var(--color-ink)] hover:bg-opacity-90 text-[var(--color-bone)] font-bold text-[10px] uppercase tracking-widest transition-colors flex items-center gap-2 shadow-sm min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
             >
               <CheckCircle size={14} />
               Resolve Incident
@@ -204,7 +204,7 @@ export default function AlertDetail() {
                 </div>
 
                 <div className="mt-10 pt-10 border-t border-[var(--color-ink)]/10">
-                  <h3 className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-widest mb-4">Incident Log & Description</h3>
+                  <h2 className="text-xs font-bold text-[var(--color-ink-soft)] uppercase tracking-widest mb-4">Incident Log & Description</h2>
                   <p className="text-xl font-serif text-[var(--color-ink)] leading-relaxed italic">
                     "{alert.description}"
                   </p>
@@ -217,13 +217,13 @@ export default function AlertDetail() {
               
               {isActive && !isOwner && (
                 <div className="bg-[var(--color-alert)] p-10 text-white shadow-lg">
-                  <h3 className="text-3xl font-serif font-bold mb-4">Have you seen {alert.petName}?</h3>
+                  <h2 className="text-3xl font-serif font-bold mb-4">Have you seen {alert.petName}?</h2>
                   <p className="text-white/90 mb-8 text-lg leading-relaxed italic">
                     If you spot this pet, do not chase. Note the exact location and submit a sighting immediately.
                   </p>
                   <Link 
                     to={`/sightings/new?alertId=${alert.id}`} 
-                    className="flex items-center justify-center gap-3 w-full py-5 bg-white text-[var(--color-alert)] font-bold uppercase tracking-widest text-sm hover:bg-opacity-90 transition-colors shadow-md"
+                    className="flex items-center justify-center gap-3 w-full py-5 bg-white text-[var(--color-alert)] font-bold uppercase tracking-widest text-sm hover:bg-opacity-90 transition-colors shadow-md min-h-[44px]"
                   >
                     <Camera size={18} />
                     Report Sighting
@@ -233,10 +233,10 @@ export default function AlertDetail() {
               
               <div className="bg-white/50 border border-[var(--color-ink)]/10 p-8 shadow-sm flex-1">
                 <div className="flex items-end justify-between mb-10 pb-6 border-b border-[var(--color-ink)]/10">
-                  <h3 className="text-2xl font-serif font-bold text-[var(--color-ink)] flex items-center gap-3">
+                  <h2 className="text-2xl font-serif font-bold text-[var(--color-ink)] flex items-center gap-3">
                     <Activity size={24} className={isActive ? "text-[var(--color-alert)] animate-pulse" : "text-[var(--color-ink-soft)]"} />
                     Sighting Timeline
-                  </h3>
+                  </h2>
                   <span className="text-[var(--color-ink-soft)] font-bold text-sm uppercase tracking-widest">
                     {alertSightings.length} Reports
                   </span>

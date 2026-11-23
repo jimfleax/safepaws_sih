@@ -46,9 +46,18 @@ export const BentoCard = ({
   return (
     <div
       onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className={cn(
         "group relative col-span-3 flex flex-col justify-between overflow-hidden rounded-[var(--radius-24)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 md:p-8 shadow-[var(--shadow-card)] transition-all",
         "hover:border-[var(--color-ink-soft)] hover:shadow-[var(--shadow-card-hover)]",
+        onClick && "cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]",
         className
       )}
       {...props}
@@ -79,7 +88,7 @@ export const BentoCard = ({
         </p>
 
         {cta && (
-          <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-accent-text)] group-hover:text-[var(--color-accent-hover)] transition-colors">
+          <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-accent-text)] group-hover:text-[var(--color-accent-text-hover)] transition-colors">
             <span>{cta}</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
           </div>

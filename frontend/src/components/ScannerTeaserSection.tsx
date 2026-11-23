@@ -89,7 +89,7 @@ export const ScannerTeaserSection: React.FC<ScannerTeaserSectionProps> = ({ onOp
             <div className="relative w-full max-w-[480px] aspect-[4/5] rounded-[var(--radius-24)] overflow-hidden bg-[#0D0C0B] border border-white/15 shadow-2xl p-6 flex flex-col justify-between">
               {/* Background Sample Photo */}
               <img
-                src="https://images.unsplash.com/photo-1544568100-847a948585b9?q=80&w=1000&auto=format&fit=crop"
+                src="/images/rescue_hud.jpg"
                 alt="Simulated canine nose leather sample for optical scanning demonstration"
                 className="absolute inset-0 w-full h-full object-cover filter contrast-[1.1] brightness-[0.75] opacity-60 pointer-events-none"
               />
@@ -162,7 +162,7 @@ export const ScannerTeaserSection: React.FC<ScannerTeaserSectionProps> = ({ onOp
               <button
                 type="button"
                 onClick={() => setActiveStage('align')}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+                className={`px-4 py-2.5 rounded-full text-xs font-semibold transition-all min-h-[44px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] cursor-pointer ${
                   activeStage === 'align'
                     ? 'bg-[var(--color-marigold)] text-[var(--color-ink)] shadow'
                     : 'text-white/70 hover:text-white'
@@ -173,7 +173,7 @@ export const ScannerTeaserSection: React.FC<ScannerTeaserSectionProps> = ({ onOp
               <button
                 type="button"
                 onClick={() => setActiveStage('extract')}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+                className={`px-4 py-2.5 rounded-full text-xs font-semibold transition-all min-h-[44px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] cursor-pointer ${
                   activeStage === 'extract'
                     ? 'bg-[var(--color-marigold)] text-[var(--color-ink)] shadow'
                     : 'text-white/70 hover:text-white'
@@ -184,7 +184,7 @@ export const ScannerTeaserSection: React.FC<ScannerTeaserSectionProps> = ({ onOp
               <button
                 type="button"
                 onClick={() => setActiveStage('match')}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+                className={`px-4 py-2.5 rounded-full text-xs font-semibold transition-all min-h-[44px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] cursor-pointer ${
                   activeStage === 'match'
                     ? 'bg-[var(--color-marigold)] text-[var(--color-ink)] shadow'
                     : 'text-white/70 hover:text-white'

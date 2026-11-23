@@ -13,3 +13,5 @@ export * from './shimmer-button';
 export * from './3d-card';
 export * from './number-ticker';
 export * from './spotlight';
+export * from './SkipToContent';
+export * from './AlertCard';

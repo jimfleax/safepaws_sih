@@ -141,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <span
                   className={`relative z-10 flex items-center gap-2 transition-all duration-[var(--animate-duration-micro)] ${
                     isHovered
-                      ? 'text-[var(--color-accent)] font-semibold translate-y-[-0.5px]'
+                      ? 'text-[var(--color-accent-text)] font-semibold translate-y-[-0.5px]'
                       : 'text-[var(--color-ink-soft)]'
                   }`}
                 >
@@ -189,7 +189,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               className="relative z-10 origin-top"
             >
-              <Bell className="w-5 h-5 text-[var(--color-ink-soft)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--animate-duration-micro)]" />
+              <Bell className="w-5 h-5 text-[var(--color-ink-soft)] group-hover:text-[var(--color-accent-text)] transition-colors duration-[var(--animate-duration-micro)]" />
             </motion.div>
 
             {/* Notification Badge */}
@@ -206,7 +206,14 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Authentication & Profile */}
           {isAuthenticated ? (
             <div className="flex items-center gap-2">
-              <img src={user?.picture || 'https://via.placeholder.com/40'} alt="Profile" className="w-10 h-10 rounded-full cursor-pointer border-2 border-[var(--color-border)] hover:border-[var(--color-accent)] transition-colors" onClick={onOpenProfile} />
+              <button 
+                type="button" 
+                onClick={onOpenProfile} 
+                aria-label="Open profile" 
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center border-2 border-[var(--color-border)] hover:border-[var(--color-accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] transition-colors overflow-hidden cursor-pointer"
+              >
+                <img src={user?.picture || 'https://via.placeholder.com/40'} alt="" className="w-full h-full object-cover" />
+              </button>
               <button onClick={handleLogout} className="hidden sm:block text-[length:var(--text-label-button)] font-medium text-[var(--color-danger)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] rounded px-2 py-1 min-h-[44px]">Logout</button>
             </div>
           ) : (
@@ -231,7 +238,7 @@ export const Header: React.FC<HeaderProps> = ({
                       }
                     }
                   }}
-                  className="px-4 py-2 bg-[var(--color-ink-soft)] hover:bg-[var(--color-ink)] text-white rounded-[var(--radius-12)] text-[length:var(--text-label-button)] shadow-sm focus:outline-none min-h-[44px] transition-colors"
+                  className="hidden sm:block px-4 py-2 bg-[var(--color-ink-soft)] hover:bg-[var(--color-ink)] text-white rounded-[var(--radius-12)] text-[length:var(--text-label-button)] shadow-sm focus:outline-none min-h-[44px] transition-colors"
                 >
                   Development Sign In
                 </button>

@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
+import { HeroMicroPreview } from './HeroMicroPreview';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -11,12 +12,14 @@ interface HeroProps {
   onJoinClick: () => void;
   onIdentifyClick?: () => void;
   onOpenLostAlerts?: () => void;
+  activeAlertCount?: number;
 }
 
 export const Hero: React.FC<HeroProps> = ({
   onJoinClick,
   onIdentifyClick,
   onOpenLostAlerts,
+  activeAlertCount,
 }) => {
   const containerRef = useRef<HTMLElement>(null);
   const eyebrowRef = useRef<HTMLDivElement>(null);
@@ -25,9 +28,7 @@ export const Hero: React.FC<HeroProps> = ({
   const ctaGroupRef = useRef<HTMLDivElement>(null);
   const trustPillsRef = useRef<HTMLDivElement>(null);
   const imageCardRef = useRef<HTMLDivElement>(null);
-  const imageInnerRef = useRef<HTMLImageElement>(null);
   const floatingBadgeRef = useRef<HTMLDivElement>(null);
-  const hudOverlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const prefersReducedMotion =
@@ -67,10 +68,6 @@ export const Hero: React.FC<HeroProps> = ({
         scale: 0.9,
       });
 
-      gsap.set(hudOverlayRef.current, {
-        opacity: 0,
-      });
-
       // Master entrance choreography
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
@@ -81,14 +78,6 @@ export const Hero: React.FC<HeroProps> = ({
         duration: 1.4,
         ease: 'power4.inOut',
       })
-        .to(
-          hudOverlayRef.current,
-          {
-            opacity: 1,
-            duration: 0.8,
-          },
-          '-=0.6'
-        )
         .to(
           floatingBadgeRef.current,
           {
@@ -146,8 +135,8 @@ export const Hero: React.FC<HeroProps> = ({
           '-=0.4'
         );
 
-      // Smooth scroll parallax effect
-      if (containerRef.current) {
+      // Smooth scroll parallax effect (desktop only >= 768px, mobile bypass for 60fps composite)
+      if (containerRef.current && window.innerWidth >= 768) {
         const st = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -157,9 +146,8 @@ export const Hero: React.FC<HeroProps> = ({
           },
         });
 
-        st.to(imageCardRef.current, { y: 60, ease: 'none' }, 0);
-        st.to(imageInnerRef.current, { scale: 1.08, ease: 'none' }, 0);
-        st.to(floatingBadgeRef.current, { y: -30, ease: 'none' }, 0);
+        st.to(imageCardRef.current, { y: 40, ease: 'none' }, 0);
+        st.to(floatingBadgeRef.current, { y: -20, ease: 'none' }, 0);
       }
     }, containerRef);
 
@@ -245,17 +233,29 @@ export const Hero: React.FC<HeroProps> = ({
             className="w-full max-w-xl pt-6 border-t border-[var(--color-border)] flex flex-wrap items-center justify-between gap-4 text-[length:var(--text-metadata)]"
           >
             <div className="flex items-center gap-2 text-[var(--color-ink)] font-medium">
-              <span className="w-2 h-2 rounded-full bg-[var(--color-success)] inline-block animate-ping" />
-              <span>Active Neighborhood Network Active</span>
+              <span className={`w-2 h-2 rounded-full inline-block ${
+                activeAlertCount && activeAlertCount > 0
+                  ? 'bg-[var(--color-alert-clay)] animate-ping'
+                  : 'bg-[var(--color-success)] animate-pulse'
+              }`} />
+              <span>
+                {activeAlertCount && activeAlertCount > 0
+                  ? `${activeAlertCount} Active Recovery Alert${activeAlertCount > 1 ? 's' : ''}`
+                  : 'Neighborhood Scout Watch // All Clear'}
+              </span>
             </div>
 
             {onOpenLostAlerts && (
               <button
                 type="button"
                 onClick={onOpenLostAlerts}
-                className="inline-flex items-center gap-1.5 text-[var(--color-alert-clay)] hover:underline font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
+                className="inline-flex items-center gap-1.5 text-[var(--color-alert-clay)] hover:underline font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm min-h-[44px] py-2 cursor-pointer"
               >
-                <span>Missing pet right now? View live alerts</span>
+                <span>
+                  {activeAlertCount && activeAlertCount > 0
+                    ? 'Missing companion right now? View live alerts'
+                    : 'View active recovery board'}
+                </span>
                 <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
             )}
@@ -271,51 +271,9 @@ export const Hero: React.FC<HeroProps> = ({
               aria-hidden="true"
             />
 
-            {/* Main Visual Frame */}
-            <div
-              ref={imageCardRef}
-              className="relative w-full aspect-[4/5] rounded-[var(--radius-24)] overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xl"
-            >
-              <img
-                ref={imageInnerRef}
-                src="https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1200&auto=format&fit=crop"
-                alt="Close-up of a dog's nose texture showcasing unique friction ridge contours"
-                className="w-full h-full object-cover filter contrast-[1.04]"
-                loading="eager"
-              />
-
-              {/* HUD Reticle Overlay */}
-              <div
-                ref={hudOverlayRef}
-                className="absolute inset-0 pointer-events-none p-6 flex flex-col justify-between"
-                aria-hidden="true"
-              >
-                {/* Top Corner HUD Brackets */}
-                <div className="flex items-center justify-between text-[11px] font-mono tracking-widest text-white/90">
-                  <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
-                    <span className="w-2 h-2 rounded-full bg-[var(--color-marigold)] animate-pulse" />
-                    <span>RETICLE // DORSAL APEX</span>
-                  </div>
-                  <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-white/80">
-                    RIDGE MAPPING
-                  </div>
-                </div>
-
-                {/* Center Biometric Target Reticle */}
-                <div className="self-center relative w-44 h-44 border border-dashed border-[var(--color-marigold)]/70 rounded-full flex items-center justify-center">
-                  <div className="w-36 h-36 border border-white/30 rounded-full animate-spin [animation-duration:18s]" />
-                  <div className="w-4 h-4 border-2 border-[var(--color-marigold)] rounded-full bg-white/20" />
-                  <span className="absolute -top-3 px-2 py-0.5 bg-black/60 rounded text-[9px] font-mono text-white tracking-widest">
-                    ALIGN NOSE LEATHER
-                  </span>
-                </div>
-
-                {/* Bottom Telemetry Stamp */}
-                <div className="flex items-center justify-between bg-black/50 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white/20 text-white/90 font-mono text-[11px]">
-                  <span>OPTICAL ENROLLMENT</span>
-                  <span className="text-[var(--color-marigold)]">100% NON-INVASIVE</span>
-                </div>
-              </div>
+            {/* Main Visual Frame with Live Interactive Micro-Preview */}
+            <div ref={imageCardRef} className="relative w-full">
+              <HeroMicroPreview onScanMatchClick={onIdentifyClick} />
             </div>
 
             {/* Floating Tactile Card Badge */}

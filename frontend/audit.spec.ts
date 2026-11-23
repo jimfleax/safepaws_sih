@@ -71,19 +71,24 @@ test.describe.serial('SafePaws Core Journeys Audit', () => {
   });
 
   test('7. QR/Public Pet Profile & 8. Finder Scan & 9. Scan -> Match', async ({ page }) => {
-    // Navigate to a scan page
     await page.goto('/scan');
-    // Assuming there's a button to "Enter QR manually" or a camera mock
-    console.log("At scan page");
+    await expect(page.locator('main#main-content')).toBeVisible();
+    await expect(page.locator('text=SAFEPAWS // BIOMETRIC HUD')).toBeVisible();
+    await expect(page.locator('button[aria-label="Close scan"]')).toBeVisible();
   });
 
   test('10. Report Lost Pet & 11. Alert Detail / Resolve', async ({ page }) => {
     await page.goto('/lost');
-    console.log("At lost alerts page");
+    await expect(page.locator('main#main-content')).toBeVisible();
+    await expect(page.getByText(/ACTIVE RECOVERY NETWORK|Recovery Board|ACTIVE MISSING PET ALERTS|Lost Dogs/i).first()).toBeVisible();
   });
 
   test('12. Submit Sighting', async ({ page }) => {
-    // If there is an alert, submit sighting
+    await page.goto('/sightings/new');
+    await expect(page.locator('main#main-content')).toBeVisible();
+    await expect(page.locator('h1')).toHaveText(/Report a Sighting/i);
+    await expect(page.locator('#reporterName')).toBeVisible();
+    await expect(page.locator('button[type="submit"]')).toBeVisible();
   });
 
   test('13. Community & 14. Post/Reply/Report', async ({ page }) => {

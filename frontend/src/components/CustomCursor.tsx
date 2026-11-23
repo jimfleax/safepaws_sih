@@ -19,14 +19,14 @@ export const CustomCursor: React.FC = () => {
   const [isDisabled, setIsDisabled] = useState(false);
 
   useEffect(() => {
-    const touchQuery = window.matchMedia('(pointer: coarse)');
+    const finePointerQuery = window.matchMedia('(pointer: fine)');
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     const evaluateDisable = () => {
-      const isTouch = touchQuery.matches;
+      const isNotFine = !finePointerQuery.matches;
       const isReducedMotion = motionQuery.matches;
       const isScanPage = location.pathname.startsWith('/scan');
-      const shouldDisable = isTouch || isReducedMotion || isScanPage;
+      const shouldDisable = isNotFine || isReducedMotion || isScanPage;
       setIsDisabled(shouldDisable);
       if (shouldDisable) {
         document.body.classList.add('no-custom-cursor');
@@ -37,11 +37,11 @@ export const CustomCursor: React.FC = () => {
 
     evaluateDisable();
 
-    touchQuery.addEventListener?.('change', evaluateDisable);
+    finePointerQuery.addEventListener?.('change', evaluateDisable);
     motionQuery.addEventListener?.('change', evaluateDisable);
 
     return () => {
-      touchQuery.removeEventListener?.('change', evaluateDisable);
+      finePointerQuery.removeEventListener?.('change', evaluateDisable);
       motionQuery.removeEventListener?.('change', evaluateDisable);
       document.body.classList.remove('no-custom-cursor');
     };

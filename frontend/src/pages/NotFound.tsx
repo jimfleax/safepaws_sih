@@ -7,7 +7,7 @@ export default function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)] flex flex-col items-center justify-center p-6 text-center">
+    <main id="main-content" tabIndex={-1} className="outline-none min-h-screen bg-[var(--color-background)] flex flex-col items-center justify-center p-6 text-center">
       <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-sm border border-[var(--color-border)] flex flex-col items-center">
         <div className="w-16 h-16 rounded-2xl bg-[var(--color-bone)] border border-[var(--color-border)] flex items-center justify-center mb-6 text-[var(--color-ink)]">
           <PawIcon className="w-8 h-8 opacity-50" />
@@ -21,7 +21,7 @@ export default function NotFound() {
         <div className="space-y-3 w-full">
           <button 
             onClick={() => navigate(-1)}
-            className="w-full py-3.5 px-6 rounded-xl border-2 border-[var(--color-border)] font-bold text-sm text-[var(--color-ink)] flex items-center justify-center gap-2 hover:bg-[var(--color-bone)] transition-colors cursor-pointer"
+            className="w-full py-3.5 px-6 rounded-xl border-2 border-[var(--color-border)] font-bold text-sm text-[var(--color-ink)] flex items-center justify-center gap-2 hover:bg-[var(--color-bone)] transition-colors cursor-pointer min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
           >
             <ArrowLeft className="w-4 h-4" />
             Go Back
@@ -29,13 +29,13 @@ export default function NotFound() {
           
           <button 
             onClick={() => navigate('/')}
-            className="w-full py-3.5 px-6 rounded-xl bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-md cursor-pointer"
+            className="w-full py-3.5 px-6 rounded-xl bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-ink)] font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-md cursor-pointer min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
           >
             <Home className="w-4 h-4" />
             Return Home
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

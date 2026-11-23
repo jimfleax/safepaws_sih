@@ -151,7 +151,15 @@ export const HowItWorksSection: React.FC<HowItWorksSectionProps> = ({
             <div
               key={step.num}
               onClick={step.onClick}
-              className="group relative flex flex-col justify-between p-6 sm:p-7 rounded-[var(--radius-24)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)] hover:border-[var(--color-marigold)] hover:shadow-lg transition-all cursor-pointer min-h-[300px]"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  step.onClick();
+                }
+              }}
+              className="group relative flex flex-col justify-between p-6 sm:p-7 rounded-[var(--radius-24)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)] hover:border-[var(--color-marigold)] hover:shadow-lg transition-all cursor-pointer min-h-[300px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
             >
               <div>
                 {/* Step Number & Icon */}

@@ -137,7 +137,8 @@ export default function Community() {
         </div>
 
         {/* Center Main Feed Viewport */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden bg-[var(--color-bone)]">
+        <main id="main-content" tabIndex={-1} className="outline-none flex-1 flex flex-col h-full overflow-hidden bg-[var(--color-bone)]">
+          <h1 className="sr-only">SafePaws Neighborhood Community Feed</h1>
           <CommunityHeader 
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -228,7 +229,7 @@ export default function Community() {
 
             </div>
           </div>
-        </div>
+        </main>
 
         {/* Right Sidebar: Real Alerts & Field Guidance */}
         <RecoverySidebar activeAlerts={activeAlerts} />

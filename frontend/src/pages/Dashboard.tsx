@@ -37,7 +37,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans selection:bg-[var(--color-ink)] selection:text-white">
       <DashboardNav />
       
-      <main className="flex-1 w-full max-w-6xl mx-auto px-6 py-10 md:py-16 md:pb-16 pb-32">
+      <main id="main-content" tabIndex={-1} className="outline-none flex-1 w-full max-w-6xl mx-auto px-6 py-10 md:py-16 md:pb-16 pb-32">
         
         {/* 1. CONSOLE TELEMETRY HEADER */}
         <header className="mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[var(--color-border)] pb-8">

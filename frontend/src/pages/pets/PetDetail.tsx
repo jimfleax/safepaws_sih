@@ -162,7 +162,7 @@ export default function PetDetail() {
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
       <DashboardNav />
       
-      <main className="flex-1 max-w-6xl mx-auto px-6 lg:px-12 py-10 lg:py-16 pb-32 w-full">
+      <main id="main-content" tabIndex={-1} className="outline-none flex-1 max-w-6xl mx-auto px-6 lg:px-12 py-10 lg:py-16 pb-32 w-full">
         
         {/* Navigation Breadcrumb */}
         <Link 

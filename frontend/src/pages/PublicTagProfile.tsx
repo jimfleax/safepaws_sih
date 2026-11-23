@@ -46,27 +46,27 @@ export default function PublicTagProfile() {
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--color-bone)] flex flex-col items-center justify-center p-6 text-center select-none">
+      <main id="main-content" tabIndex={-1} className="outline-none min-h-screen bg-[var(--color-bone)] flex flex-col items-center justify-center p-6 text-center select-none">
         <div className="w-14 h-14 border-[3px] border-[var(--color-marigold)] border-t-transparent rounded-full animate-spin mb-6" />
-        <h2 className="font-serif text-3xl font-bold text-[var(--color-ink)] mb-2">Accessing Collar Record...</h2>
+        <h1 className="font-serif text-3xl font-bold text-[var(--color-ink)] mb-2">Accessing Collar Record...</h1>
         <p className="text-[var(--color-ink-soft)] text-sm max-w-sm leading-relaxed font-light">
           Securely retrieving the public identity profile for this SafePaws tag.
         </p>
-      </div>
+      </main>
     );
   }
 
   // Error / Invalid / Unknown Tag State
   if (!pet) {
     return (
-      <div className="min-h-screen bg-[var(--color-bone)] flex flex-col items-center justify-center p-6 text-center">
+      <main id="main-content" tabIndex={-1} className="outline-none min-h-screen bg-[var(--color-bone)] flex flex-col items-center justify-center p-6 text-center">
         <div className="bg-white p-8 sm:p-12 max-w-lg w-full border border-[var(--color-border)] rounded-3xl shadow-xl">
           <div className="w-16 h-16 rounded-2xl bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] flex items-center justify-center mx-auto mb-6">
             <AlertCircle className="w-8 h-8" />
           </div>
-          <h2 className="font-serif text-3xl font-bold text-[var(--color-ink)] mb-3">
+          <h1 className="font-serif text-3xl font-bold text-[var(--color-ink)] mb-3">
             {error || 'Tag Record Not Found'}
-          </h2>
+          </h1>
           <p className="text-[var(--color-ink-soft)] text-sm leading-relaxed mb-8 font-light">
             This SafePaws tag does not exist, has been retired, or the identifier is invalid. If you have found a wandering companion, you can still report a sighting directly to our community network.
           </p>
@@ -85,7 +85,7 @@ export default function PublicTagProfile() {
             </button>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -109,10 +109,14 @@ export default function PublicTagProfile() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6">
+      <main id="main-content" tabIndex={-1} className="outline-none max-w-2xl mx-auto px-6">
         
         {/* Main Pet Identity Card */}
-        <div className="bg-white border border-[var(--color-border)] rounded-3xl overflow-hidden shadow-xl animate-in fade-in duration-500">
+        <div className={`bg-white border rounded-3xl overflow-hidden shadow-xl animate-in fade-in duration-300 transition-all ${
+          isLost
+            ? 'border-[var(--color-alert-clay)] ring-4 ring-[var(--color-alert-clay)]/10 shadow-[0_0_24px_rgba(179,69,47,0.15)]'
+            : 'border-[var(--color-border)]'
+        }`}>
           
           {/* Pet Photo Container with Emergency Banner */}
           <div className="relative w-full aspect-square sm:aspect-[4/3] bg-[var(--color-surface)] overflow-hidden">
@@ -172,17 +176,17 @@ export default function PublicTagProfile() {
             {isLost && (
               <div className="mb-8 p-6 rounded-2xl border-2 border-[var(--color-alert-clay)] bg-[var(--color-alert-clay)]/5 text-center">
                 <AlertCircle className="w-8 h-8 text-[var(--color-alert-clay)] mx-auto mb-3" />
-                <h3 className="font-serif text-2xl font-bold text-[var(--color-alert-clay)] leading-tight mb-2">
+                <h2 className="font-serif text-2xl font-bold text-[var(--color-alert-clay)] leading-tight mb-2">
                   My Family is Actively Searching
-                </h3>
+                </h2>
                 <p className="text-sm text-[var(--color-ink)] leading-relaxed max-w-md mx-auto font-medium">
                   I have been reported missing. If I am in your sight, please transmit an immediate location ping or file an emergency observation report below.
                 </p>
               </div>
             )}
 
-            {/* Critical Medical Notes */}
-            {pet.medicalNotes && (
+            {/* Critical Medical Notes (Only when explicitly consented via shareMedicalNotes) */}
+            {pet.medicalNotes && pet.shareMedicalNotes && (
               <div className="mb-8 p-5 rounded-2xl border border-[var(--color-alert-clay)]/30 bg-[var(--color-alert-clay)]/5">
                 <div className="flex items-center gap-2 text-[var(--color-alert-clay)] font-mono text-xs font-bold uppercase tracking-wider mb-1.5">
                   <AlertTriangle className="w-4 h-4" />
@@ -263,7 +267,7 @@ export default function PublicTagProfile() {
                     );
                   }}
                   disabled={locationSending}
-                  className="flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-[var(--color-ink)] text-white font-bold text-sm tracking-wide transition-all hover:bg-[#2A2723] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)] focus:ring-offset-2 disabled:opacity-50 min-h-[44px] shadow-md cursor-pointer"
+                  className="flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-[var(--color-ink)] text-white font-bold text-sm tracking-wide transition-all hover:bg-[#2A2723] active:scale-[0.98] motion-reduce:active:scale-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)] focus:ring-offset-2 disabled:opacity-50 min-h-[44px] shadow-md cursor-pointer"
                 >
                   <MapPin className="w-4 h-4 text-[var(--color-marigold)]" />
                   <span>{locationSending ? 'Transmitting...' : 'Send Location Ping'}</span>
@@ -280,9 +284,9 @@ export default function PublicTagProfile() {
                       navigate('/sightings/new');
                     }
                   }}
-                  className={`flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl font-bold text-sm tracking-wide transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] cursor-pointer shadow-md ${
+                  className={`flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl font-bold text-sm tracking-wide transition-all active:scale-[0.98] motion-reduce:active:scale-100 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] cursor-pointer shadow-md ${
                     isLost
-                      ? 'bg-[var(--color-alert-clay)] hover:bg-[#9A3926] text-white focus:ring-[var(--color-alert-clay)]'
+                      ? 'bg-[var(--color-alert-clay)] hover:bg-[#9A3926] text-white focus:ring-[var(--color-alert-clay)] shadow-[0_0_16px_rgba(179,69,47,0.3)]'
                       : 'bg-white hover:bg-[var(--color-surface)] text-[var(--color-ink)] border-2 border-[var(--color-ink)] focus:ring-[var(--color-ink)]'
                   }`}
                 >
@@ -308,10 +312,10 @@ export default function PublicTagProfile() {
 
             {/* Compassionate Finder Guidance */}
             <div className="mt-8 pt-6 border-t border-[var(--color-border)] text-left">
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--color-ink-soft)] mb-2 flex items-center gap-1.5">
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--color-ink-soft)] mb-2 flex items-center gap-1.5">
                 <Info className="w-3.5 h-3.5 text-[var(--color-marigold)]" />
                 <span>Tips for Keeping This Pet Safe</span>
-              </h4>
+              </h3>
               <ul className="text-xs text-[var(--color-ink-soft)] space-y-1.5 list-disc pl-4 font-light leading-relaxed">
                 <li>Offer fresh water in a shallow dish, but avoid unfamiliar foods.</li>
                 <li>Keep the animal in a secure, enclosed space until guardian contact is established.</li>

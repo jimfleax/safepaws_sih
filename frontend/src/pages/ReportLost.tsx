@@ -61,7 +61,7 @@ export default function ReportLost() {
   return (
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
       <DashboardNav />
-      <main className="flex-1 max-w-6xl w-full mx-auto px-6 lg:px-12 py-10 lg:py-16 pb-32">
+      <main id="main-content" tabIndex={-1} className="outline-none flex-1 max-w-6xl w-full mx-auto px-6 lg:px-12 py-10 lg:py-16 pb-32">
         
         {/* Navigation Breadcrumb */}
         <Link 
@@ -72,8 +72,8 @@ export default function ReportLost() {
           <span>Back to Recovery Board</span>
         </Link>
         
-        {/* Page Header */}
-        <header className="mb-12 border-b border-[var(--color-border)] pb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
+        {/* Page Header - Instant Tier 3 Crisis Rendering (0ms delay) */}
+        <header className="mb-12 border-b border-[var(--color-border)] pb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] text-xs font-mono font-bold uppercase tracking-wider mb-4">
             <Radio className="w-3.5 h-3.5 animate-pulse" />
             <span>EMERGENCY BROADCAST SYSTEM</span>
@@ -99,7 +99,7 @@ export default function ReportLost() {
         
         {/* Empty / No Eligible Pets State */}
         {safePets.length === 0 ? (
-          <div className="py-20 text-center animate-in fade-in duration-500 border border-[var(--color-border)] bg-white rounded-3xl p-8 sm:p-12 shadow-sm">
+          <div className="py-20 text-center border border-[var(--color-border)] bg-white rounded-3xl p-8 sm:p-12 shadow-sm">
             <div className="w-16 h-16 bg-[var(--color-surface)] rounded-2xl flex items-center justify-center mx-auto mb-6 text-[var(--color-ink-soft)]">
               <ShieldAlert className="w-8 h-8 opacity-60" />
             </div>

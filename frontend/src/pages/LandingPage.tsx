@@ -81,12 +81,15 @@ export default function LandingPage() {
   };
 
   useEffect(() => {
-    // Only initialize smooth scrolling and parallax if user hasn't requested reduced motion
+    // Lenis smooth scroll is authorized exclusively on desktop viewports (>= 768px)
+    // and when user hasn't requested reduced motion (UX-06.1 Section 4.1)
     const prefersReducedMotion =
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobileViewport =
+      typeof window !== 'undefined' && window.innerWidth < 768;
 
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion || isMobileViewport) return;
 
     let lenis: any = null;
     let tickerCallback: ((time: number) => void) | null = null;
@@ -131,7 +134,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-background)] text-[var(--color-ink)] selection:bg-[var(--color-accent)]/20 selection:text-[var(--color-ink)] transition-colors duration-[var(--animate-duration-page)]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-background)] text-[var(--color-ink)] selection:bg-[var(--color-accent)]/20 selection:text-[var(--color-ink)] transition-colors duration-[var(--animate-duration-page)] overflow-x-hidden max-w-full">
       {/* Entry Screen Overlay */}
       <AnimatePresence>
         {!hasEntered && <EnterScreen onEnter={() => setHasEntered(true)} />}
@@ -155,12 +158,13 @@ export default function LandingPage() {
       />
 
       {/* Main Landing Flow */}
-      <main className="relative z-10 flex-1">
+      <main id="main-content" tabIndex={-1} className="outline-none relative z-10 flex-1">
         {/* Section A: Signature Hero */}
         <Hero
           onJoinClick={handleJoinClick}
           onIdentifyClick={() => navigate('/scan')}
           onOpenLostAlerts={() => navigate('/lost')}
+          activeAlertCount={alerts?.filter(a => a.status === 'active')?.length || 0}
         />
 
         {/* Section B: Feature Showcase / Interactive Bento */}

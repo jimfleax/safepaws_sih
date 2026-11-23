@@ -1,14 +1,14 @@
 import React, { useRef, useEffect } from 'react';
 import {
   Fingerprint,
-  QrCode,
   Radio,
-  MapPin,
   Users,
-  FileText,
-  ArrowRight,
-  ShieldAlert,
+  ShieldCheck,
+  MapPin,
   Sparkles,
+  ArrowRight,
+  Shield,
+  Activity,
 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -18,7 +18,7 @@ import { Spotlight } from './ui/spotlight';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface FeaturesSectionProps {
+export interface FeaturesSectionProps {
   onOpenBiometric: () => void;
   onOpenNetwork: () => void;
   onOpenQrTags: () => void;
@@ -84,16 +84,16 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({
       ref={containerRef}
       id="features"
       className="relative w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-16 sm:py-24 lg:py-32"
-      aria-label="Features and Core Capabilities"
+      aria-label="SafePaws 4 Pillars of Protection"
     >
       {/* Section Header */}
       <div ref={headerRef} className="flex flex-col mb-14 sm:mb-20">
         <div className="flex items-center gap-3 mb-4">
           <Badge variant="scout" className="px-3 py-0.5">
-            SIX LAYERS OF PROTECTION
+            FOUR PILLARS OF RECOVERY
           </Badge>
           <span className="text-[length:var(--text-metadata)] font-medium text-[var(--color-ink-soft)] uppercase tracking-widest hidden sm:inline-block">
-            // UNIFIED CANINE ECOSYSTEM
+            // COMPREHENSIVE CANINE ECOSYSTEM
           </span>
         </div>
 
@@ -102,31 +102,42 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({
         </h2>
 
         <p className="text-[length:var(--text-body-large)] text-[var(--color-ink-soft)] max-w-2xl leading-relaxed">
-          SafePaws combines non-invasive biometric identification with a hyper-local neighborhood rescue network, ensuring lost pets are identified and returned quickly and safely.
+          SafePaws replaces fragile collar tags and vet-dependent chips with non-invasive biometric nose identification, real-time emergency radar, and a privacy-shielded neighborhood reunion network.
         </p>
       </div>
 
-      {/* 6-Card Asymmetric Bento Showcase */}
+      {/* Asymmetric Bento Showcase: SafePaws 4 Pillars (2-1, 1-2 Cadence) */}
       <div ref={gridRef} className="w-full">
-        <BentoGrid className="grid-cols-1 md:grid-cols-3 auto-rows-[24rem]">
-          {/* 1. Biometric Nose-Print (Spans 2 cols on md+) */}
+        <BentoGrid className="grid-cols-1 md:grid-cols-3 auto-rows-[25rem]">
+          {/* Pillar 1: Biometric ID (Spans 2 cols on md+) */}
           <BentoCard
-            name="Nasal Leather Topography"
-            description="Just as human friction ridges define fingerprints, canine nose patterns are mathematically unique and remain stable throughout a dog's life. A standard smartphone photo creates a permanent biometric vector."
+            name="1. Biometric Nose-Print ID"
+            description="Just as human friction ridges define fingerprints, canine nose patterns are mathematically unique and remain stable throughout life. Any smartphone camera converts dorsal apex contours into a permanent 128-dimensional biometric vector."
             Icon={Fingerprint}
             cta="Explore Live Biometric Scanner"
             onClick={onOpenBiometric}
-            className="md:col-span-2 bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-bone)]/60 cursor-pointer overflow-hidden border-2 hover:border-[var(--color-accent)]"
+            className="md:col-span-2 bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-bone)]/70 cursor-pointer overflow-hidden border-2 hover:border-[var(--color-accent)]"
             background={
-              <div className="relative w-full h-full">
-                <Spotlight fill="var(--color-marigold)" className="-top-20 right-0 w-80 h-80 opacity-40" />
-                <div className="absolute right-6 bottom-6 hidden sm:flex flex-col items-end gap-2 text-right">
-                  <div className="font-mono text-[10px] tracking-widest uppercase text-[var(--color-ink-soft)] bg-[var(--color-surface)]/80 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-[var(--color-border)]">
-                    DORSAL APEX // RIDGE DENSITY
+              <div className="relative w-full h-full pointer-events-none">
+                <Spotlight fill="var(--color-marigold)" className="-top-24 right-4 w-96 h-96 opacity-40" />
+                <div className="absolute right-6 bottom-6 hidden sm:flex flex-col items-end gap-2.5 text-right">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="telemetry">DORSAL APEX // RIDGE DENSITY</Badge>
+                    <Badge variant="accent">UNLOSABLE</Badge>
                   </div>
-                  <div className="w-36 h-24 rounded-xl border border-dashed border-[var(--color-marigold)]/40 bg-[var(--color-marigold)]/5 flex items-center justify-center">
-                    <span className="font-mono text-xs text-[var(--color-accent-text)] font-semibold">
-                      VECTOR MATCHING
+                  <div className="w-48 h-28 rounded-2xl border border-dashed border-[var(--color-marigold)]/50 bg-[var(--color-marigold)]/5 backdrop-blur-sm p-3 flex flex-col justify-between">
+                    <div className="flex justify-between items-center text-[10px] font-mono text-[var(--color-ink-soft)]">
+                      <span>FAISS COSINE</span>
+                      <span className="text-[var(--color-accent-text)] font-bold">99.84% MATCH</span>
+                    </div>
+                    {/* Simulated ridge lines */}
+                    <div className="space-y-1">
+                      <div className="h-1 bg-[var(--color-marigold)]/40 rounded-full w-full" />
+                      <div className="h-1 bg-[var(--color-marigold)]/30 rounded-full w-3/4" />
+                      <div className="h-1 bg-[var(--color-marigold)]/20 rounded-full w-5/6" />
+                    </div>
+                    <span className="font-mono text-[10px] text-[var(--color-accent-text)] font-semibold tracking-wider">
+                      ZERO-CHIP NON-INVASIVE
                     </span>
                   </div>
                 </div>
@@ -134,83 +145,81 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({
             }
           />
 
-          {/* 2. Smart QR Digital Tag (Spans 1 col) */}
+          {/* Pillar 2: Emergency Radar (Spans 1 col) */}
           <BentoCard
-            name="Physical + Digital Smart Tag"
-            description="Every registered companion generates a scannable QR collar tag. Any smartphone camera can pull up emergency contact details and medical alerts instantly without app installation."
-            Icon={QrCode}
-            cta="View Collar Tag Workflow"
-            onClick={onOpenQrTags}
-            className="md:col-span-1 cursor-pointer bg-[var(--color-surface)] hover:border-[var(--color-ink)]"
-            background={
-              <div className="absolute right-4 top-4 opacity-10 font-mono text-[80px] font-bold select-none text-[var(--color-ink)]">
-                QR
-              </div>
-            }
-          />
-
-          {/* 3. Missing Pet Emergency Broadcast (Spans 1 col) */}
-          <BentoCard
-            name="Instant Radius Alert"
-            description="Trigger a high-priority neighborhood dispatch with one tap. Notifies nearby verified pet scouts and community volunteers within your geofenced search perimeter."
+            name="2. Emergency Radar"
+            description="One tap radiates a geofenced crisis broadcast across a 1–5 km perimeter, notifying verified nearby scouts, shelters, and dog walkers the moment a pet wanders."
             Icon={Radio}
-            cta="View Active Lost Alerts"
+            cta="View Active Emergency Radar"
             onClick={onOpenAlerts || onOpenNetwork}
             className="md:col-span-1 cursor-pointer bg-[var(--color-surface)] hover:border-[var(--color-alert-clay)]"
             background={
-              <div className="absolute right-4 top-4">
-                <Badge variant="alert" pulse className="px-2.5 py-1">
-                  CRISIS DISPATCH
-                </Badge>
-              </div>
-            }
-          />
-
-          {/* 4. Verified Sighting Submissions (Spans 2 cols on md+) */}
-          <BentoCard
-            name="GPS Sighting Submissions"
-            description="Community members upload real-time photos with timestamped coordinates when they spot a wandering animal, filtering false alarms and pinpointing exact search locations."
-            Icon={MapPin}
-            cta="Submit or Review Sightings"
-            onClick={onOpenSightings || onOpenNetwork}
-            className="md:col-span-2 cursor-pointer bg-[var(--color-surface)] hover:border-[var(--color-trail)]"
-            background={
-              <div className="absolute right-6 bottom-6 hidden sm:flex items-center gap-3">
-                <div className="font-mono text-[11px] text-[var(--color-ink-soft)] bg-[var(--color-bone)] px-3 py-1.5 rounded-lg border border-[var(--color-border)] flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[var(--color-success)] inline-block" />
-                  MAP-PINNED VERIFICATION
+              <div className="relative w-full h-full pointer-events-none">
+                <div className="absolute right-4 top-4">
+                  <Badge variant="alert" pulse className="px-2.5 py-1">
+                    CRISIS DISPATCH
+                  </Badge>
+                </div>
+                {/* Concentric Radar Rings */}
+                <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full border border-[var(--color-alert-clay)]/20 flex items-center justify-center">
+                  <div className="w-32 h-32 rounded-full border border-dashed border-[var(--color-alert-clay)]/30 animate-ping [animation-duration:3s]" />
+                  <div className="w-16 h-16 rounded-full bg-[var(--color-alert-clay)]/10 border border-[var(--color-alert-clay)]/40 flex items-center justify-center">
+                    <span className="w-2 h-2 rounded-full bg-[var(--color-alert-clay)]" />
+                  </div>
                 </div>
               </div>
             }
           />
 
-          {/* 5. Volunteer Scout Network (Spans 1 col) */}
+          {/* Pillar 3: Community Network (Spans 1 col) */}
           <BentoCard
-            name="Neighborhood Scout Watch"
-            description="A dedicated community network of pet owners, shelter coordinators, and local volunteers who keep eyes on the ground."
+            name="3. Community Scout Watch"
+            description="A verified network of neighborhood pet parents and volunteer search teams coordinated with real-time GPS sightings, pinpointing movement without noise."
             Icon={Users}
             cta="Explore Scout Community"
             onClick={onOpenNetwork}
-            className="md:col-span-1 cursor-pointer bg-[var(--color-surface)] hover:border-[var(--color-accent)]"
+            className="md:col-span-1 cursor-pointer bg-[var(--color-surface)] hover:border-[var(--color-trail)]"
             background={
-              <div className="absolute -right-4 -bottom-4 opacity-10 text-[var(--color-ink)] font-serif text-8xl italic">
-                Paw
+              <div className="relative w-full h-full pointer-events-none">
+                <div className="absolute right-4 top-4">
+                  <Badge variant="scout" className="px-2.5 py-1">
+                    GROUND CORPS
+                  </Badge>
+                </div>
+                <div className="absolute right-6 bottom-6 flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-success)] animate-pulse" />
+                  <span className="font-mono text-[11px] text-[var(--color-ink-soft)] font-medium">
+                    84 Active Local Scouts
+                  </span>
+                </div>
               </div>
             }
           />
 
-          {/* 6. Medical & Owner Dossier (Spans 2 cols on md+) */}
+          {/* Pillar 4: Dignified Recovery (Spans 2 cols on md+) */}
           <BentoCard
-            name="Private Health & Emergency Dossier"
-            description="Store critical allergies, medication regimens, behavioral triggers, microchip records, and alternate emergency contacts safely linked to your pet's biometric profile."
-            Icon={FileText}
-            cta="Manage Your Companion Profile"
+            name="4. Dignified Recovery & Privacy Vault"
+            description="Critical medical notes, allergy protocols, and behavioral triggers stored securely. When a lost companion is found, our encrypted relay connects finder and guardian without ever revealing private home addresses or personal phone numbers."
+            Icon={ShieldCheck}
+            cta="Manage Privacy & Health Dossier"
             onClick={onOpenManagement || onOpenQrTags}
-            className="md:col-span-2 cursor-pointer bg-[var(--color-surface)] hover:border-[var(--color-ink)]"
+            className="md:col-span-2 cursor-pointer bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-bone)]/50 hover:border-[var(--color-ink)]"
             background={
-              <div className="absolute right-6 top-6 hidden sm:flex items-center gap-2">
-                <Badge variant="neutral">GRANULAR PRIVACY</Badge>
-                <Badge variant="telemetry">MEDICAL READY</Badge>
+              <div className="relative w-full h-full pointer-events-none">
+                <div className="absolute right-6 top-6 hidden sm:flex items-center gap-2">
+                  <Badge variant="neutral">GRANULAR PRIVACY</Badge>
+                  <Badge variant="telemetry">ZERO PHONE LEAK</Badge>
+                </div>
+                <div className="absolute right-6 bottom-6 hidden sm:flex flex-col items-end gap-2">
+                  <div className="bg-[var(--color-surface)]/90 backdrop-blur-md px-4 py-2 rounded-xl border border-[var(--color-border)] shadow-sm font-mono text-[11px] text-[var(--color-ink)] flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-[var(--color-success)]" />
+                    <span>ENCRYPTED GUARDIAN VOICE PROXY</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-[var(--color-ink-soft)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-success)]" />
+                    <span>EMERGENCY ALLERGIES & MEDICATION VISIBLE</span>
+                  </div>
+                </div>
               </div>
             }
           />

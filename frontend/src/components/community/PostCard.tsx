@@ -87,7 +87,7 @@ export function PostCard({ post }: { post: Post; key?: React.Key }) {
       <div className="flex items-center justify-between pt-3 border-t border-[var(--color-border)] mt-2">
         <Link 
           to={`/community/post/${post.id}`} 
-          className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors min-h-[36px] py-1"
+          className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors min-h-[44px] py-2 px-2 rounded-lg"
         >
           <MessageSquare size={14} />
           <span>{post.reply_count || 0} Replies</span>
@@ -96,7 +96,7 @@ export function PostCard({ post }: { post: Post; key?: React.Key }) {
         {post.associated_alert_id && (
            <Link 
              to={`/alerts/${post.associated_alert_id}`} 
-             className="flex items-center gap-1 text-[11px] font-mono font-bold text-[var(--color-alert-clay)] hover:underline uppercase tracking-wider min-h-[36px] py-1"
+             className="flex items-center gap-1 text-[11px] font-mono font-bold text-[var(--color-alert-clay)] hover:underline uppercase tracking-wider min-h-[44px] py-2 px-2 rounded-lg"
            >
              <AlertTriangle size={12} /> 
              <span>View Emergency Incident</span>

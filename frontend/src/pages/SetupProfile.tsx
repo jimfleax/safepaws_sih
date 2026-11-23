@@ -114,7 +114,7 @@ export const SetupProfile: React.FC = () => {
         Sign Out
       </button>
 
-      <main className="w-full max-w-xl bg-white border border-[var(--color-border)] rounded-[var(--radius-28)] p-8 sm:p-14 shadow-sm relative z-10">
+      <main id="main-content" tabIndex={-1} className="outline-none w-full max-w-xl bg-white border border-[var(--color-border)] rounded-[var(--radius-28)] p-8 sm:p-14 shadow-sm relative z-10">
         
         {/* Step Progress indicators */}
         <div className="flex items-center gap-3 mb-12" aria-hidden="true">

@@ -111,7 +111,7 @@ export function ComposeModal({
                  placeholder="e.g. Connaught Place, Block A"
                  value={location}
                  onChange={e => setLocation(e.target.value)}
-                 className="w-full bg-white border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm text-[var(--color-ink)] focus:outline-none focus:ring-1 focus:ring-[var(--color-ink)] min-h-[40px]"
+                 className="w-full bg-white border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm text-[var(--color-ink)] focus:outline-none focus:ring-1 focus:ring-[var(--color-ink)] min-h-[44px]"
                />
              </div>
           )}

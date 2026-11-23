@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { usePetStore } from './store/petStore';
 import { CustomCursor } from './components/CustomCursor';
+import { SkipToContent } from './components/ui/SkipToContent';
 
 // Lazy loaded routes for chunk splitting
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -70,9 +71,11 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <SkipToContent />
       <CustomCursor />
       <Suspense fallback={<PageLoader />}>
-        <Routes>
+        <div id="app-content-root" className="outline-none flex-1 flex flex-col overflow-x-hidden max-w-full">
+          <Routes>
           {/* Public / Marketing */}
           <Route path="/" element={<LandingPage />} />
           
@@ -100,6 +103,7 @@ export default function App() {
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </div>
       </Suspense>
     </BrowserRouter>
   );

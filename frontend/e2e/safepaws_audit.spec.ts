@@ -98,9 +98,9 @@ test.describe('SafePaws Complete Audit', () => {
     await expect(page.getByText('Golden Retriever')).toBeVisible();
   });
 
-  test('3. Pet Profile Actions', async ({ page }) => {
-    // Requires previous test to have created a pet. We rely on localstorage state keeping us logged in 
-    // for this session if we reuse the context, but Playwright tests use separate contexts by default.
-    // Let's combine them into one file and use serial execution.
+  test('3. Lost Pet Alerts Directory Navigation', async ({ page }) => {
+    await page.goto('/lost');
+    await expect(page.locator('main#main-content')).toBeVisible();
+    await expect(page.getByText(/ACTIVE MISSING PET ALERTS|Lost Dogs/i).first()).toBeVisible();
   });
 });

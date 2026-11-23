@@ -61,13 +61,14 @@ export default function ReportSighting() {
   return (
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
       <DashboardNav />
-      <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-12 md:py-20 md:pb-12 pb-28">
-        <Link to={defaultAlertId ? `/alerts/${defaultAlertId}` : "/community"} className="group inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors mb-12">
+      <main id="main-content" tabIndex={-1} className="outline-none flex-1 max-w-4xl w-full mx-auto px-6 py-12 md:py-20 md:pb-12 pb-28">
+        <Link to={defaultAlertId ? `/alerts/${defaultAlertId}` : "/community"} className="group inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors mb-12 min-h-[44px] min-w-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm">
           <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
           Back
         </Link>
 
-        <header className="mb-12 border-b border-[var(--color-ink)]/10 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+        {/* Header - Instant Tier 3 Crisis Rendering (0ms delay) */}
+        <header className="mb-12 border-b border-[var(--color-ink)]/10 pb-8">
           <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4 text-[var(--color-ink)]">
             Report a Sighting
           </h1>
@@ -77,13 +78,14 @@ export default function ReportSighting() {
         </header>
         
         {error && (
-          <div className="mb-8 p-6 bg-[var(--color-alert-clay)]/10 border-l-4 border-[var(--color-alert-clay)] text-[var(--color-ink)] flex gap-4 animate-in fade-in">
+          <div className="mb-8 p-6 bg-[var(--color-alert-clay)]/10 border-l-4 border-[var(--color-alert-clay)] text-[var(--color-ink)] flex gap-4">
             <AlertTriangle size={24} className="text-[var(--color-alert-clay)] shrink-0" />
             <p className="font-medium">{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-10 animate-in fade-in duration-700 delay-150 fill-mode-both ease-out max-w-3xl">
+        {/* Instant Crisis Action Form (0ms artificial delay) */}
+        <form onSubmit={handleSubmit} className="space-y-10 max-w-3xl">
           <div className="space-y-3">
             <label htmlFor="alertId" className="block text-sm font-bold uppercase tracking-widest text-[var(--color-ink)]">
               Subject Alert (Optional)

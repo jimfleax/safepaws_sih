@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, Share2, Check, ExternalLink, ShieldCheck, AlertCircle } from 'lucide-react';
+import { QrCode, Share2, Check, ExternalLink, ShieldCheck, AlertCircle, RotateCw, Download } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '../ui/Dialog';
 import QRCode from 'qrcode';
 import { Pet } from '../../types';
@@ -23,6 +23,7 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
 }) => {
   const [copiedLink, setCopiedLink] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const baseUrl = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://safepaws.app';
   const hasValidQrTag = Boolean(pet.qrTagId && pet.qrTagId.trim());
@@ -88,57 +89,109 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
         <div className="p-6 sm:p-8 overflow-y-auto">
           <div className="flex flex-col items-center text-center space-y-6">
             
-            {/* The Physical Tag Replica */}
-            <div className="relative w-64 h-64 rounded-full bg-gradient-to-br from-[#F5E6D3] via-[#E8D4BE] to-[#D7BFA5] p-2.5 shadow-xl border-4 border-white/90 flex items-center justify-center">
-              {/* Hole punch for collar ring */}
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[var(--color-ink)] shadow-inner border border-[#ECCEB1]" />
+            {/* The Physical Tag Replica with 3D Flip */}
+            <button 
+              type="button"
+              className="relative w-64 h-64 [perspective:1000px] cursor-pointer group bg-transparent border-0 p-0 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-full"
+              onClick={() => setIsFlipped(!isFlipped)}
+              aria-pressed={isFlipped}
+              aria-label={`Smart Collar Tag for ${pet.name}. Currently showing ${isFlipped ? 'reverse engraved side' : 'front QR code'}. Click to flip.`}
+            >
+              <div 
+                className={`w-full h-full relative transition-transform duration-500 [transform-style:preserve-3d] motion-reduce:transition-none ${
+                  isFlipped ? '[transform:rotateY(180deg)]' : ''
+                }`}
+              >
+                {/* FRONT: QR Code Disc */}
+                <div className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-[#F5E6D3] via-[#E8D4BE] to-[#D7BFA5] p-2.5 shadow-xl border-4 border-white/90 flex items-center justify-center [backface-visibility:hidden]">
+                  {/* Hole punch for collar ring */}
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[var(--color-ink)] shadow-inner border border-[#ECCEB1]" />
 
-              {/* Inner Tag Disc */}
-              <div className="w-full h-full rounded-full bg-white p-4 flex flex-col items-center justify-center border border-[var(--color-border)]">
-                <div className="flex items-center gap-1.5 text-[var(--color-ink)] mb-1">
-                  <TagPawIcon className="w-4 h-4 text-[var(--color-marigold)]" />
-                  <span className="font-bold text-xs tracking-tight font-serif">SafePaws</span>
-                </div>
-
-                {/* Scannable QR Code */}
-                <div className="relative p-2 bg-white rounded-2xl shadow-xs border border-[var(--color-border)] my-1">
-                  {hasValidQrTag ? (
-                    qrDataUrl ? (
-                      <div className="relative w-24 h-24">
-                        <img
-                          src={qrDataUrl}
-                          alt={`Scannable QR collar tag for ${pet.name}`}
-                          className="w-24 h-24 rounded-lg block"
-                        />
-                        {/* Elegant micro paw badge in center of QR code */}
-                        <div className="absolute inset-0 m-auto w-5 h-5 rounded-full bg-white shadow-xs border border-[var(--color-border)] flex items-center justify-center pointer-events-none">
-                          <TagPawIcon className="w-3 h-3 text-[var(--color-marigold)]" />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="w-24 h-24 bg-[var(--color-bone)] rounded-lg animate-pulse" />
-                    )
-                  ) : (
-                    <div className="w-24 h-24 rounded-lg bg-[var(--color-bone)] border border-dashed border-[var(--color-border)] flex flex-col items-center justify-center p-2 text-center">
-                      <AlertCircle className="w-6 h-6 text-[var(--color-marigold)] mb-1" />
-                      <span className="text-[9px] font-bold text-[var(--color-ink-soft)] uppercase tracking-wider leading-tight">
-                        Tag Pending
-                      </span>
+                  {/* Inner Tag Disc */}
+                  <div className="w-full h-full rounded-full bg-white p-4 flex flex-col items-center justify-center border border-[var(--color-border)]">
+                    <div className="flex items-center gap-1.5 text-[var(--color-ink)] mb-1">
+                      <TagPawIcon className="w-4 h-4 text-[var(--color-marigold)]" />
+                      <span className="font-bold text-xs tracking-tight font-serif">SafePaws</span>
                     </div>
-                  )}
+
+                    {/* Scannable QR Code */}
+                    <div className="relative p-2 bg-white rounded-2xl shadow-xs border border-[var(--color-border)] my-1">
+                      {hasValidQrTag ? (
+                        qrDataUrl ? (
+                          <div className="relative w-24 h-24">
+                            <img
+                              src={qrDataUrl}
+                              alt={`Scannable QR collar tag for ${pet.name}`}
+                              className="w-24 h-24 rounded-lg block"
+                            />
+                            {/* Elegant micro paw badge in center of QR code */}
+                            <div className="absolute inset-0 m-auto w-5 h-5 rounded-full bg-white shadow-xs border border-[var(--color-border)] flex items-center justify-center pointer-events-none">
+                              <TagPawIcon className="w-3 h-3 text-[var(--color-marigold)]" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-24 h-24 bg-[var(--color-bone)] rounded-lg animate-pulse" />
+                        )
+                      ) : (
+                        <div className="w-24 h-24 rounded-lg bg-[var(--color-bone)] border border-dashed border-[var(--color-border)] flex flex-col items-center justify-center p-2 text-center">
+                          <AlertCircle className="w-6 h-6 text-[var(--color-marigold)] mb-1" />
+                          <span className="text-[9px] font-bold text-[var(--color-ink-soft)] uppercase tracking-wider leading-tight">
+                            Tag Pending
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="font-bold text-sm text-[var(--color-ink)] tracking-tight font-serif">
+                      {pet.name}
+                    </div>
+                    <div className="text-[10px] font-mono text-[var(--color-ink-soft)] tracking-wider">
+                      {hasValidQrTag ? tagIdentifier : 'PROVISIONING'}
+                    </div>
+                    <div className="text-[9px] text-[var(--color-accent-text)] font-bold uppercase tracking-wider mt-0.5">
+                      {hasValidQrTag ? 'Scan to help me home' : 'Collar Tag In Preparation'}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="font-bold text-sm text-[var(--color-ink)] tracking-tight font-serif">
-                  {pet.name}
+                {/* BACK: Engraved Brass Medal */}
+                <div className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-[#D7BFA5] via-[#C5A88B] to-[#9E8268] p-2.5 shadow-xl border-4 border-[#ECCEB1] flex items-center justify-center [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                  {/* Hole punch for collar ring */}
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[var(--color-ink)] shadow-inner border border-[#D7BFA5]" />
+
+                  {/* Inner Brass Disc */}
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-[#EFE3D5] to-[#D5C2AF] p-4 flex flex-col items-center justify-center border border-[#B99A7D] text-[#4A3B2C] shadow-inner">
+                    <div className="w-10 h-10 rounded-full border border-[#9E8268]/40 flex items-center justify-center mb-2">
+                      <TagPawIcon className="w-6 h-6 text-[#735238]" />
+                    </div>
+                    <div className="font-serif font-bold text-base tracking-wider uppercase text-[#3A2D20]">
+                      {pet.name}
+                    </div>
+                    <div className="text-[10px] font-mono tracking-widest text-[#5A4838] uppercase mt-0.5">
+                      {pet.breed || 'COMPANION'}
+                    </div>
+                    <div className="h-px w-16 bg-[#B99A7D] my-2" />
+                    <div className="text-[9px] font-mono tracking-widest text-[#5A4838]">
+                      SERIAL: {hasValidQrTag ? tagIdentifier : 'SAFEPAWS-SEC'}
+                    </div>
+                    <div className="text-[8px] font-bold tracking-widest text-[#735238] uppercase mt-1">
+                      GUARDIAN MEDIATED RELAY
+                    </div>
+                  </div>
                 </div>
-                <div className="text-[10px] font-mono text-[var(--color-ink-soft)] tracking-wider">
-                  {hasValidQrTag ? tagIdentifier : 'PROVISIONING'}
-                </div>
-                <div className="text-[9px] text-[var(--color-accent-text)] font-bold uppercase tracking-wider mt-0.5">
-                  {hasValidQrTag ? 'Scan to help me home' : 'Collar Tag In Preparation'}
-                </div>
+
               </div>
-            </div>
+            </button>
+
+            {/* Flip Hint Button */}
+            <button
+              type="button"
+              onClick={() => setIsFlipped(!isFlipped)}
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--color-accent-text)] hover:underline min-h-[44px] px-3 py-2 rounded-lg cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
+            >
+              <RotateCw className="w-3.5 h-3.5" />
+              <span>{isFlipped ? 'Show Scannable QR Code' : 'Flip to View Engraved Medal'}</span>
+            </button>
 
             {/* Description & Privacy Notice */}
             <div className="max-w-md space-y-2">
@@ -163,20 +216,37 @@ export const QrTagModal: React.FC<QrTagModalProps> = ({
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="w-full sm:w-auto px-6 py-3 rounded-full bg-white hover:bg-[var(--color-bone)] border border-[var(--color-border)] text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] inline-flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-xs min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
+                    className="w-full sm:w-auto px-5 py-3 rounded-full bg-white hover:bg-[var(--color-bone)] border border-[var(--color-border)] text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] inline-flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-xs min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
                   >
                     {copiedLink ? <Check className="w-4 h-4 text-[var(--color-success)]" /> : <Share2 className="w-4 h-4 text-[var(--color-marigold)]" />}
-                    <span>{copiedLink ? 'Link Copied!' : 'Copy Web Tag URL'}</span>
+                    <span>{copiedLink ? 'Link Copied!' : 'Copy Tag URL'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!qrDataUrl) return;
+                      const a = document.createElement('a');
+                      a.href = qrDataUrl;
+                      a.download = `${pet.name || 'companion'}-safepaws-tag.png`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                    }}
+                    className="w-full sm:w-auto px-5 py-3 rounded-full bg-white hover:bg-[var(--color-bone)] border border-[var(--color-border)] text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] inline-flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-xs min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
+                  >
+                    <Download className="w-4 h-4 text-[var(--color-ink-soft)]" />
+                    <span>Download PNG</span>
                   </button>
 
                   <a
                     href={`/p/${tagIdentifier}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-6 py-3 rounded-full bg-[var(--color-ink)] hover:bg-[var(--color-surface-dark-raised)] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)]"
+                    className="w-full sm:w-auto px-5 py-3 rounded-full bg-[var(--color-ink)] hover:bg-[var(--color-surface-dark-raised)] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)]"
                   >
                     <ExternalLink className="w-4 h-4" />
-                    <span>Test Finder Scan View</span>
+                    <span>Test Scan</span>
                   </a>
                 </>
               ) : (

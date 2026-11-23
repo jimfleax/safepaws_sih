@@ -100,26 +100,26 @@ export default function CommunityPostDetail() {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen bg-[var(--color-background)]">
+      <main id="main-content" tabIndex={-1} className="outline-none flex flex-col h-screen bg-[var(--color-background)]">
         <DashboardNav />
         <div className="flex-1 flex items-center justify-center">
           <div className="w-8 h-8 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
         </div>
-      </div>
+      </main>
     );
   }
 
   if (!post) {
     return (
-      <div className="flex flex-col h-screen bg-[var(--color-background)]">
+      <main id="main-content" tabIndex={-1} className="outline-none flex flex-col h-screen bg-[var(--color-background)]">
         <DashboardNav />
         <div className="flex-1 flex flex-col items-center justify-center p-8">
           <h2 className="text-xl font-bold mb-4">Post not found</h2>
-          <button onClick={() => navigate('/community')} className="text-[var(--color-accent)] hover:underline">
+          <button onClick={() => navigate('/community')} className="text-[var(--color-accent-text)] hover:underline min-h-[44px] inline-flex items-center">
             Back to Community
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -130,12 +130,12 @@ export default function CommunityPostDetail() {
     <div className="flex flex-col md:flex-row h-screen bg-[var(--color-bone)]">
       <DashboardNav />
 
-      <div className="flex-1 overflow-y-auto">
+      <main id="main-content" tabIndex={-1} className="outline-none flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto w-full px-4 py-6 md:py-8 pb-32">
           
           <button 
             onClick={() => navigate('/community')}
-            className="flex items-center gap-2 text-sm font-bold text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors mb-6"
+            className="inline-flex items-center gap-2 text-sm font-bold text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors mb-6 min-h-[44px] min-w-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-lg"
           >
             <ArrowLeft size={16} /> Back to Community
           </button>
@@ -240,7 +240,7 @@ export default function CommunityPostDetail() {
                     <button 
                       type="submit"
                       disabled={submitting || !isAuthenticated || !replyContent.trim()}
-                      className="p-2 bg-[var(--color-accent)] text-white rounded-md hover:bg-[var(--color-accent-hover)] disabled:opacity-50 transition-colors"
+                      className="p-2 bg-[var(--color-accent)] text-[var(--color-ink)] rounded-md hover:bg-[var(--color-accent-hover)] disabled:opacity-50 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
                       aria-label="Send reply"
                     >
                       <Send size={16} />
@@ -320,7 +320,7 @@ export default function CommunityPostDetail() {
             
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

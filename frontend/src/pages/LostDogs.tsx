@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DashboardNav } from '../components/DashboardNav';
 import { usePetStore } from '../store/petStore';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   ShieldAlert, 
   MapPin, 
@@ -12,11 +12,14 @@ import {
   Clock, 
   Filter,
   Heart,
-  X
+  X,
+  ScanLine
 } from 'lucide-react';
+import { IncidentCard } from '../components/IncidentCard';
 
 export default function LostDogs() {
-  const { alerts } = usePetStore();
+  const navigate = useNavigate();
+  const { alerts, isLoading, hydrated, error, hydrate } = usePetStore();
   const activeAlerts = alerts.filter(a => a.status === 'active');
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,7 +45,7 @@ export default function LostDogs() {
   return (
     <div className="min-h-screen bg-[var(--color-bone)] flex flex-col md:flex-row text-[var(--color-ink)] font-sans">
       <DashboardNav />
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 lg:px-12 py-10 lg:py-16 pb-32">
+      <main id="main-content" tabIndex={-1} className="outline-none flex-1 min-w-0 max-w-7xl w-full mx-auto px-6 lg:px-12 py-10 lg:py-16 pb-32">
         
         {/* Header Bar */}
         <header className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8 border-b border-[var(--color-border)] pb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
@@ -59,13 +62,22 @@ export default function LostDogs() {
             </p>
           </div>
           
-          <Link 
-            to="/lost/new" 
-            className="group inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl bg-[var(--color-alert-clay)] hover:bg-[#9A3926] text-white font-bold text-xs uppercase tracking-widest transition-all shadow-md active:scale-[0.98] shrink-0 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-alert-clay)]"
-          >
-            <ShieldAlert className="w-4 h-4" />
-            <span>Report Missing Pet</span>
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              to="/scan"
+              className="group inline-flex items-center justify-center gap-2 px-5 py-4 rounded-xl border-2 border-[var(--color-ink)] bg-white hover:bg-[var(--color-surface)] text-[var(--color-ink)] font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-[0.98] shrink-0 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-ink)]"
+            >
+              <ScanLine className="w-4 h-4 text-[var(--color-accent-text)]" />
+              <span>Scan Found Dog</span>
+            </Link>
+            <Link 
+              to="/lost/new" 
+              className="group inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-[var(--color-alert-clay)] hover:bg-[#9A3926] text-white font-bold text-xs uppercase tracking-widest transition-all shadow-md active:scale-[0.98] shrink-0 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-alert-clay)]"
+            >
+              <ShieldAlert className="w-4 h-4" />
+              <span>Report Missing Pet</span>
+            </Link>
+          </div>
         </header>
 
         {/* Filter & Search Toolbar */}
@@ -131,7 +143,49 @@ export default function LostDogs() {
         </div>
 
         {/* Board Listing Content */}
-        {activeAlerts.length === 0 ? (
+        {(isLoading || !hydrated) ? (
+          /* Hydration Skeleton State */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-pulse" aria-label="Loading active recovery alerts" aria-busy="true">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-white border border-[var(--color-border)] rounded-[var(--radius-24)] overflow-hidden shadow-sm flex flex-col justify-between">
+                <div className="aspect-[16/10] bg-[var(--color-surface)]" />
+                <div className="p-5 sm:p-6 space-y-4">
+                  <div className="space-y-2">
+                    <div className="h-6 bg-[var(--color-bone)] rounded-md w-3/4" />
+                    <div className="h-4 bg-[var(--color-bone)] rounded-md w-1/2" />
+                  </div>
+                  <div className="pt-3 border-t border-[var(--color-border)] space-y-2">
+                    <div className="h-3 bg-[var(--color-bone)] rounded w-full" />
+                    <div className="h-3 bg-[var(--color-bone)] rounded w-4/5" />
+                  </div>
+                  <div className="pt-5 border-t border-[var(--color-border)] flex gap-2">
+                    <div className="h-10 bg-[var(--color-bone)] rounded-xl flex-1" />
+                    <div className="h-10 bg-[var(--color-bone)] rounded-xl flex-1" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          /* Recovery Network Error State */
+          <div className="py-20 px-6 text-center flex flex-col items-center border border-[var(--color-border)] bg-white rounded-3xl p-8 sm:p-12 shadow-sm animate-in fade-in duration-300">
+            <div className="w-16 h-16 mb-6 bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] rounded-2xl flex items-center justify-center">
+              <ShieldAlert className="w-8 h-8" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--color-ink)] mb-3 tracking-tight">
+              Network Synchronization Unavailable
+            </h2>
+            <p className="text-[var(--color-ink-soft)] text-sm max-w-md mx-auto leading-relaxed font-light mb-6">
+              {error}
+            </p>
+            <button
+              onClick={() => hydrate()}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--color-ink)] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#2A2723] transition-colors min-h-[44px] cursor-pointer"
+            >
+              <span>Retry Connection</span>
+            </button>
+          </div>
+        ) : activeAlerts.length === 0 ? (
           /* Zero-Incident State (Network Secure) */
           <div className="py-24 px-6 text-center flex flex-col items-center border border-[var(--color-border)] bg-white rounded-3xl p-8 sm:p-12 shadow-sm animate-in fade-in duration-500">
             <div className="w-16 h-16 mb-6 bg-[var(--color-surface)] rounded-2xl flex items-center justify-center text-emerald-600">
@@ -172,69 +226,11 @@ export default function LostDogs() {
           /* Active Alerts Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in duration-500">
             {filteredAlerts.map(alert => (
-              <Link 
-                key={alert.id} 
-                to={`/alerts/${alert.id}`}
-                className="group block bg-white border border-[var(--color-border)] hover:border-[var(--color-alert-clay)] rounded-3xl overflow-hidden transition-all shadow-sm hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-alert-clay)] flex flex-col"
-              >
-                {/* Photo & Badge */}
-                <div className="aspect-[4/3] relative overflow-hidden bg-[var(--color-surface)]">
-                  {alert.photoUrl ? (
-                    <img 
-                      src={alert.photoUrl} 
-                      alt={alert.petName} 
-                      className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" 
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[var(--color-ink-soft)] opacity-40">
-                      <Heart className="w-12 h-12" />
-                    </div>
-                  )}
-                  <div className="absolute top-4 left-4 bg-[var(--color-alert-clay)] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                    <span>Reported Missing</span>
-                  </div>
-                </div>
-                
-                {/* Information Body */}
-                <div className="p-6 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-2xl font-serif font-bold text-[var(--color-ink)] mb-1 leading-tight group-hover:text-[var(--color-alert-clay)] transition-colors">
-                        {alert.petName}
-                      </h3>
-                      <p className="text-xs font-mono font-medium uppercase tracking-wider text-[var(--color-ink-soft)]">
-                        {alert.breed || 'Canine Companion'}
-                      </p>
-                    </div>
-                    
-                    <div className="pt-4 border-t border-[var(--color-border)] space-y-3 text-xs">
-                      <div className="flex items-start gap-2">
-                        <Clock className="w-3.5 h-3.5 text-[var(--color-alert-clay)] mt-0.5 shrink-0" />
-                        <div>
-                          <span className="font-mono text-[10px] uppercase text-[var(--color-ink-soft)] block">Reported</span>
-                          <span className="font-semibold text-[var(--color-ink)]">{alert.timeAgo}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <MapPin className="w-3.5 h-3.5 text-[var(--color-alert-clay)] mt-0.5 shrink-0" />
-                        <div>
-                          <span className="font-mono text-[10px] uppercase text-[var(--color-ink-soft)] block">Last Seen Vector</span>
-                          <span className="text-[var(--color-ink)] line-clamp-2 leading-snug font-medium">
-                            {alert.lastSeenAddress || 'Local Area'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Action Link Footer */}
-                  <div className="pt-5 mt-5 border-t border-[var(--color-border)] flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] group-hover:text-[var(--color-alert-clay)] transition-colors min-h-[36px]">
-                    <span>View Incident Room</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </div>
-              </Link>
+              <IncidentCard
+                key={alert.id}
+                alert={alert}
+                onReportSighting={() => navigate(`/sightings/new?alertId=${alert.id}`)}
+              />
             ))}
           </div>
         )}
