@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { IncidentCard } from './IncidentCard';
 import { NeighborhoodAlert } from '../types';
 
-const mockAlert: NeighborhoodAlert = {
+const baseAlert: NeighborhoodAlert = {
   id: 'alert-sp-101',
   petId: 'pet-1',
   petName: 'Cooper',
@@ -16,71 +16,189 @@ const mockAlert: NeighborhoodAlert = {
   broadcastRadiusKm: 2.5,
   notifiedNeighborsCount: 84,
   timeAgo: '24 mins ago',
-  lastSeenAddress: '742 Evergreen Terrace, Sector 4',
-  description: 'Very friendly, responds to his name and whistles. Wearing red collar.',
+  lastSeenAddress: '742 Evergreen Terrace, Sector 4 PRIVATE RESIDENCE',
+  description: 'Very friendly, responds to his name and whistles.',
   sightingsCount: 2,
+  species: 'dog',
 };
 
-const mockCatAlert: NeighborhoodAlert = {
-  ...mockAlert,
+// Fixtures without explicit species (MUST NOT guess from breed names)
+const catahoulaNoSpecies: NeighborhoodAlert = {
+  ...baseAlert,
   id: 'alert-sp-102',
-  petName: 'Luna',
-  breed: 'Siamese Feline Cat',
+  petName: 'Rex',
+  breed: 'Catahoula Leopard Dog',
+  species: undefined,
+};
+
+const cattleDogNoSpecies: NeighborhoodAlert = {
+  ...baseAlert,
+  id: 'alert-sp-103',
+  petName: 'Bluey',
+  breed: 'Australian Cattle Dog',
+  species: undefined,
+};
+
+const siameseNoSpecies: NeighborhoodAlert = {
+  ...baseAlert,
+  id: 'alert-sp-104',
+  petName: 'Cleo',
+  breed: 'Siamese',
+  species: undefined,
+};
+
+const maineCoonNoSpecies: NeighborhoodAlert = {
+  ...baseAlert,
+  id: 'alert-sp-105',
+  petName: 'Thor',
+  breed: 'Maine Coon',
+  species: undefined,
+};
+
+// Same breed fixtures WITH explicit API species
+const catahoulaWithSpecies: NeighborhoodAlert = {
+  ...catahoulaNoSpecies,
+  species: 'dog',
+};
+
+const siameseWithSpecies: NeighborhoodAlert = {
+  ...siameseNoSpecies,
+  species: 'cat',
 };
 
 const renderWithRouter = (ui: React.ReactElement) => {
   return render(<BrowserRouter>{ui}</BrowserRouter>);
 };
 
-describe('IncidentCard Component', () => {
-  it('renders pet name, breed, distance vector, and status tags', () => {
-    renderWithRouter(<IncidentCard alert={mockAlert} distanceKm={0.8} bearing="NE 42°" />);
+describe('IncidentCard Component (Reconciled Contracts C2, C3, C4, C6)', () => {
+  it('renders pet name, breed, grounded telemetry vector, and status tags when valid telemetry is supplied', () => {
+    renderWithRouter(<IncidentCard alert={baseAlert} distanceKm={0.8} bearing="NE 42°" />);
 
     expect(screen.getByText('Cooper')).toBeInTheDocument();
     expect(screen.getByText('Golden Retriever')).toBeInTheDocument();
     expect(screen.getByText(/0.8 KM • VECTOR NE 42°/i)).toBeInTheDocument();
     expect(screen.getByText('ACTIVE SEARCH')).toBeInTheDocument();
     expect(screen.getByText('CANINE COMPANION')).toBeInTheDocument();
-    expect(screen.getByText('742 Evergreen Terrace, Sector 4')).toBeInTheDocument();
   });
 
-  it('correctly categorizes feline companions based on breed heuristics', () => {
-    renderWithRouter(<IncidentCard alert={mockCatAlert} />);
+  it('enforces C2: classifies breeds without explicit species strictly as "SPECIES UNCONFIRMED" (no guessing)', () => {
+    const { unmount: u1 } = renderWithRouter(<IncidentCard alert={catahoulaNoSpecies} />);
+    expect(screen.getByText('SPECIES UNCONFIRMED')).toBeInTheDocument();
+    u1();
 
-    expect(screen.getByText('Luna')).toBeInTheDocument();
+    const { unmount: u2 } = renderWithRouter(<IncidentCard alert={cattleDogNoSpecies} />);
+    expect(screen.getByText('SPECIES UNCONFIRMED')).toBeInTheDocument();
+    u2();
+
+    const { unmount: u3 } = renderWithRouter(<IncidentCard alert={siameseNoSpecies} />);
+    expect(screen.getByText('SPECIES UNCONFIRMED')).toBeInTheDocument();
+    u3();
+
+    const { unmount: u4 } = renderWithRouter(<IncidentCard alert={maineCoonNoSpecies} />);
+    expect(screen.getByText('SPECIES UNCONFIRMED')).toBeInTheDocument();
+    u4();
+  });
+
+  it('enforces C2: correctly classifies fixtures when explicit API species is provided', () => {
+    const { unmount: u1 } = renderWithRouter(<IncidentCard alert={catahoulaWithSpecies} />);
+    expect(screen.getByText('CANINE COMPANION')).toBeInTheDocument();
+    u1();
+
+    const { unmount: u2 } = renderWithRouter(<IncidentCard alert={siameseWithSpecies} />);
     expect(screen.getByText('FELINE COMPANION')).toBeInTheDocument();
+    u2();
   });
 
-  it('provides accessible >= 44x44px touch targets on immediate emergency action buttons', () => {
-    renderWithRouter(<IncidentCard alert={mockAlert} />);
+  it('enforces C3: renders truthful "LOCATION REPORTED" when distance and radius are absent or 0', () => {
+    const alertWithoutRadius: NeighborhoodAlert = {
+      ...baseAlert,
+      broadcastRadiusKm: 0,
+    };
+    renderWithRouter(<IncidentCard alert={alertWithoutRadius} />);
 
-    const callButton = screen.getByRole('button', { name: /call relay/i });
-    expect(callButton.className).toContain('min-h-[44px]');
+    // Invariant: MUST NOT invent a 5km radius or NE 42° bearing
+    expect(screen.queryByText(/RADIUS/i)).toBeNull();
+    expect(screen.queryByText(/NE 42°/i)).toBeNull();
+    expect(screen.getByText('LOCATION REPORTED')).toBeInTheDocument();
+  });
+
+  it('enforces C3: renders "LOCATION DETAILS UNAVAILABLE" when location address is missing and radius is 0', () => {
+    const alertNoAddress: NeighborhoodAlert = {
+      ...baseAlert,
+      broadcastRadiusKm: 0,
+      lastSeenAddress: '',
+    };
+    renderWithRouter(<IncidentCard alert={alertNoAddress} />);
+
+    expect(screen.getByText('LOCATION DETAILS UNAVAILABLE')).toBeInTheDocument();
+  });
+
+  it('enforces C3: handles invalid radius (negative or NaN) by suppressing radius and rendering truthful location status', () => {
+    const alertInvalidRadius: NeighborhoodAlert = {
+      ...baseAlert,
+      broadcastRadiusKm: -5,
+    };
+    renderWithRouter(<IncidentCard alert={alertInvalidRadius} />);
+
+    expect(screen.queryByText(/RADIUS/i)).toBeNull();
+    expect(screen.getByText('LOCATION REPORTED')).toBeInTheDocument();
+  });
+
+  it('enforces C3: renders radius only when genuinely supplied and greater than 0', () => {
+    const alertWithSuppliedRadius: NeighborhoodAlert = {
+      ...baseAlert,
+      broadcastRadiusKm: 3.5,
+    };
+    renderWithRouter(<IncidentCard alert={alertWithSuppliedRadius} />);
+
+    expect(screen.getByText('RADIUS 3.5 KM')).toBeInTheDocument();
+  });
+
+  it('enforces C6: suppresses raw street addresses on public card', () => {
+    renderWithRouter(<IncidentCard alert={baseAlert} />);
+
+    expect(screen.queryByText(/742 Evergreen Terrace/i)).toBeNull();
+    expect(screen.getByText('Area details restricted for owner privacy')).toBeInTheDocument();
+  });
+
+  it('enforces C4: provides accessible >= 44x44px touch targets on all actionable buttons', () => {
+    renderWithRouter(<IncidentCard alert={baseAlert} />);
+
+    const shareButton = screen.getByRole('button', { name: /share alert for cooper/i });
+    expect(shareButton.className).toContain('min-h-[44px]');
+    expect(shareButton.className).toContain('min-w-[44px]');
+
+    const recoveryNoticeButton = screen.getByRole('button', { name: /recovery notice/i });
+    expect(recoveryNoticeButton.className).toContain('min-h-[44px]');
 
     const sightingLink = screen.getByRole('link', { name: /sighting/i });
     expect(sightingLink.className).toContain('min-h-[44px]');
   });
 
-  it('opens zero-leak emergency relay modal upon clicking CALL RELAY', async () => {
+  it('enforces C3: Guardian Recovery Protocol modal does not imply functioning masked contact mechanism or broadcast claims', async () => {
     const user = userEvent.setup();
-    renderWithRouter(<IncidentCard alert={mockAlert} />);
+    renderWithRouter(<IncidentCard alert={baseAlert} />);
 
-    const callButton = screen.getByRole('button', { name: /call relay/i });
-    await user.click(callButton);
+    const recoveryButton = screen.getByRole('button', { name: /recovery notice/i });
+    await user.click(recoveryButton);
 
-    expect(screen.getByText('Direct Emergency Relay')).toBeInTheDocument();
-    expect(screen.getByText(/Zero-Leak Voice Proxy Active/i)).toBeInTheDocument();
-    expect(screen.getByText(/Call Guardian Now/i)).toBeInTheDocument();
+    expect(screen.getByText('Guardian Recovery Protocol')).toBeInTheDocument();
+    expect(screen.getByText(/Anti-Extortion & Safety Invariant/i)).toBeInTheDocument();
+    expect(screen.getByText(/No masked call relay or automated voice proxy is provided/i)).toBeInTheDocument();
+
+    // Invariant: Fictional relay telephone links and broadcast numbers MUST NOT exist
+    expect(screen.queryByText(/1-800-555/i)).toBeNull();
+    expect(screen.queryByRole('link', { name: /call guardian now/i })).toBeNull();
   });
 
   it('calls onReportSighting handler when action button is triggered', async () => {
     const user = userEvent.setup();
     const handleSighting = vi.fn();
-    renderWithRouter(<IncidentCard alert={mockAlert} onReportSighting={handleSighting} />);
+    renderWithRouter(<IncidentCard alert={baseAlert} onReportSighting={handleSighting} />);
 
     const sightingButton = screen.getByRole('button', { name: /sighting/i });
     await user.click(sightingButton);
 
-    expect(handleSighting).toHaveBeenCalledWith(mockAlert);
+    expect(handleSighting).toHaveBeenCalledWith(baseAlert);
   });
 });

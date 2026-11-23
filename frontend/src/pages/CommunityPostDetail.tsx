@@ -154,7 +154,7 @@ export default function CommunityPostDetail() {
                     {new Date(post.created_at).toLocaleString('en-IN', { hour: 'numeric', minute: 'numeric', day: 'numeric', month: 'short', year: 'numeric' })}
                     <span className="mx-1">•</span>
                     <span className="uppercase tracking-wider text-[10px] bg-[var(--color-background)] px-1.5 py-0.5 rounded text-[var(--color-ink)]">
-                      {post.channel.replace('-', ' ')}
+                      {(post.channel || 'general').replace('-', ' ')}
                     </span>
                   </p>
                 </div>
@@ -174,7 +174,7 @@ export default function CommunityPostDetail() {
                   onClick={handleReportPost}
                   disabled={reportState === 'reported' || reportState === 'submitting'}
                   title={reportState === 'reported' ? 'Post reported' : 'Report inappropriate post'}
-                  className={`p-2 rounded-full transition-colors ${
+                  className={`min-h-[44px] min-w-[44px] flex items-center justify-center p-2.5 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] cursor-pointer ${
                     reportState === 'reported'
                       ? 'text-amber-600 bg-amber-50 cursor-default'
                       : 'text-[var(--color-ink-soft)] hover:text-red-500 hover:bg-red-50'

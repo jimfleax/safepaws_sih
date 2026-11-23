@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { NeighborhoodAlert } from '../types';
 import { 
   MapPin, 
@@ -12,10 +12,14 @@ import {
   Heart, 
   X,
   Share2,
-  Check
+  Check,
+  ShieldCheck,
+  Lock,
+  Camera
 } from 'lucide-react';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
+import { getExplicitSpecies } from '../utils/species';
 
 export interface IncidentCardProps {
   alert: NeighborhoodAlert;
@@ -34,20 +38,30 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
   distanceKm,
   bearing,
 }) => {
+  const navigate = useNavigate();
   const [showContactModal, setShowContactModal] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
-  // Heuristic species detection
-  const isCat = 
-    alert.breed.toLowerCase().includes('cat') || 
-    alert.breed.toLowerCase().includes('feline');
-  const speciesLabel = isCat ? 'FELINE COMPANION' : 'CANINE COMPANION';
+  // Contract C2: Explicit species classification (NO breed guessing)
+  const species = getExplicitSpecies(alert);
+  const speciesLabel = 
+    species === 'cat' 
+      ? 'FELINE COMPANION' 
+      : species === 'dog' 
+      ? 'CANINE COMPANION' 
+      : species === 'other'
+      ? 'OTHER COMPANION'
+      : 'SPECIES UNCONFIRMED';
 
-  // Computed or deterministic distance vector based on alert broadcast radius
-  const formattedDistance = distanceKm 
-    ? `${distanceKm.toFixed(1)} KM`
-    : `${(alert.broadcastRadiusKm * 0.4).toFixed(1)} KM`;
-  const formattedBearing = bearing || 'NE 42°';
+  // Contract C3: Grounded telemetry (strictly no invented fallback radius or synthetic bearings)
+  let telemetryDisplay = alert.lastSeenAddress ? 'LOCATION REPORTED' : 'LOCATION DETAILS UNAVAILABLE';
+  if (typeof distanceKm === 'number' && !isNaN(distanceKm) && distanceKm > 0) {
+    const distStr = `${distanceKm.toFixed(1)} KM`;
+    telemetryDisplay = (bearing && bearing.trim()) ? `${distStr} • VECTOR ${bearing.trim()}` : distStr;
+  } else if (typeof alert.broadcastRadiusKm === 'number' && alert.broadcastRadiusKm > 0) {
+    const radStr = `RADIUS ${alert.broadcastRadiusKm} KM`;
+    telemetryDisplay = (bearing && bearing.trim()) ? `${radStr} • VECTOR ${bearing.trim()}` : radStr;
+  }
 
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -100,32 +114,32 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
 
             {/* Species Tag */}
             <Badge
-              variant={isCat ? 'neutral' : 'scout'}
+              variant={species === 'cat' ? 'neutral' : species === 'dog' ? 'scout' : 'neutral'}
               className="px-2.5 py-1 text-[10px] font-mono tracking-wider shadow-sm pointer-events-auto"
             >
               {speciesLabel}
             </Badge>
           </div>
 
-          {/* Bottom Photo Gradient Vignette for Distance Vector */}
+          {/* Bottom Photo Gradient Vignette for Telemetry Vector */}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-3 pt-6 flex items-center justify-between text-white font-mono text-[11px]">
-            {/* Distance Vector Pin */}
+            {/* Grounded Distance Vector Pin */}
             <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
               <Compass className="w-3.5 h-3.5 text-[var(--color-marigold)]" aria-hidden="true" />
-              <span>{formattedDistance} • VECTOR {formattedBearing}</span>
+              <span>{telemetryDisplay}</span>
             </div>
 
-            {/* Quick Share Trigger */}
+            {/* Contract C4: Quick Share Trigger with Accessible >= 44x44px Touch Target */}
             <button
               type="button"
               onClick={handleShare}
               aria-label={`Share alert for ${alert.petName}`}
-              className="p-1.5 rounded-full bg-black/40 backdrop-blur-md hover:bg-black/70 text-white/90 hover:text-white border border-white/20 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center cursor-pointer pointer-events-auto"
+              className="p-2.5 rounded-full bg-black/40 backdrop-blur-md hover:bg-black/70 text-white/90 hover:text-white border border-white/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer pointer-events-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
             >
               {copiedLink ? (
-                <Check className="w-3.5 h-3.5 text-[var(--color-success)]" aria-hidden="true" />
+                <Check className="w-4 h-4 text-[var(--color-success)]" aria-hidden="true" />
               ) : (
-                <Share2 className="w-3.5 h-3.5" aria-hidden="true" />
+                <Share2 className="w-4 h-4" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -154,13 +168,13 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
 
             {/* Micro Telemetry Rows */}
             <div className="space-y-2.5 pt-3 border-t border-[var(--color-border)] text-xs text-[var(--color-ink-soft)]">
-              {/* Last Seen Vector */}
+              {/* Contract C6: Last Seen Vicinity (suppresses raw street addresses) */}
               <div className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-[var(--color-alert-clay)] mt-0.5 shrink-0" aria-hidden="true" />
                 <div className="flex-1 min-w-0">
-                  <span className="font-mono text-[10px] uppercase text-[var(--color-ink-soft)] block">Last Seen Vector</span>
-                  <span className="text-[var(--color-ink)] font-medium line-clamp-1">
-                    {alert.lastSeenAddress || 'Local Neighborhood'}
+                  <span className="font-mono text-[10px] uppercase text-[var(--color-ink-soft)] block">Last Seen Vicinity</span>
+                  <span className="text-[var(--color-ink)] font-medium line-clamp-1" title="Area details restricted for owner privacy">
+                    Area details restricted for owner privacy
                   </span>
                 </div>
               </div>
@@ -186,7 +200,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
           {/* Immediate Emergency Action Bar */}
           <div className="pt-5 mt-5 border-t border-[var(--color-border)] space-y-2.5">
             <div className="grid grid-cols-2 gap-2">
-              {/* Action 1: Immediate Emergency Contact */}
+              {/* Action 1: Incident Contact Protocol */}
               <Button
                 variant="alert"
                 size="sm"
@@ -194,7 +208,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
                 leftIcon={<Phone className="w-3.5 h-3.5" aria-hidden="true" />}
                 className="w-full text-xs font-bold uppercase tracking-wider min-h-[44px]"
               >
-                CALL RELAY
+                RECOVERY NOTICE
               </Button>
 
               {/* Action 2: Report Sighting */}
@@ -210,7 +224,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
                 </Button>
               ) : (
                 <Link
-                  to="/community"
+                  to={`/sightings/new?alertId=${alert.id}`}
                   className="inline-flex items-center justify-center gap-1.5 rounded-[var(--radius-16)] font-semibold border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-bone)] text-[var(--color-ink)] text-xs uppercase tracking-wider min-h-[44px] px-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
                 >
                   <Eye className="w-3.5 h-3.5" aria-hidden="true" />
@@ -231,13 +245,13 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
         </div>
       </article>
 
-      {/* Immediate Emergency Voice Relay Modal */}
+      {/* Contract C3: Grounded Guardian Contact & Safety Protocol Modal (Eliminates Fictional Relay & 1-800 Dialers) */}
       {showContactModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           role="dialog"
           aria-modal="true"
-          aria-labelledby={`emergency-relay-title-${alert.id}`}
+          aria-labelledby={`recovery-protocol-title-${alert.id}`}
         >
           <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-24)] max-w-md w-full p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
             {/* Header */}
@@ -247,11 +261,11 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
                   <ShieldAlert className="w-6 h-6" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 id={`emergency-relay-title-${alert.id}`} className="font-serif text-xl font-bold text-[var(--color-ink)]">
-                    Direct Emergency Relay
+                  <h3 id={`recovery-protocol-title-${alert.id}`} className="font-serif text-xl font-bold text-[var(--color-ink)]">
+                    Guardian Recovery Protocol
                   </h3>
-                  <p className="text-xs text-[var(--color-ink-soft)]">
-                    Immediate contact for {alert.petName}
+                  <p className="text-xs text-[var(--color-ink-soft)] font-mono">
+                    Incident #{alert.id.slice(0, 6).toUpperCase()} • {alert.petName}
                   </p>
                 </div>
               </div>
@@ -266,26 +280,44 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
               </button>
             </div>
 
-            {/* Privacy Safeguard Notice */}
-            <div className="bg-[var(--color-bone)] border border-[var(--color-border)] rounded-[var(--radius-16)] p-4 text-xs space-y-2">
-              <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-[var(--color-success)] uppercase">
-                <span className="w-2 h-2 rounded-full bg-[var(--color-success)]" />
-                <span>Zero-Leak Voice Proxy Active</span>
+            {/* Anti-Scam Guidance (Section E) */}
+            <div className="bg-amber-50/80 border border-amber-200/80 rounded-[var(--radius-16)] p-4 text-xs space-y-2">
+              <div className="flex items-center gap-1.5 font-mono text-[11px] font-bold text-amber-900 uppercase">
+                <ShieldCheck className="w-4 h-4 text-amber-700" />
+                <span>Anti-Extortion & Safety Invariant</span>
               </div>
               <p className="text-[var(--color-ink-soft)] leading-relaxed">
-                To protect owner privacy and community safety, this call connects through the SafePaws encrypted relay. Your phone number remains completely anonymous.
+                Never wire money, send courier fees, or reveal verification codes to strangers claiming to hold a pet. SafePaws never requires payment for pet reunification. Meet only in daylight at a busy public municipal location.
+              </p>
+              <p className="text-[var(--color-ink-soft)]/80 text-[11px] border-t border-amber-200/50 pt-2 leading-relaxed">
+                Notice: All incident communication is recorded through verified observational sightings. No masked call relay or automated voice proxy is provided.
               </p>
             </div>
 
-            {/* Relay Action */}
+            {/* Direct Observational Actions */}
             <div className="space-y-3 pt-2">
-              <a
-                href="tel:18005557297"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-[var(--color-alert-clay)] hover:bg-[#9A3926] text-white font-bold text-xs uppercase tracking-wider rounded-[var(--radius-16)] shadow-md transition-all active:scale-[0.98] min-h-[44px] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)]"
+              <button
+                type="button"
+                onClick={() => {
+                  setShowContactModal(false);
+                  navigate(`/sightings/new?alertId=${alert.id}`);
+                }}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-[var(--color-alert-clay)] hover:bg-[#9A3926] text-white font-bold text-xs uppercase tracking-wider rounded-[var(--radius-16)] shadow-md transition-all active:scale-[0.98] min-h-[44px] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] cursor-pointer"
               >
-                <Phone className="w-4 h-4" aria-hidden="true" />
-                <span>Call Guardian Now (1-800-555-PAWS)</span>
-              </a>
+                <Camera className="w-4 h-4" aria-hidden="true" />
+                <span>Submit Observational Sighting</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowContactModal(false);
+                  navigate(`/alerts/${alert.id}`);
+                }}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-white border border-[var(--color-border)] hover:bg-[var(--color-bone)] text-[var(--color-ink)] font-bold text-xs uppercase tracking-wider rounded-[var(--radius-16)] transition-all min-h-[44px] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] cursor-pointer"
+              >
+                <span>View Full Incident Dossier</span>
+              </button>
 
               <Button
                 variant="secondary"
@@ -294,7 +326,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
                 onClick={() => setShowContactModal(false)}
                 className="min-h-[44px]"
               >
-                Cancel
+                Close Protocol
               </Button>
             </div>
           </div>

@@ -1,5 +1,8 @@
 # SafePaws — Master UI/UX Transformation Tracker (Phases UX-00 to UX-05)
 
+> [!IMPORTANT]
+> **CANONICAL PROJECT TRACKER LOCATION:** The single canonical master project record is now maintained in [docs/SAFEPAWS_PROJECT_TRACKER.md](file:///home/samudra/Projects/VisualSCode/VisualCode/Vscoding/Projects/SAFEPAWS/safepaws_sih/docs/SAFEPAWS_PROJECT_TRACKER.md), consolidating executive status, roadmap, contract register, route matrix, design transformation track, evidence register, and defect risks. This document preserves historical milestone records.
+
 **Milestone:** Complete Award-Level UI/UX Transformation  
 **Active Git Commit:** `5d15982822bbf794f536405f9490e935eaaa567c`  
 **Active Branch:** `frontend` (up to date with `origin/frontend`)  

@@ -69,7 +69,7 @@ export const usePetStore = create<PetState>((set) => ({
             breed: a.breed || 'Unknown',
             photoUrl: a.photo_url || '',
             status: a.status as 'active' | 'resolved',
-            broadcastRadiusKm: 5,
+            broadcastRadiusKm: 0,
             notifiedNeighborsCount: 0,
             timeAgo: a.created_at || 'Recently',
             lastSeenAddress: a.last_seen_address || '',

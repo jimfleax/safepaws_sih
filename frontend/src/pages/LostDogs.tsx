@@ -16,6 +16,7 @@ import {
   ScanLine
 } from 'lucide-react';
 import { IncidentCard } from '../components/IncidentCard';
+import { getExplicitSpecies } from '../utils/species';
 
 export default function LostDogs() {
   const navigate = useNavigate();
@@ -35,10 +36,10 @@ export default function LostDogs() {
     
     // If species filtering is applied
     if (selectedSpecies === 'all') return matchesSearch;
-    // Check breed/species heuristic if available
-    const isCat = alert.breed.toLowerCase().includes('cat') || alert.breed.toLowerCase().includes('feline');
-    if (selectedSpecies === 'cat') return matchesSearch && isCat;
-    if (selectedSpecies === 'dog') return matchesSearch && !isCat;
+    // Check explicit species classification without breed guessing
+    const species = getExplicitSpecies(alert);
+    if (selectedSpecies === 'cat') return matchesSearch && species === 'cat';
+    if (selectedSpecies === 'dog') return matchesSearch && species === 'dog';
     return matchesSearch;
   });
 
@@ -58,7 +59,7 @@ export default function LostDogs() {
               Recovery Board
             </h1>
             <p className="text-base md:text-lg text-[var(--color-ink-soft)] font-light leading-relaxed">
-              These active broadcasts represent companions currently missing in your community. Every observation helps reunite a family.
+              These active reports represent companions currently missing in your community. Every observational sighting helps reunite a family.
             </p>
           </div>
           

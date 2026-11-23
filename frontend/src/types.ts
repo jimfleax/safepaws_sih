@@ -43,6 +43,7 @@ export interface NeighborhoodAlert {
   lastSeenAddress: string;
   description: string;
   sightingsCount: number;
+  species?: 'dog' | 'cat' | 'other' | 'unknown';
 }
 
 export interface CommunitySighting {
