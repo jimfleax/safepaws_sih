@@ -671,7 +671,7 @@ During Phase UX-04 Phase 0 preflight, four specific non-motion architectural ris
 
 ## 17. Phase UX-06.3: Owner & Pet Experience Transformation
 
-**Status:** **ACCEPTED & CERTIFIED GREEN (RECONCILED: 99.8 / 100.0 — FULL UNCONDITIONAL ACCEPTANCE)**  
+**Status:** **ACCEPTED & CERTIFIED GREEN (RECONCILED: 99.17 / 100.0 — FULL UNCONDITIONAL ACCEPTANCE)**  
 **Authority:** Chief Product & Technical Orchestrator (`64840b91-20dd-480a-bae0-115056cbb502`)  
 **Implementation Owner:** Panel C Lead  
 **Independent Gatekeeper:** Panel F Lead (`a9aa950d-974f-4966-bd8d-f3431cabc5f1`)  
@@ -688,11 +688,11 @@ During Phase UX-04 Phase 0 preflight, four specific non-motion architectural ris
    - Unified Definitive Recommendation: **Tactile Editorial Precision** (Newsreader display serif, Plus Jakarta Sans UI, JetBrains Mono telemetry, Bone/Ink/Marigold/Trail/Alert-Clay palette).
 2. **Provenance & Surface Audit:**
    - `SetupProfile.tsx`, `Dashboard.tsx`, `NewPet.tsx`, `PetDetail.tsx`: Preserved solid pre-existing foundations with semantic `<main id="main-content">` landmarks.
-   - `QrTagModal.tsx`: Materially transformed with 3D tactile medal flip between front QR code and reverse brass medal (`motion-reduce:transition-none`). Refactored to semantic `<button>` with `aria-pressed`, legacy props removed, and high-res "Download PNG" action added.
+   - `QrTagModal.tsx`: Materially transformed with 3D tactile medal flip between front QR code and reverse brass medal (`motion-reduce:transition-none`). Refactored to semantic `<button>` with `aria-pressed`, legacy props removed, and high-res "Download PNG" action added. Output qualified at 260x260px digital display scan resolution.
    - `PublicTagProfile.tsx`: Materially restructured with strict Invariant SD-01 privacy withholding, geolocation ping, and sighting dispatch.
-   - `PetCard.tsx`: Canonical `pet.qrTagId` (e.g. `TAG-OLIVER-01`) preserved cleanly with responsive truncation, closing Condition C-04.
+   - `PetCard.tsx`: Canonical `pet.qrTagId` (e.g. `TAG-OLIVER-01`) preserved cleanly with responsive wrapping (`break-all`, no `truncate` clipping) and accessible copy affordance button on mobile and desktop, closing Condition C-04.
 3. **Governance Invariant SD-01 (100% VERIFIED via Real React DOM Tests):**
-   - Verified across 5 test fixtures rendered with `@testing-library/react` and `MemoryRouter`: medical notes withheld unless `shareMedicalNotes === true`; owner phone number and street address never exposed in public DOM.
+   - Verified across 5 test fixtures rendered with `@testing-library/react` and `MemoryRouter`: medical notes withheld unless `shareMedicalNotes === true`; owner phone number, email, and private street address (`742 Evergreen Terrace — PRIVATE ADDRESS`) never exposed in public DOM.
 4. **Visual Capture Suite:**
    - 10 screenshots captured in `docs/screenshots/ux-06-3/` across desktop (1440x900) and mobile (390x844).
 5. **Multi-Viewport Responsive Assertions:**
@@ -700,37 +700,40 @@ During Phase UX-04 Phase 0 preflight, four specific non-motion architectural ris
 
 ### 17.2 Quality Gate Evidence
 - **TypeScript:** `npm run lint` (`tsc --noEmit`) $\rightarrow$ **0 errors (clean exit)**.
-- **Vitest Unit & Integration:** `npx vitest run` $\rightarrow$ **17 test files, 99 passed (100% green in 5.43s)**.
+- **Vitest Unit & Integration:** `npx vitest run` $\rightarrow$ **17 test files, 99 passed (100% green in 5.56s)**.
 - **Playwright Core E2E:** `10 passed in 38.5s` (Chromium).
 - **Playwright Responsive Suite:** `30 passed in 50.6s` across all 5 surfaces.
 - **Production Build:** `npm run build` $\rightarrow$ Built in 3.15s (CSS gzip: 18.52 kB $\le 25\text{ kB}$; Core JS gzip: 129.36 kB $\le 150\text{ kB}$).
 - **Backend Tests:** `pytest backend/tests/` $\rightarrow$ **193 passed, 4 skipped in 3.81s (0 regressions)**.
 - **Database Checksum:** `07c07e4d5ff339d31e4aa25432e415f3` (pristine provenance).
 
-### 17.3 Reconciled Dimensional Scorecard (99.8 / 100.0)
+### 17.3 Reconciled Dimensional Scorecard & Explicit Weighting Formula (99.17 / 100.0)
 | Dimension | Max Score | Awarded Score | Status | Key Evidence |
 |:---|:---:|:---:|:---:|:---|
-| **DIM-01: Visual Craft, Brand Storytelling & Creative Direction** | 10.0 | **10.0** | **VERIFIED** | Tactile Editorial Precision; Newsreader headings; Bone canvas; canonical tag display verified. |
+| **DIM-01: Visual Craft, Brand Storytelling & Creative Direction** | 10.0 | **10.0** | **VERIFIED** | Tactile Editorial Precision; Newsreader headings; Bone canvas; canonical tag display with copy affordance. |
 | **DIM-02: Information Architecture & Routing Topology** | 10.0 | **10.0** | **VERIFIED** | Auth boundary isolation; subroute mapping in `DashboardNav.tsx`. |
 | **DIM-03: Owner Onboarding & Profile Setup Surface** | 10.0 | **9.8** | **VERIFIED** | 2-step onboarding; reverse geocoding with graceful manual fallback. |
 | **DIM-04: Central Owner Console Surface** | 10.0 | **9.8** | **VERIFIED** | 4-tier status separation; real-time search; polymorphic PetCard grid/row toggle. |
 | **DIM-05: 3-Step Atomic Companion Registration Surface** | 10.0 | **9.8** | **VERIFIED** | Atomic `createdPetId` prevents duplicate records; client validation enforced. |
 | **DIM-06: Companion Living Dossier & Collar Hub Surface** | 10.0 | **9.8** | **VERIFIED** | Complete vitals dossier; edit and delete modals with optimistic store sync. |
-| **DIM-07: Public Collar Tag View & Privacy Invariant SD-01** | 10.0 | **10.0** | **VERIFIED** | 100% SD-01 conformance across 5 fixtures in real React DOM; zero phone/address exposure. |
-| **DIM-08: QR Tag Modal & 3D Medal Physics** | 10.0 | **10.0** | **VERIFIED** | 3D tactile flip; semantic `<button>` with `aria-pressed`; clean props contract; PNG download action. |
+| **DIM-07: Public Collar Tag View & Privacy Invariant SD-01** | 10.0 | **10.0** | **VERIFIED** | 100% SD-01 conformance across 5 fixtures in real React DOM; zero phone/address/email exposure. |
+| **DIM-08: QR Tag Modal & 3D Medal Physics** | 10.0 | **10.0** | **VERIFIED** | 3D tactile flip; semantic `<button>` with `aria-pressed`; clean props contract; PNG download action (260x260px). |
 | **DIM-09: WCAG 2.2 AA Accessibility & Color Contrast** | 10.0 | **10.0** | **VERIFIED** | Contrast verified; $\ge 44\text{px}$ touch targets; zero nested `<main>` tags. |
 | **DIM-10: Responsive Multi-Viewport Matrix** | 10.0 | **10.0** | **VERIFIED** | 30/30 real browser assertions pass across 5 surfaces and 6 viewports. |
 | **DIM-11: Component Contracts, Token Parity & Bundle Economics** | 10.0 | **10.0** | **VERIFIED** | `tsc` 0 errors; CSS gzip 18.52 kB; JS gzip 129.36 kB; build 3.15s. |
 | **DIM-12: Scope Lock, Automated Regression Suites & Gate Integrity** | 10.0 | **9.8** | **VERIFIED** | 0 backend edits; Vitest 99/99; Pytest 193/193; Gate 4 on HOLD. |
-| **COMPOSITE TOTAL** | **100.0** | **99.8 / 100** | **Panel F Lead** | **PASS — FULL UNCONDITIONAL ACCEPTANCE** |
+| **COMPOSITE TOTAL (Equal Weighting Formula)** | **100.0** | **99.17 / 100** | **Panel F Lead** | **PASS — FULL UNCONDITIONAL ACCEPTANCE** |
+
+*Explicit Weighting Formula:* $\text{Composite} = \frac{7 \times 10.0 + 5 \times 9.8}{12} \times 10 = \frac{119.0}{12} \times 10 = \mathbf{99.17 / 100}$.
 
 ### 17.4 Remediation Register & Conditions
-- **Condition C-04 (Low — CLOSED):** In `PetCard.tsx:170`, replaced double-tag slice `${pet.qrTagId.slice(0, 8)}-TAG` with canonical `{pet.qrTagId ? pet.qrTagId : 'SECURED'}`. Asserted in `OwnerPetExperience.test.tsx` and Playwright tests.
+- **Condition C-04 (Low — CLOSED):** In `PetCard.tsx`, replaced double-tag slice `${pet.qrTagId.slice(0, 8)}-TAG` with canonical `{pet.qrTagId ? pet.qrTagId : 'SECURED'}` with responsive wrapping (`break-all`) and accessible copy button. Asserted in `OwnerPetExperience.test.tsx` and Playwright tests.
 - **Condition C-05 (Low — CLOSED):** Cleaned up and removed legacy unused props (`title`, `content`, `alert`) from `QrTagModalProps`. Rewrote `QrTagModal.test.tsx` to target clean contract.
-- **Condition C-06 (Low — CLOSED):** Added dedicated "Download PNG" action to download high-resolution collar QR code asset. Asserted in `QrTagModal.test.tsx`.
+- **Condition C-06 (Low — CLOSED):** Added dedicated "Download PNG" action to download collar QR asset. Output qualified as 260x260px digital display scan resolution, suitable for digital sharing/mobile scanning; not 300+ DPI offset print press.
 
 ### 17.5 Corrected Downstream Canonical Roadmap & Authorization
-- **Phase UX-06.4: Scanner & Identity — Frontend Only (Panel D Lead):** **AUTHORIZED TO PROCEED**. Focus: Optical scanner HUD, camera viewfinder UI, simulation mode, and identity verification presentation. Frontend only. Backend ML pipeline remediation and live inference remain a separate future milestone.
+- **Phase UX-06.4: Scanner & Identity — Frontend Only (Panel D Lead):** **AUTHORIZED TO PROCEED (ACTIVE)**. Focus: Optical scanner HUD, camera viewfinder UI, simulation mode, and identity verification presentation. Frontend only. Backend ML pipeline remediation and live inference remain a separate future milestone.
 - **Phase UX-06.5: Community, Lost & Rescue (Panel E Lead):** **STAGED**.
 - **Phase UX-06.6: Frontend Integration & Independent QA (Panel F Lead):** **STAGED**.
+- **Production Gate 4 (Live Database & ML Deployment):** **STRICTLY ON HOLD** pending live host PostgreSQL 16 container.
 - **Production Gate 4 (Live Database & ML Deployment):** **STRICTLY ON HOLD** pending live host PostgreSQL 16 container.
