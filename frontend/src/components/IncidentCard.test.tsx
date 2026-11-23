@@ -186,7 +186,8 @@ describe('IncidentCard Component (Reconciled Contracts C2, C3, C4, C6)', () => {
 
     expect(screen.getByText('Guardian Recovery Protocol')).toBeInTheDocument();
     expect(screen.getByText(/Anti-Extortion & Safety Invariant/i)).toBeInTheDocument();
-    expect(screen.getByText(/No masked call relay or automated voice proxy is provided/i)).toBeInTheDocument();
+    expect(screen.getByText(/Community-submitted observational sightings appear in the incident timeline/i)).toBeInTheDocument();
+    expect(screen.getByText(/SafePaws does not currently provide a masked call relay or automated voice proxy/i)).toBeInTheDocument();
 
     // Invariant: Fictional relay telephone links and broadcast numbers MUST NOT exist
     expect(screen.queryByText(/1-800-555/i)).toBeNull();
