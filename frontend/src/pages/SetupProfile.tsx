@@ -133,7 +133,7 @@ export const SetupProfile: React.FC = () => {
             </h1>
             
             <p className="text-[var(--color-ink-soft)] text-base leading-relaxed mb-10 max-w-md mx-auto">
-              SafePaws protects companions by neighborhood. Your approximate zone routes local sighting telemetry and broadcasts recovery alerts only to relevant nearby guardians.
+              SafePaws organizes pet records and recovery notices by neighborhood. Setting your approximate zone helps contextualize local community incidents and sighting reports.
             </p>
             
             <div className="space-y-3 flex flex-col items-center w-full max-w-sm mx-auto">

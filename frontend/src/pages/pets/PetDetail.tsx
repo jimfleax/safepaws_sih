@@ -85,12 +85,12 @@ export default function PetDetail() {
         lastSeenAddress: pet?.neighborhood || 'Location on record',
         description: `Lost companion: ${pet?.name}`,
       });
-      setSuccessMessage('Missing alert broadcasted successfully to the SafePaws network.');
+      setSuccessMessage('Missing pet alert published successfully to the incident registry.');
       const fetchedPet = await ApiClient.getPet(petId);
       setPet(fetchedPet);
       await usePetStore.getState().hydrate();
     } catch (e: any) {
-      setActionError(e.message || 'Failed to broadcast missing alert');
+      setActionError(e.message || 'Failed to publish missing alert');
     }
   };
 
@@ -359,7 +359,7 @@ export default function PetDetail() {
                   className="w-full py-4 px-6 bg-[var(--color-alert-clay)] hover:bg-[#9A3926] text-white font-bold text-xs uppercase tracking-widest rounded-full transition-all flex items-center justify-center gap-2 shadow-sm min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-focus)] cursor-pointer"
                 >
                   <AlertCircle size={18} />
-                  <span>Report Missing (Broadcast Alert)</span>
+                  <span>Report Missing Pet</span>
                 </button>
               ) : (
                 <div className="w-full py-4 px-6 bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] border-2 border-[var(--color-alert-clay)] rounded-full text-center font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">

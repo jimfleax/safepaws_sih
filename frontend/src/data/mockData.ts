@@ -73,7 +73,6 @@ export const sampleAlerts: NeighborhoodAlert[] = [
     breed: 'Orange Tabby',
     photoUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=600&q=80',
     status: 'active',
-    broadcastRadiusKm: 2.5,
     notifiedNeighborsCount: 138,
     timeAgo: '45 minutes ago',
     lastSeenAddress: 'Oakridge Park near playground',

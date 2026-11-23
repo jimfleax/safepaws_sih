@@ -76,13 +76,13 @@ export default function ReportLost() {
         <header className="mb-12 border-b border-[var(--color-border)] pb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] text-xs font-mono font-bold uppercase tracking-wider mb-4">
             <Radio className="w-3.5 h-3.5 animate-pulse" />
-            <span>EMERGENCY BROADCAST SYSTEM</span>
+            <span>ACTIVE RECOVERY REGISTRY</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-3 text-[var(--color-ink)]">
             Declare Missing Companion
           </h1>
           <p className="text-base md:text-lg text-[var(--color-ink-soft)] font-light leading-relaxed max-w-2xl">
-            Activate an official community alert. We will immediately push your pet's biometric profile and description to the active tracking network and notify nearby community members.
+            Activate an official community alert. We log your companion's profile, description, and last known location in the public recovery ledger for community members and searchers to reference.
           </p>
         </header>
 
@@ -205,7 +205,7 @@ export default function ReportLost() {
                     className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[var(--color-alert-clay)] hover:bg-[#9A3926] text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-alert-clay)] disabled:opacity-50 min-h-[44px]"
                   >
                     <ShieldAlert className="w-4 h-4" />
-                    <span>{isSubmitting ? 'Transmitting Alert...' : 'Broadcast Level-1 Alert'}</span>
+                    <span>{isSubmitting ? 'Publishing Alert...' : 'Publish Missing Pet Alert'}</span>
                   </button>
                 </div>
               </form>
@@ -223,28 +223,28 @@ export default function ReportLost() {
                   </h3>
                 </div>
                 <p className="text-xs text-[var(--color-ink-soft)] leading-relaxed mb-6 font-light">
-                  Upon broadcasting, your companion's profile is immediately unlocked across SafePaws' recovery services to expedite location and safe return:
+                  When an alert is published, your companion's active incident record is logged in the SafePaws recovery registry:
                 </p>
                 <ul className="space-y-4 pt-4 border-t border-[var(--color-border)] text-xs text-[var(--color-ink)]">
                   <li className="flex items-start gap-3">
                     <span className="w-2 h-2 rounded-full bg-[var(--color-alert-clay)] mt-1 shrink-0" />
                     <span>
-                      <strong className="block font-semibold">QR Collar Tag Status Shift</strong>
-                      Anyone scanning the collar tag sees an urgent "Reported Missing" beacon with 1-tap sighting tools.
+                      <strong className="block font-semibold">Public QR Tag Status</strong>
+                      Anyone scanning the collar tag sees an active missing status with direct sighting submission options.
                     </span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="w-2 h-2 rounded-full bg-[var(--color-alert-clay)] mt-1 shrink-0" />
                     <span>
-                      <strong className="block font-semibold">Community Feed Integration</strong>
-                      An emergency broadcast card is dispatched into the active neighborhood recovery feed.
+                      <strong className="block font-semibold">Active Incident Registry</strong>
+                      An incident notice is posted in the community recovery ledger for searchers and neighbors to reference.
                     </span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="w-2 h-2 rounded-full bg-[var(--color-alert-clay)] mt-1 shrink-0" />
                     <span>
-                      <strong className="block font-semibold">Biometric Scanner Matching</strong>
-                      Field scans matching your pet's noseprint are flagged for instant confirmation.
+                      <strong className="block font-semibold">Biometric Match Identification</strong>
+                      Field observations submitted through the biometric scanner can be cross-referenced against your pet's registered record.
                     </span>
                   </li>
                 </ul>

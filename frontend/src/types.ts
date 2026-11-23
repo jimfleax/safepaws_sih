@@ -37,8 +37,6 @@ export interface NeighborhoodAlert {
   breed: string;
   photoUrl: string;
   status: 'active' | 'resolved';
-  /** @deprecated Unsupported by backend AlertResponse; do not display to users */
-  broadcastRadiusKm?: number;
   notifiedNeighborsCount?: number;
   timeAgo: string;
   lastSeenAddress: string;

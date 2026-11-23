@@ -5,9 +5,9 @@
 **Independent Quality Gatekeeper:** Panel F — Independent QA & Release Gate  
 **Implementation Lead:** Panel E Lead — Community & Rescue  
 **Active Repository Branch:** `frontend`  
-**Current Commit HEAD:** `bae965a1de435b1fca52217ec9994efcce515118`  
+**Current Commit HEAD:** `04c03421b1d08f0e6d36bb1aec4da95a0d4edd05`  
 **Tracking Mode:** Living Project Record (Canonical Master Tracker)  
-**Last Synchronized:** November 23, 2026 (Post-Source Hygiene Audit)  
+**Last Synchronized:** November 23, 2026 (Post-Capability-Truth & Telemetry Provenance Reconciliation)  
 
 ---
 
@@ -19,7 +19,8 @@
 ========================================================================================
 CURRENT MILESTONE:              UX-06.5 Phase 1 Closeout Reconciliation (Community/Lost/Reunification)
 CURRENT ACCEPTED MILESTONE:     UX-06.4 Atelier Biometrics Scanner (Score: 99.8 / 100.0)
-SOURCE HYGIENE AUDIT:           COMPLETE (Items A, B, C Verified & Reconciled)
+TELEMETRY PROVENANCE AUDIT:     COMPLETE (Zero broadcast radius; zero synthetic distance/bearing)
+CAPABILITY-TRUTH AUDIT:         COMPLETE (SetupProfile, PetDetail, ReportLost, CommunityPostDetail)
 ACTIVE PROGRAM BLOCKERS:        1. UX-06.5 Phase 2: STRICTLY BLOCKED (Awaiting Orchestrator Approval)
                                 2. Production Gate 4: STRICTLY ON HOLD (PostgreSQL 16 Host Unavailable)
                                 3. SEC-BACKEND-01: OPEN (Backend Public Endpoints Expose Street Address)
@@ -134,13 +135,13 @@ The following lifecycle statuses are distinguished:
 | :--- | :--- | :---: | :---: | :---: | :--- |
 | `npm run lint` (`tsc --noEmit`) | Frontend TypeScript Validation | Clean (0 errors) | 1.8s | `0` | Full contract type-safety, zero `as any` bypasses on alert schema. |
 | `npx vitest run src/pages/AlertDetail.test.tsx` | C1 Hydration & C3 Telemetry Truth | 6 / 6 | 0.8s | `0` | Direct URL hydration, flattened field mapping, location privacy, no broadcast radius. |
-| `npx vitest run src/components/IncidentCard.test.tsx` | C2 Species, C3 Grounded Telemetry, C4 Touch | 11 / 11 | 0.9s | `0` | Explicit species, missing/invalid radius fallback, no fake dialer, 44px buttons. |
+| `npx vitest run src/components/IncidentCard.test.tsx` | C2 Species, C3 Grounded Telemetry, C4 Touch | 9 / 9 | 0.9s | `0` | Explicit species, zero synthetic distance/bearing, truthful location status, 44px buttons. |
 | `npx vitest run src/utils/species.test.ts` | C2 Species Invariant Classifier | 4 / 4 | 0.1s | `0` | Strictly dog/cat/other/unknown. Zero breed heuristics or regex guessing. |
 | `npx vitest run src/components/scan/Scan.test.tsx` | Scanner Regression Suite | 21 / 21 | 1.5s | `0` | Camera teardown, multi-device switch, simulation labeling, freeze review. |
 | `npx vitest run src/pages/pets/OwnerPetExperience.test.tsx` | Owner Console Regression Suite | 8 / 8 | 0.7s | `0` | Responsive QR tag wrapping, copy action, private address suppression. |
-| **Full Vitest Suite (`npx vitest run`)** | **All 20 Frontend Test Files** | **125 / 125** | **6.74s** | **`0`** | **Complete unit & integration regression baseline.** |
+| **Full Vitest Suite (`npx vitest run`)** | **All 20 Frontend Test Files** | **123 / 123** | **6.29s** | **`0`** | **Complete unit & integration regression baseline.** |
 | **Playwright E2E (`ux_06_5_touch_targets.spec.ts`)** | **Touch Target Metrology across 3 Viewports** | **9 / 9** | **20.9s** | **`0`** | **Actual bounding boxes $\ge 44.0 \times 44.0\text{ px}$ at 320px, 390px, 1280px.** |
-| **Production Build (`npm run build`)** | **Vite Production Packaging** | **54 Chunks Emitted** | **3.77s** | **`0`** | **Core JS: 391.66 kB (129.33 kB gzip); CSS: 129.38 kB (18.63 kB gzip).** |
+| **Production Build (`npm run build`)** | **Vite Production Packaging** | **54 Chunks Emitted** | **3.15s** | **`0`** | **Core JS: 391.64 kB (129.32 kB gzip); CSS: 129.38 kB (18.63 kB gzip).** |
 
 ---
 
@@ -158,14 +159,21 @@ The following lifecycle statuses are distinguished:
 ## H. Git Integrity Register
 
 - **Active Tracking Branch:** `frontend`
-- **Initial Baseline HEAD:** `3802077f1f958d863dfff46a9dafd9c4a05552a6`
-- **Current HEAD:** `bae965a1de435b1fca52217ec9994efcce515118` (Committed by User via VS Code Smart Commit)
-- **Commits Applied in this Milestone Phase:**
-  - `a97b6fd`: `feat: Enhance community and lost pet features with explicit species classification and UI improvements`
-  - `f0b6ee7`: `feat: Deprecate broadcast radius in NeighborhoodAlert and update related components for clarity`
-  - `bae965a`: `feat: Update IncidentCard tests to reflect accurate community sighting information and remove outdated masked call relay references`
+- **Baseline HEAD:** `04c03421b1d08f0e6d36bb1aec4da95a0d4edd05`
 - **Working Tree Preservation:**
-  - Zero git staging (`git add`), resets, stashes, checkouts, or discards performed by agent. All working tree modifications cleanly committed by User via VS Code Smart Commit.
+  - Modified tracked files:
+    - `docs/SAFEPAWS_PROJECT_TRACKER.md`
+    - `frontend/src/components/IncidentCard.test.tsx`
+    - `frontend/src/components/IncidentCard.tsx`
+    - `frontend/src/components/modals/HowItWorksModal.test.tsx`
+    - `frontend/src/components/modals/InfoModal.tsx`
+    - `frontend/src/data/mockData.ts`
+    - `frontend/src/pages/CommunityPostDetail.tsx`
+    - `frontend/src/pages/ReportLost.tsx`
+    - `frontend/src/pages/SetupProfile.tsx`
+    - `frontend/src/pages/pets/PetDetail.tsx`
+    - `frontend/src/types.ts`
+- **Agent Mutation Invariant:** Strictly zero `git add`, `git commit`, `git reset`, `git clean`, `git stash`, or checkout commands executed by agent. All modifications preserved in working tree.
 
 ---
 

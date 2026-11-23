@@ -26,8 +26,6 @@ export interface IncidentCardProps {
   onEmergencyContact?: (alert: NeighborhoodAlert) => void;
   onReportSighting?: (alert: NeighborhoodAlert) => void;
   className?: string;
-  distanceKm?: number;
-  bearing?: string;
 }
 
 export const IncidentCard: React.FC<IncidentCardProps> = ({
@@ -35,8 +33,6 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
   onEmergencyContact,
   onReportSighting,
   className = '',
-  distanceKm,
-  bearing,
 }) => {
   const navigate = useNavigate();
   const [showContactModal, setShowContactModal] = useState<boolean>(false);
@@ -54,11 +50,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
       : 'SPECIES UNCONFIRMED';
 
   // Contract C3: Grounded telemetry (strictly no invented fallback radius or synthetic bearings)
-  let telemetryDisplay = alert.lastSeenAddress ? 'LOCATION REPORTED' : 'LOCATION DETAILS UNAVAILABLE';
-  if (typeof distanceKm === 'number' && !isNaN(distanceKm) && distanceKm > 0) {
-    const distStr = `${distanceKm.toFixed(1)} KM`;
-    telemetryDisplay = (bearing && bearing.trim()) ? `${distStr} • VECTOR ${bearing.trim()}` : distStr;
-  }
+  const telemetryDisplay = alert.lastSeenAddress ? 'LOCATION REPORTED' : 'LOCATION DETAILS UNAVAILABLE';
 
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault();

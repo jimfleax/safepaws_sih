@@ -14,7 +14,7 @@ it('acts as an accessible dialog and supports escape key to close', async () => 
       pet={{ name: 'Buddy', id: '1' } as any}
       title="Test"
       content="Test"
-      alert={{ status: 'active', notifiedNeighborsCount: 5, broadcastRadiusKm: 2 } as any}
+      alert={{ status: 'active', notifiedNeighborsCount: 5 } as any}
     />
   );
 

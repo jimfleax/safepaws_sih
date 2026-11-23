@@ -13,7 +13,6 @@ const baseAlert: NeighborhoodAlert = {
   breed: 'Golden Retriever',
   photoUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d',
   status: 'active',
-  broadcastRadiusKm: 2.5,
   notifiedNeighborsCount: 84,
   timeAgo: '24 mins ago',
   lastSeenAddress: '742 Evergreen Terrace, Sector 4 PRIVATE RESIDENCE',
@@ -71,12 +70,12 @@ const renderWithRouter = (ui: React.ReactElement) => {
 };
 
 describe('IncidentCard Component (Reconciled Contracts C2, C3, C4, C6)', () => {
-  it('renders pet name, breed, grounded telemetry vector, and status tags when valid telemetry is supplied', () => {
-    renderWithRouter(<IncidentCard alert={baseAlert} distanceKm={0.8} bearing="NE 42°" />);
+  it('renders pet name, breed, truthful location status, and status tags when valid alert is supplied', () => {
+    renderWithRouter(<IncidentCard alert={baseAlert} />);
 
     expect(screen.getByText('Cooper')).toBeInTheDocument();
     expect(screen.getByText('Golden Retriever')).toBeInTheDocument();
-    expect(screen.getByText(/0.8 KM • VECTOR NE 42°/i)).toBeInTheDocument();
+    expect(screen.getByText('LOCATION REPORTED')).toBeInTheDocument();
     expect(screen.getByText('ACTIVE SEARCH')).toBeInTheDocument();
     expect(screen.getByText('CANINE COMPANION')).toBeInTheDocument();
   });
@@ -109,51 +108,24 @@ describe('IncidentCard Component (Reconciled Contracts C2, C3, C4, C6)', () => {
     u2();
   });
 
-  it('enforces C3: renders truthful "LOCATION REPORTED" when distance and radius are absent or 0', () => {
-    const alertWithoutRadius: NeighborhoodAlert = {
-      ...baseAlert,
-      broadcastRadiusKm: 0,
-    };
-    renderWithRouter(<IncidentCard alert={alertWithoutRadius} />);
+  it('enforces C3: renders truthful "LOCATION REPORTED" when last seen address is available', () => {
+    renderWithRouter(<IncidentCard alert={baseAlert} />);
 
-    // Invariant: MUST NOT invent a 5km radius or NE 42° bearing
+    // Invariant: MUST NOT invent a radius or synthetic bearing/vector
     expect(screen.queryByText(/RADIUS/i)).toBeNull();
+    expect(screen.queryByText(/VECTOR/i)).toBeNull();
     expect(screen.queryByText(/NE 42°/i)).toBeNull();
     expect(screen.getByText('LOCATION REPORTED')).toBeInTheDocument();
   });
 
-  it('enforces C3: renders "LOCATION DETAILS UNAVAILABLE" when location address is missing and radius is 0', () => {
+  it('enforces C3: renders "LOCATION DETAILS UNAVAILABLE" when location address is missing', () => {
     const alertNoAddress: NeighborhoodAlert = {
       ...baseAlert,
-      broadcastRadiusKm: 0,
       lastSeenAddress: '',
     };
     renderWithRouter(<IncidentCard alert={alertNoAddress} />);
 
     expect(screen.getByText('LOCATION DETAILS UNAVAILABLE')).toBeInTheDocument();
-  });
-
-  it('enforces C3: handles invalid radius (negative or NaN) by suppressing radius and rendering truthful location status', () => {
-    const alertInvalidRadius: NeighborhoodAlert = {
-      ...baseAlert,
-      broadcastRadiusKm: -5,
-    };
-    renderWithRouter(<IncidentCard alert={alertInvalidRadius} />);
-
-    expect(screen.queryByText(/RADIUS/i)).toBeNull();
-    expect(screen.getByText('LOCATION REPORTED')).toBeInTheDocument();
-  });
-
-  it('enforces C3: suppresses unsupported broadcast radius and renders truthful location status', () => {
-    const alertWithSuppliedRadius: NeighborhoodAlert = {
-      ...baseAlert,
-      broadcastRadiusKm: 3.5,
-    };
-    renderWithRouter(<IncidentCard alert={alertWithSuppliedRadius} />);
-
-    // Invariant: Backend does not supply broadcast radius; card suppresses unsupported radius
-    expect(screen.queryByText(/RADIUS/i)).toBeNull();
-    expect(screen.getByText('LOCATION REPORTED')).toBeInTheDocument();
   });
 
   it('enforces C6: suppresses raw street addresses on public card', () => {

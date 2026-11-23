@@ -84,7 +84,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({
                 </li>
                 <li className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-[#DE6828] shrink-0 mt-0.5" />
-                  <span><strong>Prompt Updates:</strong> When your pet is safely reunited, immediately mark the broadcast as resolved so neighbors know they can rest easy.</span>
+                  <span><strong>Prompt Updates:</strong> When your pet is safely reunited, immediately mark the alert as resolved so neighbors know they can rest easy.</span>
                 </li>
               </ul>
             </>
