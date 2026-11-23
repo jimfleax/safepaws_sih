@@ -66,7 +66,6 @@ export default function AlertDetail() {
           breed: data.breed || data.pet?.breed || 'Unknown Breed',
           photoUrl: data.photo_url || data.pet?.photos?.[0]?.url || data.pet?.photo_url || '',
           status: data.status,
-          broadcastRadiusKm: 0,
           notifiedNeighborsCount: 0,
           timeAgo: data.created_at ? new Date(data.created_at).toLocaleDateString() : 'Recently',
           lastSeenAddress: data.last_seen_address || '',

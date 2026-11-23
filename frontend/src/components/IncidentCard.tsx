@@ -58,9 +58,6 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
   if (typeof distanceKm === 'number' && !isNaN(distanceKm) && distanceKm > 0) {
     const distStr = `${distanceKm.toFixed(1)} KM`;
     telemetryDisplay = (bearing && bearing.trim()) ? `${distStr} • VECTOR ${bearing.trim()}` : distStr;
-  } else if (typeof alert.broadcastRadiusKm === 'number' && alert.broadcastRadiusKm > 0) {
-    const radStr = `RADIUS ${alert.broadcastRadiusKm} KM`;
-    telemetryDisplay = (bearing && bearing.trim()) ? `${radStr} • VECTOR ${bearing.trim()}` : radStr;
   }
 
   const handleShare = async (e: React.MouseEvent) => {
@@ -290,7 +287,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
                 Never wire money, send courier fees, or reveal verification codes to strangers claiming to hold a pet. SafePaws never requires payment for pet reunification. Meet only in daylight at a busy public municipal location.
               </p>
               <p className="text-[var(--color-ink-soft)]/80 text-[11px] border-t border-amber-200/50 pt-2 leading-relaxed">
-                Notice: All incident communication is recorded through verified observational sightings. No masked call relay or automated voice proxy is provided.
+                Community-submitted observational sightings appear in the incident timeline. SafePaws does not currently provide a masked call relay or automated voice proxy.
               </p>
             </div>
 

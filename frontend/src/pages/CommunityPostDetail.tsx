@@ -285,7 +285,7 @@ export default function CommunityPostDetail() {
                             {isSighting ? "Submit Formal Sighting Report" : "Declare Missing Identity"}
                           </p>
                           <p className="text-xs text-[var(--color-ink-soft)]">
-                            {isSighting ? "Push verified observation to network" : "Broadcast Level-1 recovery alert"}
+                            {isSighting ? "Submit verified observation to network" : "File active recovery incident alert"}
                           </p>
                         </div>
                       </div>

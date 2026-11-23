@@ -144,14 +144,16 @@ describe('IncidentCard Component (Reconciled Contracts C2, C3, C4, C6)', () => {
     expect(screen.getByText('LOCATION REPORTED')).toBeInTheDocument();
   });
 
-  it('enforces C3: renders radius only when genuinely supplied and greater than 0', () => {
+  it('enforces C3: suppresses unsupported broadcast radius and renders truthful location status', () => {
     const alertWithSuppliedRadius: NeighborhoodAlert = {
       ...baseAlert,
       broadcastRadiusKm: 3.5,
     };
     renderWithRouter(<IncidentCard alert={alertWithSuppliedRadius} />);
 
-    expect(screen.getByText('RADIUS 3.5 KM')).toBeInTheDocument();
+    // Invariant: Backend does not supply broadcast radius; card suppresses unsupported radius
+    expect(screen.queryByText(/RADIUS/i)).toBeNull();
+    expect(screen.getByText('LOCATION REPORTED')).toBeInTheDocument();
   });
 
   it('enforces C6: suppresses raw street addresses on public card', () => {

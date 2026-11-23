@@ -203,7 +203,7 @@ export default function LostDogs() {
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--color-ink)] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#2A2723] transition-colors min-h-[44px]"
             >
               <ShieldAlert className="w-4 h-4" />
-              <span>Broadcast a Missing Pet</span>
+              <span>Report a Missing Pet</span>
             </Link>
           </div>
         ) : filteredAlerts.length === 0 ? (
