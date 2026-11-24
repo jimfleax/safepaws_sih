@@ -10,10 +10,10 @@ import { useAuthStore } from '../store/authStore';
 vi.mock('../utils/apiClient', () => ({
   ApiClient: {
     reportSighting: vi.fn(),
-    getAlert: vi.fn(),
-    getAllAlerts: vi.fn(),
-    getAllPets: vi.fn(),
-    getAllSightings: vi.fn(),
+    getAlert: vi.fn().mockResolvedValue({}),
+    getAllAlerts: vi.fn().mockResolvedValue([]),
+    getAllPets: vi.fn().mockResolvedValue([]),
+    getAllSightings: vi.fn().mockResolvedValue([]),
   },
 }));
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import AlertDetail from './AlertDetail';
 import { ApiClient } from '../utils/apiClient';
@@ -10,6 +10,9 @@ vi.mock('../utils/apiClient', () => ({
   ApiClient: {
     getAlert: vi.fn(),
     resolveAlert: vi.fn(),
+    getAllAlerts: vi.fn().mockResolvedValue([]),
+    getAllPets: vi.fn().mockResolvedValue([]),
+    getAllSightings: vi.fn().mockResolvedValue([]),
   },
 }));
 
@@ -234,5 +237,230 @@ describe('AlertDetail — Real API Response Contract & Direct Hydration (Contrac
     expect(screen.queryByText(/ACTIVE DISPATCH/i)).toBeNull();
     expect(screen.getByText(/ACTIVE INCIDENT/i)).toBeInTheDocument();
     expect(screen.getByText(/Active missing pet incident record. Observational sightings submitted by the community are logged to the timeline below./i)).toBeInTheDocument();
+  });
+
+  // 9. Contract C4: Sighting status differentiation (Verified vs Unverified)
+  it('enforces Contract C4: visually differentiates verified sightings from unverified community observations', async () => {
+    const alertWithMixedSightings = {
+      id: 'alert-mixed-sightings',
+      pet_id: 'pet-mixed',
+      status: 'active',
+      last_seen_address: 'Central Park West',
+      description: 'Lost during morning jog.',
+      created_at: '2026-11-23T10:00:00Z',
+      pet_name: 'Sadie',
+      breed: 'Collie',
+      photo_url: '',
+      sightings: [
+        {
+          id: 'sighting-unverified',
+          alert_id: 'alert-mixed-sightings',
+          reporter_name: 'Citizen Observer',
+          location: '72nd St Entrance',
+          notes: 'Saw dog running past benches',
+          time: '2026-11-23T10:30:00Z',
+          confirmed: false,
+        },
+        {
+          id: 'sighting-confirmed',
+          alert_id: 'alert-mixed-sightings',
+          reporter_name: 'Park Ranger Davis',
+          location: 'Reservoir South Gate',
+          notes: 'Direct physical confirmation by field team',
+          time: '2026-11-23T11:00:00Z',
+          confirmed: true,
+        },
+      ],
+    };
+
+    (ApiClient.getAlert as any).mockResolvedValueOnce(alertWithMixedSightings);
+
+    render(
+      <MemoryRouter initialEntries={['/alerts/alert-mixed-sightings']}>
+        <Routes>
+          <Route path="/alerts/:alertId" element={<AlertDetail />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Missing: Sadie')).toBeInTheDocument();
+    });
+
+    // Invariant C4: Unverified badge for confirmed === false
+    expect(screen.getByText(/COMMUNITY OBSERVATION \/\/ UNVERIFIED/i)).toBeInTheDocument();
+
+    // Invariant C4: Confirmed badge for confirmed === true
+    expect(screen.getByText(/VERIFIED OBSERVATION \/\/ CONFIRMED/i)).toBeInTheDocument();
+  });
+
+  // 10. Contract C6: Owner-controlled resolution workflow with confirmation dialog
+  it('enforces Contract C6: provides verified pet guardian with resolution flow that calls ApiClient.resolveAlert', async () => {
+    // Authenticated store has pet owned by user
+    usePetStore.setState({
+      pets: [
+        {
+          id: 'pet-owned-by-user',
+          name: 'Sadie',
+          species: 'dog',
+          breed: 'Collie',
+          color: 'Sable',
+          age: '3',
+          photoUrl: '',
+          status: 'lost',
+          distinctiveFeatures: [],
+          qrTagId: 'SP-SADIE-01',
+        },
+      ],
+    });
+
+    const activeAlert = {
+      id: 'alert-owner-case',
+      pet_id: 'pet-owned-by-user',
+      status: 'active',
+      last_seen_address: '123 Main Street',
+      description: 'Lost pet.',
+      created_at: '2026-11-23T10:00:00Z',
+      pet_name: 'Sadie',
+      breed: 'Collie',
+      photoUrl: '',
+      sightings: [],
+    };
+
+    (ApiClient.getAlert as any).mockResolvedValueOnce(activeAlert);
+    (ApiClient.resolveAlert as any).mockResolvedValueOnce({
+      ...activeAlert,
+      status: 'resolved',
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/alerts/alert-owner-case']}>
+        <Routes>
+          <Route path="/alerts/:alertId" element={<AlertDetail />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Missing: Sadie')).toBeInTheDocument();
+    });
+
+    // Owner sees "Mark Safe & Resolve" action button
+    const resolveBtn = screen.getByRole('button', { name: /mark safe & resolve/i });
+    expect(resolveBtn).toBeInTheDocument();
+
+    // Clicking button opens accessible confirmation modal (Contract C6)
+    fireEvent.click(resolveBtn);
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /confirm case resolution/i })).toBeInTheDocument();
+    expect(screen.getByText(/conclude active community search efforts/i)).toBeInTheDocument();
+
+    // Confirm resolution
+    const confirmBtn = screen.getByRole('button', { name: /yes, mark companion safe/i });
+    fireEvent.click(confirmBtn);
+
+    await waitFor(() => {
+      expect(ApiClient.resolveAlert).toHaveBeenCalledWith('alert-owner-case');
+    });
+
+    // Status is updated to resolved and case concluded
+    await waitFor(() => {
+      expect(screen.getByText(/STATUS: RESOLVED/i)).toBeInTheDocument();
+      expect(screen.getByText(/CASE CONCLUDED \/\/ COMPANION SAFE/i)).toBeInTheDocument();
+    });
+  });
+
+  // 11. Contract C6: Non-owner does NOT see resolution action
+  it('enforces Contract C6: non-owner cannot resolve alert and sees no resolve button', async () => {
+    // Authenticated store has no pets or different pets
+    usePetStore.setState({ pets: [] });
+
+    const publicAlert = {
+      id: 'alert-other-user',
+      pet_id: 'pet-other-user',
+      status: 'active',
+      last_seen_address: 'Broadway',
+      description: 'Other pet',
+      created_at: '2026-11-23T10:00:00Z',
+      pet_name: 'Rover',
+      breed: 'Labrador',
+      photoUrl: '',
+      sightings: [],
+    };
+
+    (ApiClient.getAlert as any).mockResolvedValueOnce(publicAlert);
+
+    render(
+      <MemoryRouter initialEntries={['/alerts/alert-other-user']}>
+        <Routes>
+          <Route path="/alerts/:alertId" element={<AlertDetail />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Missing: Rover')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole('button', { name: /mark safe & resolve/i })).toBeNull();
+  });
+
+  // 12. Resolution failure error display in role="alert"
+  it('renders accessible error banner when resolution API fails', async () => {
+    usePetStore.setState({
+      pets: [
+        {
+          id: 'pet-fail-case',
+          name: 'Rover',
+          species: 'dog',
+          breed: 'Labrador',
+          color: 'Black',
+          age: '4',
+          photoUrl: '',
+          status: 'lost',
+          distinctiveFeatures: [],
+          qrTagId: 'SP-ROV-01',
+        },
+      ],
+    });
+
+    const activeAlert = {
+      id: 'alert-fail-case',
+      pet_id: 'pet-fail-case',
+      status: 'active',
+      last_seen_address: 'Broadway',
+      description: 'Other pet',
+      created_at: '2026-11-23T10:00:00Z',
+      pet_name: 'Rover',
+      breed: 'Labrador',
+      photoUrl: '',
+      sightings: [],
+    };
+
+    (ApiClient.getAlert as any).mockResolvedValueOnce(activeAlert);
+    (ApiClient.resolveAlert as any).mockRejectedValueOnce(new Error('Permission denied: not owner'));
+
+    render(
+      <MemoryRouter initialEntries={['/alerts/alert-fail-case']}>
+        <Routes>
+          <Route path="/alerts/:alertId" element={<AlertDetail />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Missing: Rover')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /mark safe & resolve/i }));
+    fireEvent.click(screen.getByRole('button', { name: /yes, mark companion safe/i }));
+
+    await waitFor(() => {
+      const alertBanner = screen.getByRole('alert');
+      expect(alertBanner).toBeInTheDocument();
+      expect(alertBanner).toHaveTextContent(/Permission denied: not owner/i);
+    });
   });
 });
