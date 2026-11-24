@@ -5,9 +5,9 @@
 **Independent Quality Gatekeeper:** Panel F — Independent QA & Release Gate  
 **Implementation Lead:** Panel E Lead — Community & Rescue  
 **Active Repository Branch:** `frontend`  
-**Current Commit HEAD:** `4b9694f`  
+**Current Commit HEAD:** `3977a9d`  
 **Tracking Mode:** Living Project Record (Canonical Master Tracker)  
-**Last Synchronized:** November 24, 2026 (UX-06.5 Phase 2B Closeout & Acceptance)  
+**Last Synchronized:** November 24, 2026 (UX-06.5 Phase 2C Closeout & Milestone Completion)  
 
 ---
 
@@ -17,21 +17,21 @@
 ========================================================================================
                                  SAFEPAWS EXECUTIVE STATUS
 ========================================================================================
-CURRENT MILESTONE:              UX-06.5 Phase 2B Lost & Found Experience Closeout
-CURRENT ACCEPTED MILESTONE:     UX-06.5 Phase 2B Lost & Found Experience (159/159 Vitest, 8/8 PW)
+CURRENT MILESTONE:              UX-06.5 Phase 2C Sighting & Case Resolution Closeout
+CURRENT ACCEPTED MILESTONE:     UX-06.5 Phase 2C (170/170 Vitest, 8/8 Playwright)
+UX-06.5 MILESTONE STATUS:       COMPLETE & HARDENED (Phases 1, 2A, 2B, 2C 100% ACCEPTED)
 PREFLIGHT ARCHITECTURE STATUS:  COMPLETE & RATIFIED (Master Specification + 6 Specialist Specifications)
-DESIGN EXCELLENCE STATUS:       DIRECTION 1 RATIFIED (The Field Dispatch & Recovery Ledger, Score 9.47/10)
+DESIGN EXCELLENCE STATUS:       DIRECTION 1 RATIFIED (The Field Dispatch & Recovery Ledger, Grade A+)
 SKILLS & ECOSYSTEM STATUS:      ui-ux-pro-max, design, design-system, ui-styling, taste-skill (INSTALLED & INVOKED)
-PANEL A DESIGN REVIEW:          APPROVED (UNCONDITIONAL DESIGN SIGN-OFF — Panel A Lead)
-PANEL F QUALITY GATE STATUS:    PHASE 2B CERTIFIED PASS (ACCEPTED — docs/UX_06_5_PANEL_F_PHASE_2B_QUALITY_GATE_REPORT.md)
-ACTIVE PROGRAM BLOCKERS:        1. UX-06.5 Phase 2C: STRICTLY BLOCKED (Awaiting Chief Orchestrator Authorization)
-                                2. Production Gate 4: STRICTLY ON HOLD (PostgreSQL 16 Host Unavailable)
-                                3. SEC-BACKEND-01: OPEN (Backend Public Endpoints Expose Street Address)
-                                4. API Schema Gaps: SightingResponse lacks photo_url (C5 DEFERRED); AlertResponse lacks species
-NEXT AUTHORIZED ACTION:         Chief Orchestrator Review of Phase 2B Closeout & Phase 2C Authorization Decision
-PHASE 2A STATUS:                COMPLETE, HARDENED & ACCEPTED (100% Quality Gate Pass)
-PHASE 2B STATUS:                COMPLETE, HARDENED & ACCEPTED (100% Quality Gate Pass — /lost, /lost/new)
-PHASE 2C STATUS:                STRICTLY BLOCKED — ZERO CODE MUTATIONS AUTHORIZED (/sightings/new, /alerts/:id)
+PANEL A DESIGN REVIEW:          APPROVED (FORMAL DESIGN SIGN-OFF GRANTED — Grade A+)
+PANEL F QUALITY GATE STATUS:    PHASE 2C CERTIFIED PASS (ACCEPTED — docs/UX_06_5_PANEL_F_PHASE_2C_QUALITY_GATE_REPORT.md)
+ACTIVE PROGRAM BLOCKERS:        1. Production Gate 4: STRICTLY ON HOLD (PostgreSQL 16 Host Unavailable)
+                                2. SEC-BACKEND-01: OPEN (Backend Public Endpoints Expose Street Address)
+                                3. DEF-API-SIGHTING-PHOTO: OPEN (Sighting photo persistence deferred)
+NEXT AUTHORIZED ACTION:         Chief Orchestrator Review of Complete UX-06.5 Milestone & Demonstration
+PHASE 2A STATUS:                COMPLETE, HARDENED & ACCEPTED (100% Quality Gate Pass — Community Hub)
+PHASE 2B STATUS:                COMPLETE, HARDENED & ACCEPTED (100% Quality Gate Pass — Lost & Found)
+PHASE 2C STATUS:                COMPLETE, HARDENED & ACCEPTED (100% Quality Gate Pass — Sightings & Resolution)
 GATE 4 STATUS:                  STRICTLY ON HOLD
 ========================================================================================
 ```
@@ -54,24 +54,24 @@ The following lifecycle statuses are distinguished:
 | **UX-06.5 (P1)**| Community, Lost & Reunification Foundation | Panel E Lead | **123/123 Vitest, 9/9 PW** | **RECONCILED & VERIFIED** | `docs/SAFEPAWS_PROJECT_TRACKER.md` (This document) |
 | **UX-06.5 (P2A)**| Shared Design Foundations & Community Experience | Panel E Lead | **143/143 Vitest, 12/12 PW** | **ACCEPTED (100% PASS)** | `docs/UX_06_5_PANEL_F_PHASE_2A_QUALITY_GATE_REPORT.md` |
 | **UX-06.5 (P2B)**| Lost & Found Routes (`/lost`, `/lost/new`) | Panel E Lead | **159/159 Vitest, 8/8 PW** | **ACCEPTED (100% PASS)** | `docs/UX_06_5_PANEL_F_PHASE_2B_QUALITY_GATE_REPORT.md` |
-| **UX-06.5 (P2C)**| Sighting & Case Resolution (`/sightings/new`, `/alerts/:id`) | Panel E Lead | Specification Ratified | **BLOCKED (Awaiting Chief Orchestrator Authorization)** | `docs/UX_06_5_MASTER_PHASE_2_IMPLEMENTATION_SPECIFICATION.md` |
-| **UX-06.6** | Frontend Integration & End-to-End Release QA | Panel F Lead | Unscheduled | **NOT STARTED** | Awaiting UX-06.5 Completion |
-| **Design Track**| Creative Transformation & Taste Architecture | Creative Director | In Progress | **IN PROGRESS** | Tracked in Section E |
+| **UX-06.5 (P2C)**| Sighting & Case Resolution (`/sightings/new`, `/alerts/:id`) | Panel E Lead | **170/170 Vitest, 8/8 PW** | **ACCEPTED (100% PASS)** | `docs/UX_06_5_PANEL_F_PHASE_2C_QUALITY_GATE_REPORT.md` |
+| **UX-06.6** | Frontend Integration & End-to-End Release QA | Panel F Lead | Unscheduled | **NOT STARTED** | Awaiting Chief Orchestrator Direction |
+| **Design Track**| Creative Transformation & Taste Architecture | Creative Director | Direction 1 Implemented | **VALIDATED (Grade A+)** | Tracked in Section E |
 | **Gate 4** | Production Hard-Gate (Live DB, ML Deploy) | Reliability Lead | Blocked by Host | **STRICTLY ON HOLD** | `docs/UX_05_2_PRODUCTION_READINESS_HARD_GATE_PLAN.md` |
 
 ---
 
-## C. UX-06.5 Contract Register (Phase 2B Closeout)
+## C. UX-06.5 Contract Register (Full Phase 2 Closeout)
 
 | Contract | Description & Scope | Owner | Implementation Status | Verification Evidence | Acceptance Status | Remaining Limitations & Related Defects |
 | :--- | :--- | :---: | :---: | :--- | :---: | :--- |
-| **C1** | **Real Alert Creation & Direct Navigation**<br>Calls real endpoint `POST /api/v1/alerts/` with `{ pet_id, last_seen_address, description }`. Zero simulated SLAs, volunteer dispatches, or synthetic push notifications. Navigates to `/alerts/:id`. | E2 | **IMPLEMENTED** | Vitest 8/8 tests (`ReportLost.test.tsx`), Playwright multi-viewport 8/8 (`ux_06_5_phase_2b_lost.spec.ts`). | **ACCEPTED** | Real alert creation confirmed. Navigation cleanly links to `/alerts/:id`. |
-| **C2** | **Explicit Species Classification (No Breed Guessing)**<br>Strict invariant: explicit dog/cat/other or `unknown`. Removal of all dictionaries, regex, and suffix heuristics. | E2 | **IMPLEMENTED** | Vitest 4/4 tests (`species.test.ts`), Vitest 9/9 tests (`IncidentCard.test.tsx`), Vitest 8/8 tests (`LostDogs.test.tsx`). | **ACCEPTED** | Breeds without explicit species evaluate strictly to `SPECIES UNCONFIRMED` unless linked to a local pet. |
-| **C3** | **Telemetry Truth & Fictional Relay Removal**<br>Removed synthetic `NE 42°` and `broadcastRadiusKm || 5`. Truthful `LOCATION REPORTED` / `LOCATION DETAILS UNAVAILABLE`. | E2 | **IMPLEMENTED** | Vitest 9/9 tests (`IncidentCard.test.tsx`), Vitest 8/8 tests (`LostDogs.test.tsx`). | **ACCEPTED** | Zero synthetic distance/bearing. Telemetry reflects genuine reported location presence. |
-| **C4** | **Address Privacy Masking (SEC-BACKEND-01) & Touch Targets**<br>Suppression of exact residential street addresses on public recovery cards; SEC-BACKEND-01 privacy notice; touch targets $\ge 44\times 44\text{px}$ ($\ge 48\text{px}$ mobile). | E2 & E5 | **IMPLEMENTED** | Vitest 9/9 tests (`IncidentCard.test.tsx`), Playwright bounding box checks across 320px, 390px, 768px, 1280px (8/8 passed). | **ACCEPTED** | Street address numbers masked on public recovery board. **SEC-BACKEND-01 REMAINS OPEN on backend.** |
-| **C5** | **Empathetic Unregistered Pet Prerequisite**<br>When user has 0 enrolled pets, displays empathetic prerequisite explanation, ~60s registration guide, and direct link to `/pets/new`. Zero ghost alerts. | E2 | **IMPLEMENTED** | Vitest 8/8 tests (`ReportLost.test.tsx`), Playwright 8/8. | **ACCEPTED** | Clear prerequisite guidance preventing ghost alert creation. |
-| **C6** | **Accurate Registry State Handling**<br>5-state handling: hydration skeleton, network error retry, 0 registered pets (C5), all pets marked lost, safe pets reporting triage. | E2 | **IMPLEMENTED** | Vitest 8/8 tests (`ReportLost.test.tsx`), Vitest 8/8 tests (`LostDogs.test.tsx`). | **ACCEPTED** | Error retry cleanly invokes store hydration without wiping valid local state. |
-| **C7** | **Scope Lock & Clean Boundary**<br>`/sightings/new` and `/alerts/:id` remain untouched for Phase 2C. Clean architectural isolation. | E2 & E3 | **IMPLEMENTED** | Code inspection; Vitest full suite (159/159 passed); zero modifications to Phase 2C files. | **ACCEPTED** | Phase 2C remains strictly blocked pending Orchestrator authorization. |
+| **C1** | **Real Sighting & Alert Creation**<br>Calls real backend endpoints `POST /api/v1/sightings/` and `POST /api/v1/alerts/`. Zero simulated SLAs, fake sirens, or synthetic push counts. | E2 & E3 | **IMPLEMENTED** | Vitest 7/7 tests (`ReportSighting.test.tsx`), Vitest 8/8 tests (`ReportLost.test.tsx`), Playwright 8/8 (`ux_06_5_phase_2c_sightings_and_resolution.spec.ts`). | **ACCEPTED** | Real backend schema compliance verified. |
+| **C2** | **In-Situ Authentic Server Receipt**<br>Transitions in-situ to official archival receipt displaying server reference `#SGT-XXXX`, timestamp, reporter, location. Zero fake client-side IDs. | E3 | **IMPLEMENTED** | Vitest 7/7 tests (`ReportSighting.test.tsx`), Playwright 8/8 multi-viewport. | **ACCEPTED** | Sighting form never redirects away before citizen inspects receipt. |
+| **C3** | **Sighting Photo Persistence Deferral**<br>Sighting photo persistence remains deferred on backend. Zero fake upload controls or file pickers. | E3 | **IMPLEMENTED** | Vitest 7/7 tests (`ReportSighting.test.tsx`), DOM inspection (0 `input[type="file"]`). | **ACCEPTED** | **DEF-API-SIGHTING-PHOTO REMAINS OPEN on backend.** |
+| **C4** | **Confirmation Truth & Status Distinction**<br>Unverified reports tagged `COMMUNITY REPORT // UNVERIFIED`. Ledger timeline differentiates unverified observations from verified sightings (`VERIFIED OBSERVATION // CONFIRMED`). | E3 | **IMPLEMENTED** | Vitest 12/12 tests (`AlertDetail.test.tsx`), Playwright 8/8. | **ACCEPTED** | Zero fake AI biometric or automated matching claims. |
+| **C5** | **Direct URL Hydration**<br>Preserves direct visits to `/alerts/:id` without pre-hydrated store. Consumes real `AlertResponse.sightings` array and root fields. | E3 | **IMPLEMENTED** | Vitest 12/12 tests (`AlertDetail.test.tsx`), Playwright 8/8. | **ACCEPTED** | Complete browser refresh resilience confirmed. |
+| **C6** | **Owner-Controlled Resolution Protocol**<br>Resolution action restricted to verified pet guardians (`isOwner`). Includes accessible confirmation dialog and reflects resolved state upon backend confirmation (`PUT /api/v1/alerts/{id}/resolve`). | E3 | **IMPLEMENTED** | Vitest 12/12 tests (`AlertDetail.test.tsx`), Playwright 8/8. | **ACCEPTED** | Non-owners cannot resolve; error banner rendered on API failure. |
+| **C7** | **Location Privacy (SEC-BACKEND-01)**<br>Suppression of raw residential addresses on public incident dossiers ("Vicinity details restricted for privacy"). Zero synthetic broadcast radii or vectors. | E2 & E3 | **IMPLEMENTED** | Vitest 12/12 tests (`AlertDetail.test.tsx`), Vitest 9/9 tests (`IncidentCard.test.tsx`), Playwright 8/8. | **ACCEPTED** | **SEC-BACKEND-01 REMAINS OPEN on backend.** |
 
 ---
 
@@ -87,8 +87,8 @@ The following lifecycle statuses are distinguished:
 | `/scan` | Biometric Scanner HUD | COMPLETE | Passed (Atelier Biometrics)| Passed (SafeArea pb-safe) | Passed (17.82:1, AAA) | Passed (Scan ray GPU-only)| **ACCEPTED (99.8/100)** |
 | `/lost` | Recovery Board | COMPLETE | Direction 1 (Dispatch Ledger) | 320-1280px (Collapsible Grid) | $\ge 44\text{px}$ desktop / $\ge 48\text{px}$ mobile | LedgerStatusStamp jitter | **ACCEPTED (100% GATE PASS)** |
 | `/lost/new` | Report Lost Pet | COMPLETE | Direction 1 (Triage Dossier) | 320-1280px (Stacked Steps) | Form labels & SEC-BACKEND-01 banner | Direct API submission | **ACCEPTED (100% GATE PASS)** |
-| `/alerts/:alertId`| Incident Dossier | PREFLIGHT SPECIFIED | Direction 1 (Ledger Timeline)| 320-1280px (Single col docket)| Address suppressed (SEC-BACKEND-01)| Indelible rubber stamp jitter | **PREFLIGHT RATIFIED (Phase 2C)** |
-| `/sightings/new`| Report Sighting | PREFLIGHT SPECIFIED | Direction 1 (In-Situ Receipt)| 320-1280px (Dossier card) | $\ge 3.0:1$ border contrast | Archival docket transition | **PREFLIGHT RATIFIED (Phase 2C)** |
+| `/sightings/new`| Report Sighting | COMPLETE | Direction 1 (In-Situ Receipt)| 320-1280px (Dossier card) | Touch targets $\ge 44\text{px}$/$\ge 48\text{px}$ | In-situ receipt transition | **ACCEPTED (100% GATE PASS)** |
+| `/alerts/:alertId`| Incident Dossier | COMPLETE | Direction 1 (Ledger Timeline)| 320-1280px (Dossier grid) | Address suppressed (SEC-BACKEND-01)| Owner resolution modal | **ACCEPTED (100% GATE PASS)** |
 | `/community` | Community Feed | COMPLETE | Direction 1 (Municipal Hub) | 320-1280px (Sliding tabs) | 4-channel lock, Auth modal | Motion layoutId indicator | **ACCEPTED (100% GATE PASS)** |
 | `/community/onboarding`| Community Channels | COMPLETE | Direction 1 (Guild Enlistment) | 320-1280px (2x2 grid) | ERR-C-01 remediated (6.11:1)| Toggle micro-springs | **ACCEPTED (100% GATE PASS)** |
 | `/community/post/:id` | Post Detail | COMPLETE | Direction 1 (Dispatch Dossier)| 320-1280px (No horizontal clip)| $\ge 44\text{px}$ touch targets | Threaded ledger reveal | **ACCEPTED (100% GATE PASS)** |
@@ -102,12 +102,12 @@ The following lifecycle statuses are distinguished:
              CREATIVE TRANSFORMATION STAGE PROGRESSION (WORKSTREAM 10)
 ========================================================================================
 [1. Discovered]  ──►  [2. Evaluated]  ──►  [3. Installed]  ──►  [4. Invoked]  ──►  [5. Applied]  ──►  [6. Validated]
-     COMPLETE              COMPLETE             COMPLETE             COMPLETE            COMPLETE            PHASE 2B PASS
+     COMPLETE              COMPLETE             COMPLETE             COMPLETE            COMPLETE            PHASE 2C PASS
 ========================================================================================
 ```
 
 > [!NOTE]
-> **Ratified Creative Direction:** **DIRECTION 1 — THE FIELD DISPATCH & RECOVERY LEDGER** (Score: 9.47/10). Design system combines tactile open-air field notebooks, municipal search-and-rescue dispatch ledgers, Newsreader editorial serif typography, JetBrains Mono telemetry, and indelible rubber stamps.
+> **Ratified Creative Direction:** **DIRECTION 1 — THE FIELD DISPATCH & RECOVERY LEDGER** (Score: 9.47/10, Panel A Grade: A+). Design system combines tactile open-air field notebooks, municipal search-and-rescue dispatch ledgers, Newsreader editorial serif typography, JetBrains Mono telemetry, and indelible rubber stamps.
 
 ### 1. Antigravity Skills Inventory & Lifecycle Tracking
 - **`ui-ux-pro-max`:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Installed $\rightarrow$ **Invoked** (Searched editorial styles, GSAP micro-animations, WAI-ARIA validation).
@@ -135,11 +135,6 @@ The following lifecycle statuses are distinguished:
   - Display / Headings: `Newsreader` / Georgia serif (`font-serif font-bold tracking-tight`)
   - Structural Body: `Inter` / system sans (`font-sans leading-relaxed`)
   - Telemetry / Records: `JetBrains Mono` (`font-mono uppercase tracking-wider text-xs`)
-- **Signature Design Motifs:**
-  - Ruled ledger borders: 1px crisp rules (`border-[var(--color-border)]`)
-  - 4px Alert Clay left spine on active incident cards (`border-l-4 border-l-[var(--color-alert-clay)]`)
-  - Indelible rubber stamps: `LedgerStatusStamp` with $\pm 1.5^\circ$ physical jitter
-  - Physical keypress haptics: `active:translate-y-[1px]`
 
 ---
 
@@ -148,20 +143,22 @@ The following lifecycle statuses are distinguished:
 | Test Suite / Command | Execution Scope | Passed / Total | Duration | Exit Code | Verified Invariants |
 | :--- | :--- | :---: | :---: | :---: | :--- |
 | `npm run lint` (`tsc --noEmit`) | Frontend TypeScript Validation | Clean (0 errors) | 1.8s | `0` | Full contract type-safety, zero `as any` bypasses on alert schema. |
+| `npx vitest run src/pages/ReportSighting.test.tsx` | Phase 2C Sighting Intake & Receipt Suite | 7 / 7 | 0.6s | `0` | C1 schema, C2 receipt in-situ, C3 photo deferral, C4 unverified badge. |
+| `npx vitest run src/pages/AlertDetail.test.tsx` | Phase 2C Incident Dossier & Resolution Suite | 12 / 12 | 0.5s | `0` | C4 sighting status differentiation, C5 hydration, C6 owner resolution, C7 privacy. |
 | `npx vitest run src/pages/LostDogs.test.tsx` | Phase 2B Recovery Board Suite | 8 / 8 | 0.8s | `0` | Editorial header, telemetry strip, C2 explicit species, empty/error states. |
 | `npx vitest run src/pages/ReportLost.test.tsx` | Phase 2B Emergency Dossier Suite | 8 / 8 | 0.9s | `0` | C1 alert creation, C4 privacy banner, C5 unregistered pet, C6 5 states. |
 | `npx vitest run src/components/IncidentCard.test.tsx` | C2 Species, C3 Grounded Telemetry, C4 Touch | 9 / 9 | 0.9s | `0` | Explicit species, zero synthetic distance/bearing, truthful location status, 44px buttons. |
 | `npx vitest run src/utils/species.test.ts` | C2 Species Invariant Classifier | 4 / 4 | 0.1s | `0` | Strictly dog/cat/other/unknown. Zero breed heuristics or regex guessing. |
-| `npx vitest run src/pages/AlertDetail.test.tsx` | C1 Hydration & C3 Telemetry Truth | 6 / 6 | 0.8s | `0` | Direct URL hydration, flattened field mapping, location privacy, no broadcast radius. |
 | `npx vitest run src/components/ui/LedgerStatusStamp.test.tsx` | Stamp States & Physical Jitter | 7 / 7 | 0.4s | `0` | All 5 ledger states, jitter transform, accessible role="status" and labels. |
 | `npx vitest run src/components/community/CommunityComponents.test.tsx` | Community Primitives & Modals | 8 / 8 | 0.4s | `0` | WAI-ARIA tablist arrow keys, AuthPromptModal, ReportModal, ComposeModal validation. |
 | `npx vitest run src/components/scan/Scan.test.tsx` | Scanner Regression Suite | 21 / 21 | 1.5s | `0` | Camera teardown, multi-device switch, simulation labeling, freeze review. |
 | `npx vitest run src/pages/pets/OwnerPetExperience.test.tsx` | Owner Console Regression Suite | 8 / 8 | 0.7s | `0` | Responsive QR tag wrapping, copy action, private address suppression. |
-| **Full Vitest Suite (`npx vitest run`)** | **All 26 Frontend Test Files** | **159 / 159** | **7.81s** | **`0`** | **Complete unit & integration regression baseline (100% green).** |
-| **Playwright E2E (`ux_06_5_phase_2b_lost.spec.ts`)** | **Phase 2B Multi-Viewport Suite (320, 390, 768, 1280px)** | **8 / 8** | **19.1s** | **`0`** | **Touch targets $\ge 48\text{px}$ mobile / $\ge 44\text{px}$ desktop across 4 viewports.** |
+| **Full Vitest Suite (`npx vitest run`)** | **All 27 Frontend Test Files** | **170 / 170** | **8.35s** | **`0`** | **Complete unit & integration regression baseline (100% green).** |
+| **Playwright E2E (`ux_06_5_phase_2c_sightings_and_resolution.spec.ts`)**| **Phase 2C Multi-Viewport Suite (320, 390, 768, 1280px)** | **8 / 8** | **24.4s** | **`0`** | **In-situ receipt, verified vs unverified timeline, owner resolution modal.** |
+| **Playwright E2E (`ux_06_5_phase_2b_lost.spec.ts`)** | **Phase 2B Multi-Viewport Suite (320, 390, 768, 1280px)** | **8 / 8** | **19.1s** | **`0`** | **Recovery board & emergency reporting across 4 viewports.** |
 | **Playwright E2E (`ux_06_5_phase_2a_community.spec.ts`)** | **Phase 2A Multi-Viewport Suite (320, 390, 768, 1280px)** | **12 / 12** | **26.7s** | **`0`** | **Community touch targets and responsive layouts across 4 viewports.** |
 | **Playwright E2E (`ux_06_5_touch_targets.spec.ts`)** | **Touch Target Metrology across 3 Viewports** | **9 / 9** | **20.9s** | **`0`** | **Actual bounding boxes $\ge 44.0 \times 44.0\text{ px}$ at 320px, 390px, 1280px.** |
-| **Production Build (`npm run build`)** | **Vite Production Packaging** | **57 Chunks Emitted** | **3.60s** | **`0`** | **Core JS & CSS bundled cleanly without type or bundling errors.** |
+| **Production Build (`npm run build`)** | **Vite Production Packaging** | **57 Chunks Emitted** | **3.29s** | **`0`** | **Core JS & CSS bundled cleanly without type or bundling errors.** |
 
 ---
 
@@ -171,7 +168,7 @@ The following lifecycle statuses are distinguished:
 | :--- | :---: | :---: | :---: | :--- | :--- | :--- |
 | **SEC-BACKEND-01** | **CRITICAL** | Security / Privacy | Backend Lead | Unauthenticated public endpoints (`/api/v1/alerts/`, `/api/v1/alerts/{id}`, `/api/v1/sightings/`) return raw residential addresses in plaintext JSON. | **OPEN** — Frontend suppresses street addresses on public cards and dossiers. | Backend schema sanitization to truncate or obfuscate residential addresses before serialization. |
 | **DEF-API-SPECIES** | **MEDIUM** | Contract Gap | Backend Lead | `AlertResponse` Pydantic model does not declare or return a root-level `species` attribute. | **OPEN** — Frontend strictly marks alerts without linked local pets as `SPECIES UNCONFIRMED`. | Backend migration to add `species` property to `AlertResponse` schema. |
-| **DEF-API-SIGHTING-PHOTO** | **MEDIUM** | Feature Gap | Backend Lead | `SightingResponse` schema lacks a `photo_url` column; cannot persist sighting photos. | **OPEN** — Contract C5 formally marked as **DEFERRED**. | Backend database migration to add `photo_url` column to `sightings` table. |
+| **DEF-API-SIGHTING-PHOTO** | **MEDIUM** | Feature Gap | Backend Lead | `SightingResponse` schema lacks a `photo_url` column; cannot persist sighting photos. | **OPEN** — Contract C3 formally enforced as **DEFERRED**. Zero fake photo upload controls rendered. | Backend database migration to add `photo_url` column to `sightings` table. |
 | **RISK-GATE4-HOST** | **HIGH** | Reliability / Ops | DevOps Lead | Local environment lacks live PostgreSQL 16 container and PostGIS extension. | **STRICTLY ON HOLD** — SQLite used for development testing only. | Provision containerized PostgreSQL 16 instance when Gate 4 is authorized. |
 
 ---
@@ -179,7 +176,7 @@ The following lifecycle statuses are distinguished:
 ## H. Git Integrity Register
 
 - **Active Tracking Branch:** `frontend`
-- **Baseline HEAD:** `4b9694f`
+- **Baseline HEAD:** `3977a9d`
 - **Working Tree Preservation:**
   - Preserved uncommitted files and test artifacts.
 - **Agent Mutation Invariant:** Strictly zero `git add`, `git commit`, `git reset`, `git clean`, `git stash`, or checkout commands executed by agent. Smart Commit workspace convention respected.
@@ -195,8 +192,8 @@ The following lifecycle statuses are distinguished:
 | **DONE** | **ACT-06.5.P2.3** | Chief Orchestrator Review & Authorization Decision for UX-06.5 Phase 2A. | Chief Orchestrator | ACT-06.5.P2.2 | Formal authorization gate; Phase 2A released. |
 | **ACCEPTED** | **ACT-06.5.P2A** | UX-06.5 Phase 2A: Shared Foundations & Community Experience Implementation. | Panel E Lead | ACT-06.5.P2.3 | **ACCEPTED (100% Gate Pass — docs/UX_06_5_PANEL_F_PHASE_2A_QUALITY_GATE_REPORT.md)** |
 | **ACCEPTED** | **ACT-06.5.P2B** | UX-06.5 Phase 2B: Lost & Found Implementation (`/lost`, `/lost/new`). | Panel E Lead | ACT-06.5.P2A | **ACCEPTED (100% Gate Pass — docs/UX_06_5_PANEL_F_PHASE_2B_QUALITY_GATE_REPORT.md)** |
-| **P1** | **ACT-06.5.P2B-CLOSEOUT**| Chief Orchestrator Review of Phase 2B Closeout & Phase 2C Authorization Decision. | Chief Orchestrator | ACT-06.5.P2B | Formal gate decision; strict HARD STOP before code. |
-| **BLOCKED** | **ACT-06.5.P2C** | UX-06.5 Phase 2C: Sighting & Case Resolution (`/sightings/new`, `/alerts/:id`). | Panel E Lead | ACT-06.5.P2B-CLOSEOUT | **STRICTLY BLOCKED — NO AUTHORIZATION** (`/sightings/new`, `/alerts/:id`). |
+| **ACCEPTED** | **ACT-06.5.P2C** | UX-06.5 Phase 2C: Sighting & Case Resolution (`/sightings/new`, `/alerts/:id`). | Panel E Lead | ACT-06.5.P2B | **ACCEPTED (100% Gate Pass — docs/UX_06_5_PANEL_F_PHASE_2C_QUALITY_GATE_REPORT.md)** |
+| **P1** | **ACT-06.5-CLOSEOUT**| Chief Orchestrator Review of Complete UX-06.5 Milestone Closeout. | Chief Orchestrator | ACT-06.5.P2C | Formal milestone acceptance; mandatory HARD STOP before UX-06.6. |
 | **HOLD** | **ACT-GATE4** | Production Gate 4: Live PostgreSQL Database & ML Production Hard Gate. | Reliability Lead | Host provisioning | Backend & infrastructure work. |
 
 ---
