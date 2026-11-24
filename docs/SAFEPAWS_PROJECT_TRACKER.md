@@ -192,10 +192,10 @@ The following lifecycle statuses are distinguished:
 
 | Priority | Task ID | Description | Owner | Dependencies | Permitted Scope |
 | :---: | :---: | :--- | :---: | :---: | :--- |
-| **P0** | **ACT-06.5.1** | Submit UX-06.5 Phase 1 Final Source Hygiene Audit report to Chief Orchestrator and Panel F. | Panel E Lead | None | Documentation & handoff reporting only. |
-| **P0** | **ACT-06.5.2** | Independent Closeout Audit & Decision by Panel F. | Panel F Lead | ACT-06.5.1 | Independent audit review; no implementation. |
-| **P1** | **ACT-06.5.3** | Orchestrator Review & Authorization Decision for UX-06.5 Phase 2. | Chief Orchestrator | ACT-06.5.2 | Scope gating. |
-| **HOLD** | **ACT-06.5.4** | UX-06.5 Phase 2: Community, Lost & Reunification Route Implementation. | Panel E Lead | ACT-06.5.3 | Frontend routes: `/lost/new`, `/sightings/new`, `/community/*`. |
+| **P0** | **ACT-06.5.P2.1** | Submit UX-06.5 Phase 2 Master Preflight Specification and Specialist Deliverables. | Panel E Lead | None | Documentation & architectural specification only. |
+| **P0** | **ACT-06.5.P2.2** | Independent Preflight Quality Gate Audit & Decision by Panel F. | Panel F Lead | ACT-06.5.P2.1 | Independent read-only audit; zero code mutations. |
+| **P1** | **ACT-06.5.P2.3** | Chief Orchestrator Review & Authorization Decision for UX-06.5 Phase 2 Implementation. | Chief Orchestrator | ACT-06.5.P2.2 | Formal authorization gate; strict HARD STOP before code. |
+| **HOLD** | **ACT-06.5.P2.4** | UX-06.5 Phase 2: Community, Lost & Reunification Route Implementation. | Panel E Lead | ACT-06.5.P2.3 | Frontend routes: `/lost`, `/lost/new`, `/sightings/new`, `/alerts/:id`, `/community/*`. |
 | **HOLD** | **ACT-GATE4** | Production Gate 4: Live PostgreSQL Database & ML Production Hard Gate. | Reliability Lead | Host provisioning | Backend & infrastructure work. |
 
 ---
