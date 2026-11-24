@@ -92,7 +92,7 @@ describe('Community Page Component (Phase 2A & Direction 1)', () => {
 
     // Verify post card is rendered with truth-in-engineering author (no fabricated names)
     expect(screen.getByText(/Spotted Beagle roaming near Sector 4 community center/i)).toBeInTheDocument();
-    expect(screen.getByText(/Neighbor #N-88/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Community member/i).length).toBeGreaterThan(0);
 
     // Verify incident cross-reference banner is present linking to alert-1
     expect(screen.getByText(/Case: Rusty/i)).toBeInTheDocument();

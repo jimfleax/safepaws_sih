@@ -25,17 +25,15 @@ export function PostCard({ post }: { post: Post; key?: React.Key }) {
   const isReunion = post.channel === 'reunion-stories';
   const hasAlert = Boolean(post.associated_alert_id);
 
-  // Author identity: Truth-in-engineering without fabricating names
-  const isCurrentUser = post.author_id && user?.id === post.author_id;
-  const authorDisplay = isCurrentUser 
-    ? 'You (Guardian)' 
-    : post.author_name 
-      ? post.author_name 
-      : post.author_id 
-        ? `Neighbor #${post.author_id.slice(-4).toUpperCase()}` 
-        : 'Community Member';
+  // Author identity: Truth-in-engineering without fabricating names or exposing internal IDs
+  const isCurrentUser = Boolean(post.author_id && user?.id === post.author_id);
+  const authorDisplay = post.author_name 
+    ? post.author_name 
+    : (isCurrentUser && user?.name) 
+      ? user.name 
+      : 'Community member';
 
-  const authorInitial = isCurrentUser ? 'Y' : authorDisplay.charAt(0).toUpperCase() || 'C';
+  const authorInitial = authorDisplay.charAt(0).toUpperCase() || 'C';
 
   // Determine appropriate rubber stamp state
   let stampState: LedgerStampState = 'COMMUNITY_NOTE';

@@ -75,7 +75,7 @@ export function RecoverySidebar({ activeAlerts }: { activeAlerts: any[] }) {
                 Sector Quiet
               </span>
               <span className="text-[11px] text-[var(--color-ink-soft)] block mt-1">
-                Zero active missing companion declarations in this zone.
+                Zero active missing companion declarations on record.
               </span>
             </div>
           ) : (

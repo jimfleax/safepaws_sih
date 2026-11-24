@@ -95,16 +95,14 @@ export default function CommunityPostDetail() {
     setIsReportOpen(true);
   };
 
-  // Truth in engineering: author display without fabricating identities
+  // Truth in engineering: author display without fabricating identities or exposing internal IDs
   const getAuthorDisplay = (authorId?: string, authorName?: string) => {
-    if (authorId && user?.id === authorId) return 'You (Guardian)';
     if (authorName) return authorName;
-    if (authorId) return `Neighbor #${authorId.slice(-4).toUpperCase()}`;
-    return 'Community Member';
+    if (authorId && user?.id === authorId && user?.name) return user.name;
+    return 'Community member';
   };
 
   const getAuthorInitial = (authorId?: string, authorName?: string) => {
-    if (authorId && user?.id === authorId) return 'Y';
     const display = getAuthorDisplay(authorId, authorName);
     return display.charAt(0).toUpperCase() || 'C';
   };

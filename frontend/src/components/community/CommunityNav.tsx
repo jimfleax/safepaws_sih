@@ -95,7 +95,7 @@ export function CommunityNav({
           </span>
         </div>
         <p className="text-[11px] text-[var(--color-ink-soft)] leading-normal">
-          Field reports are citizen-logged. Verified observations are certified by field scouts.
+          Field reports are citizen-logged. Coordinate in public daylight corridors.
         </p>
       </div>
     </nav>
