@@ -196,8 +196,8 @@ describe('ComposeModal Validation & Focus Management', () => {
     expect(dialog).toBeInTheDocument();
 
     // Try submitting without title/content
-    const submitBtn = screen.getByRole('button', { name: /publish dispatch/i });
-    fireEvent.click(submitBtn);
+    const form = screen.getByRole('dialog').querySelector('form')!;
+    fireEvent.submit(form);
 
     expect(handleSubmit).not.toHaveBeenCalled();
     const alert = screen.getByRole('alert');
