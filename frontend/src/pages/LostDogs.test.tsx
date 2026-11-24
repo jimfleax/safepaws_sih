@@ -193,7 +193,7 @@ describe('LostDogs Recovery Board (Route /lost)', () => {
 
     expect(screen.getByText(/no active recovery incidents/i)).toBeInTheDocument();
     expect(screen.getByText(/zero missing companion declarations are active on record/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /report missing pet/i })).toHaveAttribute('href', '/lost/new');
+    expect(screen.getAllByRole('link', { name: /report missing pet/i })[0]).toHaveAttribute('href', '/lost/new');
   });
 
   it('renders animated loading skeleton state when loading', () => {

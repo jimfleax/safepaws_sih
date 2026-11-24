@@ -240,30 +240,7 @@ export default function LostDogs() {
 
         {/* Board Listing Content */}
         <section id="incidents-panel" aria-label="Incident Docket Grid">
-          {(isLoading || !hydrated) ? (
-            /* Hydration Skeleton State */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-pulse" aria-label="Loading active recovery alerts" aria-busy="true">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="bg-white border border-[var(--color-border)] rounded-sm overflow-hidden shadow-xs flex flex-col justify-between">
-                  <div className="aspect-[16/10] bg-[var(--color-bone)]/70" />
-                  <div className="p-5 sm:p-6 space-y-4">
-                    <div className="space-y-2">
-                      <div className="h-6 bg-[var(--color-bone)] rounded-sm w-3/4" />
-                      <div className="h-4 bg-[var(--color-bone)] rounded-sm w-1/2" />
-                    </div>
-                    <div className="pt-3 border-t border-[var(--color-border)] space-y-2">
-                      <div className="h-3 bg-[var(--color-bone)] rounded-sm w-full" />
-                      <div className="h-3 bg-[var(--color-bone)] rounded-sm w-4/5" />
-                    </div>
-                    <div className="pt-5 border-t border-[var(--color-border)] flex gap-2">
-                      <div className="h-10 bg-[var(--color-bone)] rounded-sm flex-1" />
-                      <div className="h-10 bg-[var(--color-bone)] rounded-sm flex-1" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : error ? (
+          {error ? (
             /* Recovery Network Error State */
             <div 
               role="alert" 
@@ -285,6 +262,29 @@ export default function LostDogs() {
               >
                 <span>Retry Connection</span>
               </button>
+            </div>
+          ) : (isLoading || !hydrated) ? (
+            /* Hydration Skeleton State */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-pulse" aria-label="Loading active recovery alerts" aria-busy="true">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white border border-[var(--color-border)] rounded-sm overflow-hidden shadow-xs flex flex-col justify-between">
+                  <div className="aspect-[16/10] bg-[var(--color-bone)]/70" />
+                  <div className="p-5 sm:p-6 space-y-4">
+                    <div className="space-y-2">
+                      <div className="h-6 bg-[var(--color-bone)] rounded-sm w-3/4" />
+                      <div className="h-4 bg-[var(--color-bone)] rounded-sm w-1/2" />
+                    </div>
+                    <div className="pt-3 border-t border-[var(--color-border)] space-y-2">
+                      <div className="h-3 bg-[var(--color-bone)] rounded-sm w-full" />
+                      <div className="h-3 bg-[var(--color-bone)] rounded-sm w-4/5" />
+                    </div>
+                    <div className="pt-5 border-t border-[var(--color-border)] flex gap-2">
+                      <div className="h-10 bg-[var(--color-bone)] rounded-sm flex-1" />
+                      <div className="h-10 bg-[var(--color-bone)] rounded-sm flex-1" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : activeAlerts.length === 0 ? (
             /* Zero-Incident State (Network Clear) */
