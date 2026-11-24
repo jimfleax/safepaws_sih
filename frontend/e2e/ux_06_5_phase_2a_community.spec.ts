@@ -55,8 +55,16 @@ test.describe('UX-06.5 Phase 2A Community Experience & Direction 1 Verification'
   });
 
   test.beforeEach(async ({ page }) => {
+    await page.route('**/api/auth/me', async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ detail: 'Not authenticated' }),
+      });
+    });
+
     // Intercept community API calls with deterministic mock responses
-    await page.route('**/api/v1/community/posts*', async (route) => {
+    await page.route('**/api/v1/community/posts**', async (route) => {
       const url = route.request().url();
       if (url.includes('/replies')) {
         await route.fulfill({
@@ -139,6 +147,21 @@ test.describe('UX-06.5 Phase 2A Community Experience & Direction 1 Verification'
 
     test(`Verify /community/onboarding route at ${vp.name}`, async ({ page }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.route('**/api/auth/me', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            user: {
+              id: 'user-001',
+              name: 'Dr. Sarah',
+              email: 'sarah@safepaws.app',
+              profileCompleted: true,
+              neighborhood: 'Oakridge Sector',
+            },
+          }),
+        });
+      });
       await page.goto('/community/onboarding');
       await page.waitForLoadState('networkidle');
 
