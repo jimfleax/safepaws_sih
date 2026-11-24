@@ -179,10 +179,11 @@ test.describe('UX-06.6 Frontend Integration & End-to-End Recovery Lifecycle', ()
           body: JSON.stringify(createdSighting),
         });
       } else {
+        const allSightings = globalAlerts.flatMap(a => a.sightings || []);
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify([]),
+          body: JSON.stringify(allSightings),
         });
       }
     });
@@ -236,9 +237,12 @@ test.describe('UX-06.6 Frontend Integration & End-to-End Recovery Lifecycle', ()
   test('Journey B — Community member submits sighting (/alerts/:id -> /sightings/new -> In-situ Receipt)', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     
-    // 1. Open active incident dossier as non-owner (mock unauthenticated me)
+    // 1. Open active incident dossier as non-owner (mock unauthenticated me & empty owned pets)
     await page.route(/.*\/api\/auth\/me.*/, async (route) => {
       await route.fulfill({ status: 401, body: JSON.stringify({ detail: 'Not authenticated' }) });
+    });
+    await page.route(/.*\/api\/v1\/pets.*/, async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
     });
 
     await page.goto('/alerts/alt-lifecycle-01');
@@ -265,7 +269,7 @@ test.describe('UX-06.6 Frontend Integration & End-to-End Recovery Lifecycle', ()
 
     // 6. Verifies IN-SITU Archival Receipt (Contract C2 & C4)
     await expect(page.getByRole('heading', { name: /observation logged to ledger/i })).toBeVisible();
-    await expect(page.getByText(/REF: #SGT-SGT-LIFEC/i)).toBeVisible();
+    await expect(page.getByText(/REF: #SGT-SGT-LIFE/i)).toBeVisible();
     await expect(page.getByText(/STATUS: COMMUNITY REPORT \/\/ UNVERIFIED/i)).toBeVisible();
     await expect(page.getByText(/North Meadow near footbridge/i)).toBeVisible();
 
@@ -296,10 +300,11 @@ test.describe('UX-06.6 Frontend Integration & End-to-End Recovery Lifecycle', ()
 
     // 1. Verify direct hydration succeeded
     await expect(page.locator('h1')).toContainText(/Missing: Barnaby/i);
-    await expect(page.getByText('Golden Retriever')).toBeVisible();
+    await expect(page.getByText('Golden Retriever', { exact: true })).toBeVisible();
 
     // 2. Verify Sighting Field Ledger timeline differentiation (Contract C4)
-    await expect(page.getByText(/VERIFIED OBSERVATION \/\/ CONFIRMED/i)).toBeVisible();
+    await expect(page.getByText(/OBSERVATION MARKED CONFIRMED/i)).toBeVisible();
+    await expect(page.getByText(/The source record is marked confirmed; the source does not identify who confirmed it or how/i)).toBeVisible();
     await expect(page.getByText(/COMMUNITY OBSERVATION \/\/ UNVERIFIED/i)).toBeVisible();
     await expect(page.getByText(/Oakridge Reservoir Path/i)).toBeVisible();
     await expect(page.getByText(/Pine Street Crosswalk/i)).toBeVisible();
@@ -307,6 +312,9 @@ test.describe('UX-06.6 Frontend Integration & End-to-End Recovery Lifecycle', ()
     // 3. Verify Public address suppression (SEC-BACKEND-01) for non-owner
     await page.route(/.*\/api\/auth\/me.*/, async (route) => {
       await route.fulfill({ status: 401, body: JSON.stringify({ detail: 'Unauthenticated' }) });
+    });
+    await page.route(/.*\/api\/v1\/pets.*/, async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
     });
     await page.reload();
     await page.waitForLoadState('networkidle');
@@ -380,10 +388,10 @@ test.describe('UX-06.6 Frontend Integration & End-to-End Recovery Lifecycle', ()
 
     // 1. Verifies Empathetic Prerequisite Notice (Contract C5)
     await expect(page.getByText(/REGISTRATION PREREQUISITE/i)).toBeVisible();
-    await expect(page.getByText(/No Pets Currently Enrolled/i)).toBeVisible();
+    await expect(page.getByText(/No Enrolled Companion Profiles on Record/i)).toBeVisible();
 
     // 2. Verifies link to /pets/new (~60s registration guide)
-    const enrollLink = page.getByRole('link', { name: /enroll companion in registry/i });
+    const enrollLink = page.getByRole('link', { name: /enroll companion profile/i });
     await expect(enrollLink).toBeVisible();
     await expect(enrollLink).toHaveAttribute('href', '/pets/new');
 

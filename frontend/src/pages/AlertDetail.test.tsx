@@ -290,8 +290,9 @@ describe('AlertDetail — Real API Response Contract & Direct Hydration (Contrac
     // Invariant C4: Unverified badge for confirmed === false
     expect(screen.getByText(/COMMUNITY OBSERVATION \/\/ UNVERIFIED/i)).toBeInTheDocument();
 
-    // Invariant C4: Confirmed badge for confirmed === true
-    expect(screen.getByText(/VERIFIED OBSERVATION \/\/ CONFIRMED/i)).toBeInTheDocument();
+    // Invariant C4: Confirmed badge for confirmed === true (grounded truth without claiming verification process)
+    expect(screen.getByText(/OBSERVATION MARKED CONFIRMED/i)).toBeInTheDocument();
+    expect(screen.getByText(/The source record is marked confirmed; the source does not identify who confirmed it or how/i)).toBeInTheDocument();
   });
 
   // 10. Contract C6: Owner-controlled resolution workflow with confirmation dialog

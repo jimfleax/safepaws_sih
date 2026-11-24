@@ -418,10 +418,15 @@ export default function AlertDetail() {
                           {/* Sighting Status Differentiation (Contract C4) */}
                           <div className="mb-2.5">
                             {isConfirmed ? (
-                              <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded uppercase tracking-wider">
-                                <CheckCircle2 size={11} className="text-emerald-700" />
-                                <span>VERIFIED OBSERVATION // CONFIRMED</span>
-                              </span>
+                              <div className="space-y-1">
+                                <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded uppercase tracking-wider">
+                                  <CheckCircle2 size={11} className="text-emerald-700" />
+                                  <span>OBSERVATION MARKED CONFIRMED</span>
+                                </span>
+                                <span className="block text-[10px] font-mono text-[var(--color-ink-soft)] italic">
+                                  The source record is marked confirmed; the source does not identify who confirmed it or how.
+                                </span>
+                              </div>
                             ) : (
                               <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold text-amber-900 bg-amber-50 border border-dashed border-amber-300 px-2 py-0.5 rounded uppercase tracking-wider">
                                 <Eye size={11} className="text-amber-700" />

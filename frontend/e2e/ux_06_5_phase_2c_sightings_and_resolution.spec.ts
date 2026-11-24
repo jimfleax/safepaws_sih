@@ -228,7 +228,7 @@ test.describe('UX-06.5 Phase 2C: Sighting Submission, Timeline & Case Resolution
 
       // 3. Verify Sighting Field Ledger with both Unverified and Confirmed badges (Contract C4)
       await expect(page.getByRole('heading', { name: /sighting field ledger/i })).toBeVisible();
-      await expect(page.getByText(/VERIFIED OBSERVATION \/\/ CONFIRMED/i)).toBeVisible();
+      await expect(page.getByText(/OBSERVATION MARKED CONFIRMED/i)).toBeVisible();
       await expect(page.getByText(/COMMUNITY OBSERVATION \/\/ UNVERIFIED/i)).toBeVisible();
 
       // 4. Verify Owner Resolution Protocol (Contract C6)
