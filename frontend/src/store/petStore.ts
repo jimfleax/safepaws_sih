@@ -62,18 +62,22 @@ export const usePetStore = create<PetState>((set) => ({
         return {
           pets,
           selectedPetId: activeSelectedId,
-          alerts: alerts.map((a: any) => ({
-            id: a.id,
-            petId: a.pet_id,
-            petName: a.pet_name || 'Unknown',
-            breed: a.breed || 'Unknown',
-            photoUrl: a.photo_url || '',
-            status: a.status as 'active' | 'resolved',
-            timeAgo: a.created_at || 'Recently',
-            lastSeenAddress: a.last_seen_address || '',
-            description: a.description || '',
-            sightingsCount: 0
-          })), 
+          alerts: alerts.map((a: any) => {
+            const matchedPet = pets.find((p: any) => p.id === (a.pet_id || a.petId));
+            return {
+              id: a.id,
+              petId: a.pet_id || a.petId,
+              petName: a.pet_name || a.petName || 'Unknown',
+              breed: a.breed || 'Unknown',
+              photoUrl: a.photo_url || a.photoUrl || '',
+              status: (a.status as 'active' | 'resolved') || 'active',
+              timeAgo: a.created_at || a.timeAgo || 'Recently',
+              lastSeenAddress: a.last_seen_address || a.lastSeenAddress || '',
+              description: a.description || '',
+              sightingsCount: a.sightings?.length || a.sightingsCount || 0,
+              species: a.species || matchedPet?.species || undefined,
+            };
+          }), 
           sightings: sightings.map((s: any) => ({
             id: s.id,
             reporterName: s.reporter_name,
