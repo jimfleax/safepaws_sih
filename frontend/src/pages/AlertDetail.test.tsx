@@ -228,9 +228,11 @@ describe('AlertDetail — Real API Response Contract & Direct Hydration (Contrac
       expect(screen.getByText('Missing: Max')).toBeInTheDocument();
     });
 
-    // Invariant: no operational radius or unverified broadcast claims
+    // Invariant: no operational radius, unverified broadcast claims, or fake dispatch labels
     expect(screen.queryByText(/operational radius/i)).toBeNull();
     expect(screen.queryByText(/5km/i)).toBeNull();
+    expect(screen.queryByText(/ACTIVE DISPATCH/i)).toBeNull();
+    expect(screen.getByText(/ACTIVE INCIDENT/i)).toBeInTheDocument();
     expect(screen.getByText(/Active missing pet incident record. Observational sightings submitted by the community are logged to the timeline below./i)).toBeInTheDocument();
   });
 });

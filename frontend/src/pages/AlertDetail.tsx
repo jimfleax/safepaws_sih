@@ -66,7 +66,6 @@ export default function AlertDetail() {
           breed: data.breed || data.pet?.breed || 'Unknown Breed',
           photoUrl: data.photo_url || data.pet?.photos?.[0]?.url || data.pet?.photo_url || '',
           status: data.status,
-          notifiedNeighborsCount: 0,
           timeAgo: data.created_at ? new Date(data.created_at).toLocaleDateString() : 'Recently',
           lastSeenAddress: data.last_seen_address || '',
           description: data.description || '',
@@ -160,7 +159,7 @@ export default function AlertDetail() {
       <DashboardNav />
       <main id="main-content" tabIndex={-1} className="outline-none flex-1 w-full flex flex-col">
         
-        {/* Top Header Row — Field Dispatch Bar */}
+        {/* Top Header Row — Field Incident Bar */}
         <div className="px-6 lg:px-12 py-5 border-b border-[var(--color-ink)]/10 flex justify-between items-center bg-white/70 sticky top-0 z-10 backdrop-blur-md">
           <Link 
             to="/lost" 
@@ -247,7 +246,7 @@ export default function AlertDetail() {
                 {isActive && (
                   <div className="absolute top-5 left-5">
                     <span className="bg-[var(--color-alert-clay)] text-white px-3 py-1.5 font-mono font-bold text-xs uppercase tracking-wider shadow-md flex items-center gap-1.5 rounded">
-                      <ShieldAlert size={14} /> ACTIVE DISPATCH
+                      <ShieldAlert size={14} /> ACTIVE INCIDENT
                     </span>
                   </div>
                 )}

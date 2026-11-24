@@ -37,7 +37,6 @@ export interface NeighborhoodAlert {
   breed: string;
   photoUrl: string;
   status: 'active' | 'resolved';
-  notifiedNeighborsCount?: number;
   timeAgo: string;
   lastSeenAddress: string;
   description: string;

@@ -13,7 +13,6 @@ const baseAlert: NeighborhoodAlert = {
   breed: 'Golden Retriever',
   photoUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d',
   status: 'active',
-  notifiedNeighborsCount: 84,
   timeAgo: '24 mins ago',
   lastSeenAddress: '742 Evergreen Terrace, Sector 4 PRIVATE RESIDENCE',
   description: 'Very friendly, responds to his name and whistles.',

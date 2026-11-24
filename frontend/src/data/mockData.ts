@@ -73,7 +73,6 @@ export const sampleAlerts: NeighborhoodAlert[] = [
     breed: 'Orange Tabby',
     photoUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=600&q=80',
     status: 'active',
-    notifiedNeighborsCount: 138,
     timeAgo: '45 minutes ago',
     lastSeenAddress: 'Oakridge Park near playground',
     description: 'Slipped out the back patio gate around 5:15 PM. Wearing red breakaway collar with SafePaws Smart QR.',

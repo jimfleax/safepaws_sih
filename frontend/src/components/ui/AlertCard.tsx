@@ -1,7 +1,7 @@
 import React from 'react';
 import { NeighborhoodAlert } from '../../types';
 import { Link } from 'react-router-dom';
-import { MapPin, Users, Clock } from 'lucide-react';
+import { MapPin, Clock } from 'lucide-react';
 import { Badge } from './Badge';
 
 export interface AlertCardProps {
@@ -49,10 +49,6 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, className = '' }) =
           <div className="flex items-center gap-2">
             <Clock size={14} className="text-[var(--color-ink-soft)] shrink-0" aria-hidden="true" />
             <span>{alert.timeAgo}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Users size={14} className="text-[var(--color-success)] shrink-0" aria-hidden="true" />
-            <span>{alert.notifiedNeighborsCount} neighbors notified</span>
           </div>
         </div>
       </div>

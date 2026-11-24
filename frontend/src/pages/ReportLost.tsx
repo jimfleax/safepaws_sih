@@ -82,7 +82,7 @@ export default function ReportLost() {
             Declare Missing Companion
           </h1>
           <p className="text-base md:text-lg text-[var(--color-ink-soft)] font-light leading-relaxed max-w-2xl">
-            Activate an official community alert. We log your companion's profile, description, and last known location in the public recovery ledger for community members and searchers to reference.
+            Publish a missing pet report. Your companion's details, description, and last known location are recorded in the public recovery list for searchers to reference.
           </p>
         </header>
 
@@ -223,7 +223,7 @@ export default function ReportLost() {
                   </h3>
                 </div>
                 <p className="text-xs text-[var(--color-ink-soft)] leading-relaxed mb-6 font-light">
-                  When an alert is published, your companion's active incident record is logged in the SafePaws recovery registry:
+                  When a missing report is published, your companion's active incident record is logged in the SafePaws recovery ledger:
                 </p>
                 <ul className="space-y-4 pt-4 border-t border-[var(--color-border)] text-xs text-[var(--color-ink)]">
                   <li className="flex items-start gap-3">
@@ -236,15 +236,8 @@ export default function ReportLost() {
                   <li className="flex items-start gap-3">
                     <span className="w-2 h-2 rounded-full bg-[var(--color-alert-clay)] mt-1 shrink-0" />
                     <span>
-                      <strong className="block font-semibold">Active Incident Registry</strong>
-                      An incident notice is posted in the community recovery ledger for searchers and neighbors to reference.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-2 h-2 rounded-full bg-[var(--color-alert-clay)] mt-1 shrink-0" />
-                    <span>
-                      <strong className="block font-semibold">Biometric Match Identification</strong>
-                      Field observations submitted through the biometric scanner can be cross-referenced against your pet's registered record.
+                      <strong className="block font-semibold">Community Incident Record</strong>
+                      An incident notice is listed in the recovery registry for community members and searchers to reference.
                     </span>
                   </li>
                 </ul>
