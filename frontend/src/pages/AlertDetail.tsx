@@ -103,13 +103,13 @@ export default function AlertDetail() {
 
   // Deduplicate and merge Zustand store sightings with direct API fetched sightings
   const storeSightings = sightings.filter(s => s.alertId === alertId);
-  const combinedSightings = [...storeSightings];
-  for (const fs of fetchedSightings) {
-    if (!combinedSightings.some(s => s.id === fs.id)) {
-      combinedSightings.push(fs);
+  // Priority to fresh direct API fetched sightings, augmented by store sightings
+  const alertSightings = [...fetchedSightings];
+  for (const ss of storeSightings) {
+    if (!alertSightings.some(s => s.id === ss.id)) {
+      alertSightings.push(ss);
     }
   }
-  const alertSightings = combinedSightings;
 
   if (loading) {
     return (

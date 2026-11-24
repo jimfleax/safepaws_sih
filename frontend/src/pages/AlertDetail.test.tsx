@@ -312,6 +312,7 @@ describe('AlertDetail — Real API Response Contract & Direct Hydration (Contrac
           qrTagId: 'SP-SADIE-01',
         },
       ],
+      alerts: [],
     });
 
     const activeAlert = {
@@ -327,8 +328,8 @@ describe('AlertDetail — Real API Response Contract & Direct Hydration (Contrac
       sightings: [],
     };
 
-    (ApiClient.getAlert as any).mockResolvedValueOnce(activeAlert);
-    (ApiClient.resolveAlert as any).mockResolvedValueOnce({
+    (ApiClient.getAlert as any).mockResolvedValue(activeAlert);
+    (ApiClient.resolveAlert as any).mockResolvedValue({
       ...activeAlert,
       status: 'resolved',
     });
@@ -390,7 +391,7 @@ describe('AlertDetail — Real API Response Contract & Direct Hydration (Contrac
       sightings: [],
     };
 
-    (ApiClient.getAlert as any).mockResolvedValueOnce(publicAlert);
+    (ApiClient.getAlert as any).mockResolvedValue(publicAlert);
 
     render(
       <MemoryRouter initialEntries={['/alerts/alert-other-user']}>
@@ -439,8 +440,8 @@ describe('AlertDetail — Real API Response Contract & Direct Hydration (Contrac
       sightings: [],
     };
 
-    (ApiClient.getAlert as any).mockResolvedValueOnce(activeAlert);
-    (ApiClient.resolveAlert as any).mockRejectedValueOnce(new Error('Permission denied: not owner'));
+    (ApiClient.getAlert as any).mockResolvedValue(activeAlert);
+    (ApiClient.resolveAlert as any).mockRejectedValue(new Error('Permission denied: not owner'));
 
     render(
       <MemoryRouter initialEntries={['/alerts/alert-fail-case']}>

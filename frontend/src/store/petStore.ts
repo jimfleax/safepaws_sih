@@ -80,12 +80,12 @@ export const usePetStore = create<PetState>((set) => ({
           }), 
           sightings: sightings.map((s: any) => ({
             id: s.id,
-            reporterName: s.reporter_name,
-            location: s.location,
-            notes: s.notes,
+            reporterName: s.reporter_name || s.reporterName || 'Community Observer',
+            location: s.location || '',
+            notes: s.notes || '',
             time: s.time || 'Recently',
-            alertId: s.alert_id,
-            confirmed: false
+            alertId: s.alert_id || s.alertId,
+            confirmed: s.confirmed ?? false
           })),
           hydrated: true,
           isLoading: false,
