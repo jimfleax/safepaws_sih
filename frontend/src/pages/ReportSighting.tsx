@@ -217,7 +217,7 @@ export default function ReportSighting() {
                     STATUS: COMMUNITY REPORT // UNVERIFIED
                   </div>
                   <p className="text-xs text-amber-800 leading-relaxed font-sans">
-                    This citizen observation is officially recorded. In accordance with SafePaws integrity standards, reports remain unverified until corroborated by the pet guardian or field scouts. No automated biometrics or simulated verification is applied.
+                    Community reports are recorded as unverified. The available source record does not identify an authorized confirmation process or the provenance of a confirmed status. No automated biometrics or simulated verification is applied.
                   </p>
                 </div>
               </div>

@@ -169,7 +169,7 @@ describe('ReportSighting — Sighting Submission, Receipt & Verification Truth (
 
     // Invariant C4: Unverified status banner with zero fake AI matching claims
     expect(screen.getByText(/STATUS: COMMUNITY REPORT \/\/ UNVERIFIED/i)).toBeInTheDocument();
-    expect(screen.getByText(/reports remain unverified until corroborated/i)).toBeInTheDocument();
+    expect(screen.getByText(/Community reports are recorded as unverified/i)).toBeInTheDocument();
 
     // Navigation action to view incident dossier
     expect(screen.getByRole('link', { name: /view incident dossier/i })).toHaveAttribute('href', '/alerts/alert-barnaby-01');

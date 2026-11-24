@@ -15,6 +15,13 @@
 
 ---
 
+> [!NOTE]
+> ### Dated Addendum — November 24, 2026 (Directive UX-06.6R Reconciliation)
+> - **Terminology Superseded**: Earlier references to `VERIFIED OBSERVATION // CONFIRMED` in this historical specification have been formally superseded.
+> - **Current Grounded Frontend Label**: The truthful UI label rendered for confirmed sightings (`confirmed === true`) is **`OBSERVATION MARKED CONFIRMED`**.
+> - **Provenance Disclaimer**: The backend source record contains a boolean flag (`confirmed = Column(Boolean, default=False)`), but the source does not establish who confirmed the record or how, as zero confirmation mutation API endpoints exist in the backend.
+> - **Governing Milestone**: **UX-06.6R** serves as the authoritative clarification of terminology, evidence categorization, and confirmation semantics.
+
 ## 1. Executive Summary & Architectural Invariants
 
 ### 1.1 The SafePaws Mission & Emotional Duality
