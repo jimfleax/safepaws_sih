@@ -78,13 +78,13 @@ The following lifecycle statuses are distinguished:
 | `/pets/:petId` | Pet Detail & QR Tag | COMPLETE | Passed (3D Medal) | Passed (Wrapping id) | Passed (ARIA pressed) | Passed (3D flip guard) | **ACCEPTED (99.17/100)** |
 | `/p/:tagId` | Public Tag Profile | COMPLETE | Passed (Minimalist) | Passed (Mobile single-col)| Passed (Private address hidden)| N/A | **ACCEPTED (99.17/100)** |
 | `/scan` | Biometric Scanner HUD | COMPLETE | Passed (Atelier Biometrics)| Passed (SafeArea pb-safe) | Passed (17.82:1, AAA) | Passed (Scan ray GPU-only)| **ACCEPTED (99.8/100)** |
-| `/lost` | Recovery Board | PHASE 1 COMPLETE | Passed (Dispatch Ledger)| Passed (Grid collapse) | Passed ($\ge 44\text{px}$ Quick Share)| Passed (Fade-in stagger)| **PHASE 1 ACCEPTED** |
-| `/lost/new` | Report Lost Pet | NOT STARTED | Staged (Field Form) | Staged | Staged | Staged | **BLOCKED (Phase 2)** |
-| `/alerts/:alertId`| Incident Dossier | PHASE 1 COMPLETE | Passed (Ledger Timeline)| Passed (Single column) | Passed (Address suppressed)| Passed (Ledger borders) | **PHASE 1 ACCEPTED** |
-| `/sightings/new`| Report Sighting | NOT STARTED | Staged (Finder Sheet) | Staged | Staged | Staged | **BLOCKED (Phase 2)** |
-| `/community` | Community Feed | NOT STARTED | Staged (Municipal Forum)| Staged | Staged | Staged | **BLOCKED (Phase 2)** |
-| `/community/onboarding`| Community Channels | NOT STARTED | Staged (4-channel lock) | Staged | Staged | Staged | **BLOCKED (Phase 2)** |
-| `/community/post/:id` | Post Detail | PHASE 1 COMPLETE | Passed (Dispatch Card) | Passed (320px no clip) | Passed ($\ge 44\text{px}$ Report) | N/A | **PHASE 1 ACCEPTED** |
+| `/lost` | Recovery Board | PREFLIGHT SPECIFIED | Direction 1 (Dispatch Ledger) | 320-1280px (Collapsible Grid) | $\ge 44\text{px}$ touch, 15.42:1 Body | Micro-spring & reduced-motion | **PREFLIGHT RATIFIED** |
+| `/lost/new` | Report Lost Pet | PREFLIGHT SPECIFIED | Direction 1 (Triage Dossier) | 320-1280px (Stacked Steps) | Form labels & error alerts | 0ms artificial latency | **PREFLIGHT RATIFIED** |
+| `/alerts/:alertId`| Incident Dossier | PREFLIGHT SPECIFIED | Direction 1 (Ledger Timeline)| 320-1280px (Single col docket)| Address suppressed (SEC-BACKEND-01)| Indelible rubber stamp jitter | **PREFLIGHT RATIFIED** |
+| `/sightings/new`| Report Sighting | PREFLIGHT SPECIFIED | Direction 1 (In-Situ Receipt)| 320-1280px (Dossier card) | $\ge 3.0:1$ border contrast | Archival docket transition | **PREFLIGHT RATIFIED** |
+| `/community` | Community Feed | PREFLIGHT SPECIFIED | Direction 1 (Municipal Hub) | 320-1280px (Sliding tabs) | 4-channel lock, Auth modal | Motion layoutId indicator | **PREFLIGHT RATIFIED** |
+| `/community/onboarding`| Community Channels | PREFLIGHT SPECIFIED | Direction 1 (Guild Enlistment) | 320-1280px (2x2 grid) | ERR-C-01 remediated (6.11:1)| Toggle micro-springs | **PREFLIGHT RATIFIED** |
+| `/community/post/:id` | Post Detail | PREFLIGHT SPECIFIED | Direction 1 (Dispatch Dossier)| 320-1280px (No horizontal clip)| ERR-H-01 remediated (H1->H2)| Threaded ledger reveal | **PREFLIGHT RATIFIED** |
 
 ---
 
@@ -95,38 +95,49 @@ The following lifecycle statuses are distinguished:
              CREATIVE TRANSFORMATION STAGE PROGRESSION (WORKSTREAM 10)
 ========================================================================================
 [1. Discovered]  ──►  [2. Evaluated]  ──►  [3. Installed]  ──►  [4. Invoked]  ──►  [5. Applied]  ──►  [6. Validated]
-     COMPLETE              COMPLETE             COMPLETE             PARTIAL            PARTIAL            PARTIAL
+     COMPLETE              COMPLETE             COMPLETE             COMPLETE            COMPLETE            PREFLIGHT
 ========================================================================================
 ```
 
-> [!IMPORTANT]
-> **Reconnaissance & Scope Status:** Comprehensive resource reconnaissance and creative transformation across the entire product suite have **not yet been demonstrated as complete**. Creative design execution is currently anchored to ratified directions for completed surfaces (Direction 3 for Scanner; Direction 1 for Community & Field Dispatch).
+> [!NOTE]
+> **Ratified Creative Direction:** **DIRECTION 1 — THE FIELD DISPATCH & RECOVERY LEDGER** (Score: 9.47/10). Design system combines tactile open-air field notebooks, municipal search-and-rescue dispatch ledgers, Newsreader editorial serif typography, JetBrains Mono telemetry, and indelible rubber stamps.
 
-### 1. Antigravity Skills Inventory & Utilization
-- **global-tooling-orchestrator:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Installed $\rightarrow$ **Invoked** (Active across all orchestration workflows).
-- **playwright-qa:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Installed $\rightarrow$ **Invoked** (Active for real browser touch-target & viewport assertions).
-- **accessibility-audit:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Installed $\rightarrow$ **Invoked** (Active for WCAG 2.1/2.2 AA auditing).
-- **creative-ui / design-ui / ui-implementation:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Installed $\rightarrow$ **Applied** (Direction 1 token parity, Field Dispatch Ledger aesthetic).
-- **architecture-review / feature-planning / pr-release-review:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Installed $\rightarrow$ **Applied** (Pre-flight boundaries, single-owner file segregation).
+### 1. Antigravity Skills Inventory & Lifecycle Tracking
+- **`ui-ux-pro-max`:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Installed (`npx ui-ux-pro-max-cli init --ai antigravity --global --offline`) $\rightarrow$ **Invoked** (Searched editorial styles, GSAP micro-animations, WAI-ARIA validation).
+- **`design`:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Repaired Symlinks $\rightarrow$ **Invoked** (Direction 1 token harmony, field docket asset schemas).
+- **`design-system`:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Repaired Symlinks $\rightarrow$ **Invoked** (3-layer tokens: primitive $\rightarrow$ semantic $\rightarrow$ component).
+- **`ui-styling`:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Repaired Symlinks $\rightarrow$ **Invoked** (Tailwind layout containers, 1px ruled borders, focus rings).
+- **`banner-design`:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Repaired Symlinks $\rightarrow$ **Applied** (Staged for social recovery share dockets).
+- **`slides`:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Repaired Symlinks $\rightarrow$ **Applied** (Staged for milestone briefings).
+- **`global-tooling-orchestrator`:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Installed $\rightarrow$ **Invoked** (Active across all orchestration workflows).
+- **`playwright-qa`:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Installed $\rightarrow$ **Invoked** (Active for real browser touch-target & viewport assertions).
+- **`accessibility-audit`:** Discovered $\rightarrow$ Evaluated $\rightarrow$ Installed $\rightarrow$ **Invoked** (Active for WCAG 2.1/2.2 AA auditing).
 
-### 2. Design System Tokens & Typography (Canonical Lock)
-- **Palette:**
-  - Ink: `#1C1A17` (Deep Obsidian Charcoal)
-  - Bone: `#F6F1E7` (Tactile Cream Parchment)
-  - Marigold: `#E2811F` (Controlled Amber Glow, 6.06:1 on Bone)
-  - Trail: `#63684B` (Olive Rescue Field Sage)
-  - Alert Clay: `#B3452F` (Urgent Incident Terracotta)
+### 2. Design System Tokens & Typography (Direction 1 Lock)
+- **Palette Tokens:**
+  - Ink (Primary Typography / Rules): `#1C1A17` (Obsidian Ink, 15.42:1 on Bone)
+  - Soft Ink (Secondary Guidance): `#6E665C` (5.02:1 on Bone)
+  - Bone (Canvas Parchment): `#F6F1E7`
+  - Card Surface (White Docket): `#FFFFFF` (17.36:1 body contrast)
+  - Alert Clay / Russet: `#B3452F` (Urgent Incident Terracotta, 4.90:1 on Bone)
+  - Trail Olive: `#63684B` (Rescue Sage, 5.81:1 on white text)
+  - Accent Text: `#8B4A00` (`--color-accent-text`, **6.06:1 on Bone, PASS**)
+  - Focus Ring: `#E2811F` (Marigold Ring with 2px Bone offset separation)
+  - **Invariant:** Raw Marigold (`#E2811F`) is strictly forbidden as text on Bone (`2.18:1 FAIL`).
 - **Typography:**
-  - Display / Headings: `Newsreader` (Editorial serif)
-  - Interface / Body: `Plus Jakarta Sans` (Clean geometric sans-serif)
-  - Telemetry / Metadata: `JetBrains Mono` (Technical monospace)
+  - Display / Headings: `Newsreader` / Georgia serif (`font-serif font-bold tracking-tight`)
+  - Structural Body: `Inter` / system sans (`font-sans leading-relaxed`)
+  - Telemetry / Records: `JetBrains Mono` (`font-mono uppercase tracking-wider text-xs`)
 - **Signature Design Motifs:**
-  - Atelier Biometrics: Parametric rhinarium SVG reticle, nares calipers, obsidian chamber.
-  - Field Dispatch Ledger: Ruled ledger borders, tactile debossed surfaces, high-contrast status tags.
+  - Ruled ledger borders: 1px crisp rules (`border-[var(--color-border)]`)
+  - 4px Alert Clay left spine on active incident cards (`border-l-4 border-l-[var(--color-alert-clay)]`)
+  - Indelible rubber stamps: `LedgerStatusStamp` with $\pm 1.5^\circ$ physical jitter
+  - Physical keypress haptics: `active:translate-y-[1px]`
 
 ### 3. Component & Motion Ecosystem
-- **Primitives:** Radix UI primitives (`Dialog`, `Dropdown`, `Select`), custom accessible wrappers (`Button`, `Badge`, `FormField`, `Input`).
-- **Motion Engine:** Framer Motion (page transitions, state layout), GSAP (complex timelines with teardown hooks), Lenis (smooth scroll with mobile `<768px` bypass).
+- **Primitives:** Radix UI headless primitives (`@radix-ui/react-dialog`, `@radix-ui/react-tabs`), Lucide React icons.
+- **Motion Engine:** Framer Motion (layoutId channel tabs, modal entries) and GSAP.
+- **Motion Frame Budget:** Frame execution $\le 16.6\text{ms}$ (60 FPS target). Zero kinetic movement when `prefers-reduced-motion: reduce` is detected.
 
 ---
 
