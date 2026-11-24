@@ -1,13 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, MessageSquare, AlertTriangle, Clock, Shield } from 'lucide-react';
+import { MapPin, MessageSquare, Clock, ArrowRight, ShieldAlert, AlertCircle } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
+import { LedgerStatusStamp, LedgerStampState } from '../ui/LedgerStatusStamp';
 
 export type Post = {
   id: string;
   title: string;
   content: string;
   channel: string;
-  author_name: string;
+  author_id?: string;
+  author_name?: string;
   created_at: string;
   reply_count?: number;
   associated_alert_id?: string | null;
@@ -16,93 +19,163 @@ export type Post = {
 };
 
 export function PostCard({ post }: { post: Post; key?: React.Key }) {
-  const isUrgent = post.channel === 'urgent';
+  const { user } = useAuthStore();
+  const isLostFound = post.channel === 'lost-found';
   const isSighting = post.channel === 'sightings';
-  const isLost = post.channel === 'lost-found';
-  
-  const getInitials = (name: string) => name ? name.charAt(0).toUpperCase() : '?';
+  const isReunion = post.channel === 'reunion-stories';
+  const hasAlert = Boolean(post.associated_alert_id);
+
+  // Author identity: Truth-in-engineering without fabricating names
+  const isCurrentUser = post.author_id && user?.id === post.author_id;
+  const authorDisplay = isCurrentUser 
+    ? 'You (Guardian)' 
+    : post.author_name 
+      ? post.author_name 
+      : post.author_id 
+        ? `Neighbor #${post.author_id.slice(-4).toUpperCase()}` 
+        : 'Community Member';
+
+  const authorInitial = isCurrentUser ? 'Y' : authorDisplay.charAt(0).toUpperCase() || 'C';
+
+  // Determine appropriate rubber stamp state
+  let stampState: LedgerStampState = 'COMMUNITY_NOTE';
+  if (hasAlert || isLostFound) {
+    stampState = 'ACTIVE_SEARCH';
+  } else if (isSighting) {
+    stampState = 'UNVERIFIED_SIGHTING';
+  } else if (isReunion) {
+    stampState = 'REUNITED_CLOSED';
+  }
+
+  // Location privacy (SEC-BACKEND-01): suppress raw residential addresses on public cards
+  const displayLocation = post.location 
+    ? post.location.replace(/^\d+[\s\w,]+?(?=(Sector|Block|Near|Opposite|Road|Nagar|Colony|Enclave|Vihar|Market|Area|$))/i, '') || 'Vicinity Reported'
+    : null;
 
   return (
-    <div className={`p-5 rounded-2xl border transition-all shadow-xs hover:shadow-md bg-white ${
-      isUrgent ? 'border-[var(--color-alert-clay)]/40 bg-[var(--color-alert-clay)]/[0.02]' : 
-      isSighting ? 'border-emerald-500/30' : 
-      isLost ? 'border-[var(--color-marigold)]/30' : 
-      'border-[var(--color-border)]'
-    }`}>
-      {/* Header Context */}
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-ink)] flex items-center justify-center font-bold text-xs uppercase font-mono">
-            {getInitials(post.author_name)}
+    <article 
+      className={`bg-white border rounded-sm p-5 sm:p-6 transition-all shadow-xs hover:shadow-sm relative ${
+        hasAlert || isLostFound 
+          ? 'border-[var(--color-border)] border-l-4 border-l-[var(--color-alert-clay)]' 
+          : isSighting 
+            ? 'border-[var(--color-border)] border-l-4 border-l-[var(--color-marigold)]'
+            : isReunion
+              ? 'border-[var(--color-border)] border-l-4 border-l-[var(--color-trail)]'
+              : 'border-[var(--color-border)]'
+      }`}
+      aria-labelledby={`post-title-${post.id}`}
+    >
+      {/* Top Ledger Header: Channel & Author Metadata */}
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Author Initial Monogram */}
+          <div 
+            className="w-9 h-9 rounded-sm bg-[var(--color-bone)] border border-[var(--color-border)] text-[#1C1A17] flex items-center justify-center font-mono font-bold text-xs shrink-0 select-none"
+            aria-hidden="true"
+          >
+            {authorInitial}
           </div>
-          <div>
+
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-[var(--color-ink)]">{post.author_name}</span>
-              {isUrgent && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--color-alert-clay)]/10 text-[var(--color-alert-clay)] flex items-center gap-1">
-                  <Shield size={10} /> Urgent
+              <span className="font-mono text-xs font-bold text-[var(--color-ink)] truncate uppercase">
+                {authorDisplay}
+              </span>
+              {isCurrentUser && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 bg-[var(--color-marigold)]/15 text-[var(--color-accent-text)] rounded-sm font-bold">
+                  AUTHOR
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-[var(--color-ink-soft)] font-light flex items-center gap-1 mt-0.5">
-              <Clock size={10} />
-              {new Date(post.created_at).toLocaleString(undefined, { 
-                hour: 'numeric', 
-                minute: 'numeric', 
-                day: 'numeric', 
-                month: 'short' 
-              })}
-            </span>
+            
+            <div className="flex items-center gap-2 text-[11px] text-[var(--color-ink-soft)] font-mono mt-0.5">
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {new Date(post.created_at).toLocaleDateString('en-IN', {
+                  day: 'numeric',
+                  month: 'short',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
+              {displayLocation && (
+                <>
+                  <span aria-hidden="true">•</span>
+                  <span className="flex items-center gap-1 truncate max-w-[180px]">
+                    <MapPin className="w-3 h-3 text-[var(--color-ink-soft)]" />
+                    {displayLocation}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
+        </div>
+
+        {/* Tactile Indelible Rubber Stamp */}
+        <div className="shrink-0">
+          <LedgerStatusStamp state={stampState} size="sm" jitter={isLostFound ? -1.5 : 1.2} />
         </div>
       </div>
 
-      {/* Content */}
-      <Link to={`/community/post/${post.id}`} className="block mt-3 mb-3 group">
-        {post.title && (
-          <h3 className="text-base font-serif font-bold text-[var(--color-ink)] mb-1 group-hover:text-[var(--color-marigold)] transition-colors leading-snug">
+      {/* Post Title & Content */}
+      <div className="mb-4">
+        <h3 
+          id={`post-title-${post.id}`}
+          className="text-lg sm:text-xl font-serif font-bold text-[var(--color-ink)] tracking-tight hover:text-[var(--color-accent-text)] transition-colors leading-snug"
+        >
+          <Link to={`/community/post/${post.id}`} className="hover:underline">
             {post.title}
-          </h3>
-        )}
-        
-        {/* Prominent Context Badges */}
-        {(isSighting && post.location) && (
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg mb-2 w-fit">
-            <MapPin size={13} /> <span>Reported near: {post.location}</span>
-          </div>
-        )}
-        
-        {(isLost && post.pet_name) && (
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--color-alert-clay)] bg-[var(--color-alert-clay)]/10 px-3 py-1.5 rounded-lg mb-2 w-fit">
-            <AlertTriangle size={13} /> <span>Searching for {post.pet_name}</span>
-          </div>
-        )}
-
-        <p className="text-xs text-[var(--color-ink)]/80 line-clamp-3 leading-relaxed font-light">
+          </Link>
+        </h3>
+        <p className="text-sm text-[var(--color-ink)]/85 leading-relaxed mt-2 line-clamp-3 font-sans">
           {post.content}
         </p>
-      </Link>
-
-      {/* Footer Actions */}
-      <div className="flex items-center justify-between pt-3 border-t border-[var(--color-border)] mt-2">
-        <Link 
-          to={`/community/post/${post.id}`} 
-          className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] transition-colors min-h-[44px] py-2 px-2 rounded-lg"
-        >
-          <MessageSquare size={14} />
-          <span>{post.reply_count || 0} Replies</span>
-        </Link>
-        
-        {post.associated_alert_id && (
-           <Link 
-             to={`/alerts/${post.associated_alert_id}`} 
-             className="flex items-center gap-1 text-[11px] font-mono font-bold text-[var(--color-alert-clay)] hover:underline uppercase tracking-wider min-h-[44px] py-2 px-2 rounded-lg"
-           >
-             <AlertTriangle size={12} /> 
-             <span>View Emergency Incident</span>
-           </Link>
-        )}
       </div>
-    </div>
+
+      {/* Incident Cross-Reference Banner (If Connected to an Alert) */}
+      {post.associated_alert_id && (
+        <div className="mb-4 p-3 bg-[var(--color-bone)] border border-[var(--color-border)] rounded-sm flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <ShieldAlert className="w-4 h-4 text-[var(--color-alert-clay)] shrink-0" />
+            <div className="text-xs truncate font-mono">
+              <span className="text-[var(--color-ink-soft)] uppercase">Linked Incident: </span>
+              <span className="font-bold text-[var(--color-ink)]">
+                {post.pet_name ? `Case: ${post.pet_name}` : `Dossier #${post.associated_alert_id.slice(0, 8).toUpperCase()}`}
+              </span>
+            </div>
+          </div>
+          <Link
+            to={`/alerts/${post.associated_alert_id}`}
+            className="min-h-[48px] sm:min-h-[44px] px-3 inline-flex items-center gap-1 text-xs font-mono font-bold tracking-wider uppercase text-[var(--color-alert-clay)] hover:underline shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
+          >
+            <span>Incident Command</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
+
+      {/* Bottom Ledger Action Row */}
+      <div className="flex items-center justify-between pt-3 border-t border-[var(--color-border)] text-xs font-mono text-[var(--color-ink-soft)]">
+        <Link 
+          to={`/community/post/${post.id}`}
+          className="min-h-[48px] sm:min-h-[44px] inline-flex items-center gap-1.5 text-[var(--color-ink)] hover:text-[var(--color-accent-text)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
+        >
+          <MessageSquare className="w-4 h-4" />
+          <span className="font-bold tracking-wider uppercase">
+            {post.reply_count !== undefined && post.reply_count > 0 
+              ? `${post.reply_count} Replies` 
+              : 'Join Discussion'}
+          </span>
+        </Link>
+
+        <Link
+          to={`/community/post/${post.id}`}
+          className="min-h-[48px] sm:min-h-[44px] inline-flex items-center gap-1 font-bold tracking-wider uppercase text-[var(--color-accent-text)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] rounded-sm"
+        >
+          <span>View Dossier</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+    </article>
   );
 }

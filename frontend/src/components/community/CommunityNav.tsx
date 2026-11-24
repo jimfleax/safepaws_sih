@@ -1,72 +1,103 @@
 import React from 'react';
 import { 
-  AlertTriangle, 
+  MessageSquare, 
+  Search, 
   Eye, 
-  MessageCircle, 
-  Heart, 
-  Search,
-  Lightbulb, 
-  Stethoscope, 
-  Home 
+  Sparkles,
+  ShieldAlert
 } from 'lucide-react';
+import { CANONICAL_CHANNELS, CommunityChannel } from './CommunityChannelFilterBar';
 
-export const CHANNELS = [
-  { id: 'urgent', label: 'Urgent Alerts', icon: <AlertTriangle size={16} />, color: 'text-[var(--color-alert-clay)]' },
-  { id: 'lost-found', label: 'Lost & Found', icon: <Search size={16} />, color: 'text-[var(--color-marigold)]' },
-  { id: 'sightings', label: 'Field Sightings', icon: <Eye size={16} />, color: 'text-emerald-600' },
-  { id: 'general', label: 'General Network', icon: <MessageCircle size={16} />, color: 'text-[var(--color-ink)]' },
-  { id: 'pet-care', label: 'Pet Health & Care', icon: <Stethoscope size={16} />, color: 'text-rose-600' },
-  { id: 'rescue', label: 'Rescue & Shelters', icon: <Home size={16} />, color: 'text-indigo-600' },
-  { id: 'adoption', label: 'Adoption Desk', icon: <Heart size={16} />, color: 'text-pink-600' },
-  { id: 'tips', label: 'Field Tips', icon: <Lightbulb size={16} />, color: 'text-amber-600' },
-];
+export { CANONICAL_CHANNELS };
+export type { CommunityChannel };
 
 export function CommunityNav({ 
   activeChannelId, 
   onChannelSelect, 
   isMobile, 
-  onClose 
+  onClose,
+  channelCounts = {},
 }: { 
   activeChannelId: string; 
-  onChannelSelect: (id: string) => void; 
+  onChannelSelect: (id: CommunityChannel) => void; 
   isMobile?: boolean; 
   onClose?: () => void;
+  channelCounts?: Partial<Record<CommunityChannel, number>>;
 }) {
   return (
-    <div className="flex flex-col h-full bg-white py-5 w-64 flex-shrink-0 select-none">
-      <div className="px-5 mb-5">
-        <h2 className="text-base font-serif font-bold text-[var(--color-ink)] mb-0.5">Community Network</h2>
-        <p className="text-xs text-[var(--color-ink-soft)] font-light">Local Neighborhood Channels</p>
+    <nav 
+      aria-label="Community Channels Navigation"
+      className="flex flex-col h-full bg-white py-6 w-64 flex-shrink-0 select-none border-r border-[var(--color-border)]"
+    >
+      <div className="px-6 mb-6">
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="w-2 h-2 rounded-full bg-[var(--color-trail)]" />
+          <span className="text-[10px] font-mono font-bold tracking-widest text-[var(--color-ink-soft)] uppercase">
+            SECTOR DISPATCH
+          </span>
+        </div>
+        <h2 className="text-lg font-serif font-bold text-[var(--color-ink)] leading-snug">
+          Field Channels
+        </h2>
+        <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
+          Municipal search & recovery ledger
+        </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 space-y-1">
-        {CHANNELS.map(c => {
+      <div className="flex-1 overflow-y-auto px-3 space-y-1.5" role="list">
+        {CANONICAL_CHANNELS.map(c => {
           const isActive = activeChannelId === c.id;
+          const count = channelCounts[c.id];
+
           return (
             <button
               key={c.id}
+              role="listitem"
               aria-pressed={isActive}
               onClick={() => {
                 onChannelSelect(c.id);
                 if (isMobile && onClose) onClose();
               }}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] ${
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-sm text-left transition-all min-h-[48px] sm:min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
                 isActive 
-                  ? 'bg-[var(--color-surface)] text-[var(--color-ink)] shadow-xs border border-[var(--color-border)]' 
-                  : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]'
+                  ? 'bg-[var(--color-bone)] border-l-4 border-l-[var(--color-marigold)] text-[#1C1A17] font-bold shadow-xs' 
+                  : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] hover:bg-[var(--color-bone)]/50'
               }`}
             >
-              <div className={isActive ? c.color : 'opacity-60'}>
-                {c.icon}
+              <div className="flex items-center gap-3 min-w-0 pr-2">
+                <span className={`shrink-0 ${isActive ? 'text-[var(--color-accent-text)]' : 'text-[var(--color-ink-soft)]'}`}>
+                  {c.icon}
+                </span>
+                <span className="text-xs font-mono tracking-wider uppercase truncate">
+                  {c.label}
+                </span>
               </div>
-              <span className="truncate">{c.label}</span>
-              {isActive && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--color-marigold)]" />
+
+              {count !== undefined && count > 0 && (
+                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0 ${
+                  isActive 
+                    ? 'bg-white text-[var(--color-ink)] border border-[var(--color-border)]' 
+                    : 'bg-[var(--color-bone)] text-[var(--color-ink-soft)]'
+                }`}>
+                  {count}
+                </span>
               )}
             </button>
           );
         })}
       </div>
-    </div>
+
+      <div className="p-4 mx-3 mt-4 border-t border-[var(--color-border)] bg-[var(--color-bone)]/60 rounded-sm">
+        <div className="flex items-center gap-2 mb-1">
+          <ShieldAlert className="w-3.5 h-3.5 text-[var(--color-alert-clay)]" />
+          <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-[var(--color-ink)]">
+            Incident Ground Truth
+          </span>
+        </div>
+        <p className="text-[11px] text-[var(--color-ink-soft)] leading-normal">
+          Field reports are citizen-logged. Verified observations are certified by field scouts.
+        </p>
+      </div>
+    </nav>
   );
 }
