@@ -46,6 +46,7 @@ export const InteractiveSticker: React.FC<InteractiveStickerProps> = ({
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const dragProgressRef = useRef(0);
   const wasDraggedRef = useRef(false);
+  const lastClickTimeRef = useRef(0);
 
   const togglePeel = () => {
     const nextState = !isPeeled;
@@ -65,6 +66,12 @@ export const InteractiveSticker: React.FC<InteractiveStickerProps> = ({
   };
 
   const handleClick = () => {
+    const now = Date.now();
+    if (now - lastClickTimeRef.current < 250) {
+      return;
+    }
+    lastClickTimeRef.current = now;
+
     if (wasDraggedRef.current) {
       wasDraggedRef.current = false;
       return;

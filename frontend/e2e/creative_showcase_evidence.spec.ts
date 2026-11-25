@@ -162,13 +162,22 @@ test.describe('UX-06.7 Increment 1R-C — Creative Primitives Validation & Evide
     await page.waitForTimeout(350);
     await expect(sticker).toHaveAttribute('data-peeled', 'false');
     await expect(sticker).toHaveAttribute('aria-expanded', 'false');
+    console.log('2B END: peeled =', await sticker.getAttribute('data-peeled'), 'progress =', await sticker.getAttribute('data-drag-progress'));
 
     // 2C. Drag below threshold (< 35%) and verify spring snap-back to sealed
-    await page.mouse.move(cornerX, cornerY);
+    const freshBox = await sticker.boundingBox();
+    console.log('2A BOX:', box, '2C FRESHBOX:', freshBox);
+    expect(freshBox).not.toBeNull();
+    const freshCornerX = (freshBox?.x || 0) + (freshBox?.width || 0) - 35;
+    const freshCornerY = (freshBox?.y || 0) + 35;
+
+    await page.mouse.move(freshCornerX, freshCornerY);
     await page.mouse.down();
-    await page.mouse.move(cornerX - 30, cornerY + 25, { steps: 5 }); // Sub-threshold drag
+    await page.mouse.move(freshCornerX - 30, freshCornerY + 25, { steps: 5 }); // Sub-threshold drag
+    console.log('2C MOVE: dragging =', await sticker.getAttribute('data-dragging'), 'progress =', await sticker.getAttribute('data-drag-progress'));
     await page.mouse.up();
     await page.waitForTimeout(400); // Spring snap-back settle
+    console.log('2C UP: dragging =', await sticker.getAttribute('data-dragging'), 'peeled =', await sticker.getAttribute('data-peeled'), 'progress =', await sticker.getAttribute('data-drag-progress'));
 
     await expect(sticker).toHaveAttribute('data-peeled', 'false');
     await expect(sticker).toHaveAttribute('aria-expanded', 'false');
