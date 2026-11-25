@@ -26,6 +26,19 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 
 
+// Internal Creative Review Harness Guard:
+// Strictly barred from public production routes; accessible only during active dev mode,
+// test runners, or when explicitly requested via dev harness query flag.
+const isDevHarnessActive = () => {
+  if (typeof window === 'undefined') return false;
+  return (
+    Boolean(import.meta.env.DEV) ||
+    import.meta.env.MODE === 'test' ||
+    window.location.search.includes('harness=true') ||
+    sessionStorage.getItem('safepaws_dev_harness') === 'active'
+  );
+};
+
 const SetupProfileRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore();
   
@@ -100,7 +113,11 @@ export default function App() {
           <Route path="/lost" element={<LostDogs />} />
           <Route path="/alerts/:alertId" element={<AlertDetail />} />
           <Route path="/sightings/new" element={<ReportSighting />} />
-          <Route path="/showcase" element={<CreativeShowcase />} />
+
+          {/* Internal Development & Review Harness (Quarantined from public production navigation) */}
+          {isDevHarnessActive() && (
+            <Route path="/showcase" element={<CreativeShowcase />} />
+          )}
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
