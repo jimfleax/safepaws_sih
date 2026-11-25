@@ -159,14 +159,12 @@ test.describe('UX-06.7 Increment 1R-C — Creative Primitives Validation & Evide
 
     // 2B. Reset / Reseal via accessible click
     await sticker.click();
-    await page.waitForTimeout(350);
+    await page.waitForTimeout(500);
     await expect(sticker).toHaveAttribute('data-peeled', 'false');
     await expect(sticker).toHaveAttribute('aria-expanded', 'false');
-    console.log('2B END: peeled =', await sticker.getAttribute('data-peeled'), 'progress =', await sticker.getAttribute('data-drag-progress'));
 
     // 2C. Drag below threshold (< 35%) and verify spring snap-back to sealed
     const freshBox = await sticker.boundingBox();
-    console.log('2A BOX:', box, '2C FRESHBOX:', freshBox);
     expect(freshBox).not.toBeNull();
     const freshCornerX = (freshBox?.x || 0) + (freshBox?.width || 0) - 35;
     const freshCornerY = (freshBox?.y || 0) + 35;
@@ -174,10 +172,8 @@ test.describe('UX-06.7 Increment 1R-C — Creative Primitives Validation & Evide
     await page.mouse.move(freshCornerX, freshCornerY);
     await page.mouse.down();
     await page.mouse.move(freshCornerX - 30, freshCornerY + 25, { steps: 5 }); // Sub-threshold drag
-    console.log('2C MOVE: dragging =', await sticker.getAttribute('data-dragging'), 'progress =', await sticker.getAttribute('data-drag-progress'));
     await page.mouse.up();
-    await page.waitForTimeout(400); // Spring snap-back settle
-    console.log('2C UP: dragging =', await sticker.getAttribute('data-dragging'), 'peeled =', await sticker.getAttribute('data-peeled'), 'progress =', await sticker.getAttribute('data-drag-progress'));
+    await page.waitForTimeout(500); // Spring snap-back settle
 
     await expect(sticker).toHaveAttribute('data-peeled', 'false');
     await expect(sticker).toHaveAttribute('aria-expanded', 'false');
@@ -198,12 +194,14 @@ test.describe('UX-06.7 Increment 1R-C — Creative Primitives Validation & Evide
 
     // 2E. Reduced motion verification
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(300);
     await expect(sticker).toHaveAttribute('data-reduced-motion', 'true');
     // In reduced motion, actuation is instantaneous without spring duration
     await sticker.click();
+    await page.waitForTimeout(300);
     await expect(sticker).toHaveAttribute('data-peeled', 'true');
     await sticker.click();
+    await page.waitForTimeout(300);
     await expect(sticker).toHaveAttribute('data-peeled', 'false');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
   });

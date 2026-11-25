@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
 
@@ -39,7 +39,19 @@ export const InteractiveSticker: React.FC<InteractiveStickerProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [dragProgress, setDragProgress] = useState(0); // 0 (flat) to 1 (fully peeled)
   const [isDragging, setIsDragging] = useState(false);
-  const shouldReduceMotion = useReducedMotion();
+  const motionReduced = useReducedMotion();
+  const [prefersReduced, setPrefersReduced] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReduced(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
+    mediaQuery.addEventListener?.('change', handler);
+    return () => mediaQuery.removeEventListener?.('change', handler);
+  }, []);
+
+  const shouldReduceMotion = Boolean(motionReduced || prefersReduced);
   const stickerRef = useRef<HTMLDivElement | null>(null);
 
   // References for robust drag kinematic tracking without closure staleness
@@ -138,6 +150,52 @@ export const InteractiveSticker: React.FC<InteractiveStickerProps> = ({
       data-reduced-motion={shouldReduceMotion ? 'true' : 'false'}
       aria-expanded={isPeeled}
       aria-label={`${title} seal. ${isPeeled ? 'Inspecting reverse side. Press to reseal.' : 'Press Enter or drag corner to peel and inspect archival security stamp.'}`}
+      onPointerDown={(e) => {
+        dragStartRef.current = { x: e.clientX, y: e.clientY };
+        dragProgressRef.current = 0;
+        wasDraggedRef.current = false;
+        setIsDragging(true);
+        try {
+          (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+        } catch (_) {}
+      }}
+      onPointerMove={(e) => {
+        if (dragStartRef.current) {
+          const deltaX = dragStartRef.current.x - e.clientX;
+          const deltaY = e.clientY - dragStartRef.current.y;
+          const dragDist = Math.hypot(deltaX, deltaY);
+          const maxDrag = size === 'xl' ? 280 : 140;
+          const progress = Math.min(1, Math.max(0, dragDist / maxDrag));
+          dragProgressRef.current = progress;
+          if (progress > 0.05) {
+            wasDraggedRef.current = true;
+          }
+          setDragProgress(progress);
+        }
+      }}
+      onPointerUp={(e) => {
+        if (dragStartRef.current) {
+          try {
+            (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+          } catch (_) {}
+          const finalProgress = dragProgressRef.current;
+          dragStartRef.current = null;
+          setIsDragging(false);
+
+          if (wasDraggedRef.current) {
+            const latched = finalProgress > 0.35;
+            setIsPeeled(latched);
+            setDragProgress(latched ? 1 : 0);
+            dragProgressRef.current = latched ? 1 : 0;
+            if (onPeelStateChange) onPeelStateChange(latched);
+          }
+        }
+      }}
+      onPointerCancel={() => {
+        dragStartRef.current = null;
+        wasDraggedRef.current = false;
+        setIsDragging(false);
+      }}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onMouseEnter={() => setIsHovered(true)}
@@ -149,7 +207,7 @@ export const InteractiveSticker: React.FC<InteractiveStickerProps> = ({
       <div
         className={`absolute inset-0 bg-[#EFE9DD] rounded-sm border border-dashed border-[#1C1A17]/35 ${
           size === 'xl' ? 'p-8' : 'p-3.5'
-        } flex flex-col justify-between overflow-hidden shadow-inner`}
+        } flex flex-col justify-between overflow-hidden shadow-inner pointer-events-none`}
         aria-hidden={!isPeeled && dragProgress < 0.2}
       >
         <div className={`flex items-center justify-between border-b border-[#1C1A17]/20 ${size === 'xl' ? 'pb-3' : 'pb-1.5'}`}>
@@ -191,52 +249,6 @@ export const InteractiveSticker: React.FC<InteractiveStickerProps> = ({
 
       {/* 3. Front Face Sticker with Draggable Physical Curl */}
       <motion.div
-        onPointerDown={(e) => {
-          dragStartRef.current = { x: e.clientX, y: e.clientY };
-          dragProgressRef.current = 0;
-          wasDraggedRef.current = false;
-          setIsDragging(true);
-          try {
-            (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
-          } catch (_) {}
-        }}
-        onPointerMove={(e) => {
-          if (dragStartRef.current) {
-            const deltaX = dragStartRef.current.x - e.clientX;
-            const deltaY = e.clientY - dragStartRef.current.y;
-            const dragDist = Math.hypot(deltaX, deltaY);
-            const maxDrag = size === 'xl' ? 280 : 140;
-            const progress = Math.min(1, Math.max(0, dragDist / maxDrag));
-            dragProgressRef.current = progress;
-            if (progress > 0.05) {
-              wasDraggedRef.current = true;
-            }
-            setDragProgress(progress);
-          }
-        }}
-        onPointerUp={(e) => {
-          if (dragStartRef.current) {
-            try {
-              (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
-            } catch (_) {}
-            const finalProgress = dragProgressRef.current;
-            dragStartRef.current = null;
-            setIsDragging(false);
-
-            if (wasDraggedRef.current) {
-              const latched = finalProgress > 0.35;
-              setIsPeeled(latched);
-              setDragProgress(latched ? 1 : 0);
-              dragProgressRef.current = latched ? 1 : 0;
-              if (onPeelStateChange) onPeelStateChange(latched);
-            }
-          }
-        }}
-        onPointerCancel={() => {
-          dragStartRef.current = null;
-          wasDraggedRef.current = false;
-          setIsDragging(false);
-        }}
         animate={{
           rotateY: shouldReduceMotion ? 0 : curlAngleY,
           rotateX: shouldReduceMotion ? 0 : curlAngleX,
@@ -257,7 +269,7 @@ export const InteractiveSticker: React.FC<InteractiveStickerProps> = ({
               }
         }
         style={{ transformOrigin: 'top left', touchAction: 'none' }}
-        className={`absolute inset-0 bg-[#1C1A17] text-[#F6F1E7] rounded-sm p-4 flex flex-col justify-between border-2 ${styles.border} shadow-[0_6px_16px_rgba(28,26,23,0.25)] overflow-hidden`}
+        className={`absolute inset-0 bg-[#1C1A17] text-[#F6F1E7] rounded-sm p-4 flex flex-col justify-between border-2 ${styles.border} shadow-[0_6px_16px_rgba(28,26,23,0.25)] overflow-hidden pointer-events-none`}
       >
         {/* Holographic Iridescent Foil Sheen */}
         <div
