@@ -21,6 +21,7 @@ const Community = lazy(() => import('./pages/Community'));
 const CommunityPostDetail = lazy(() => import('./pages/CommunityPostDetail'));
 const CommunityOnboarding = lazy(() => import('./pages/CommunityOnboarding'));
 const ReportSighting = lazy(() => import('./pages/ReportSighting'));
+const CreativeShowcase = lazy(() => import('./pages/CreativeShowcase'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 
@@ -99,6 +100,7 @@ export default function App() {
           <Route path="/lost" element={<LostDogs />} />
           <Route path="/alerts/:alertId" element={<AlertDetail />} />
           <Route path="/sightings/new" element={<ReportSighting />} />
+          <Route path="/showcase" element={<CreativeShowcase />} />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
