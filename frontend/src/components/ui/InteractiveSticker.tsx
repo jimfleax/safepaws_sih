@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { motion, useReducedMotion, PanInfo } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export interface InteractiveStickerProps {
@@ -131,7 +131,7 @@ export const InteractiveSticker: React.FC<InteractiveStickerProps> = ({
       data-reduced-motion={shouldReduceMotion ? 'true' : 'false'}
       aria-expanded={isPeeled}
       aria-label={`${title} seal. ${isPeeled ? 'Inspecting reverse side. Press to reseal.' : 'Press Enter or drag corner to peel and inspect archival security stamp.'}`}
-      onClick={!isDragging ? togglePeel : undefined}
+      onClick={handleClick}
       onKeyDown={handleKeyDown}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -185,40 +185,51 @@ export const InteractiveSticker: React.FC<InteractiveStickerProps> = ({
       {/* 3. Front Face Sticker with Draggable Physical Curl */}
       <motion.div
         onPointerDown={(e) => {
+          dragStartRef.current = { x: e.clientX, y: e.clientY };
+          dragProgressRef.current = 0;
+          wasDraggedRef.current = false;
           setIsDragging(true);
           try {
             (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
           } catch (_) {}
         }}
         onPointerMove={(e) => {
-          if (isDragging) {
-            const rect = stickerRef.current?.getBoundingClientRect();
-            if (rect) {
-              const startX = rect.right;
-              const startY = rect.top;
-              const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
-              const maxDrag = size === 'xl' ? 280 : 140;
-              setDragProgress(Math.min(1, Math.max(0, dist / maxDrag)));
+          if (dragStartRef.current) {
+            const deltaX = dragStartRef.current.x - e.clientX;
+            const deltaY = e.clientY - dragStartRef.current.y;
+            const dragDist = Math.hypot(deltaX, deltaY);
+            const maxDrag = size === 'xl' ? 280 : 140;
+            const progress = Math.min(1, Math.max(0, dragDist / maxDrag));
+            dragProgressRef.current = progress;
+            if (progress > 0.05) {
+              wasDraggedRef.current = true;
             }
+            setDragProgress(progress);
           }
         }}
-        onPointerUp={() => {
-          if (isDragging) {
+        onPointerUp={(e) => {
+          if (dragStartRef.current) {
+            try {
+              (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+            } catch (_) {}
+            const finalProgress = dragProgressRef.current;
+            dragStartRef.current = null;
             setIsDragging(false);
-            if (dragProgress > 0.35) {
-              setIsPeeled(true);
-              setDragProgress(1);
-              if (onPeelStateChange) onPeelStateChange(true);
-            } else {
-              setIsPeeled(false);
-              setDragProgress(0);
-              if (onPeelStateChange) onPeelStateChange(false);
+
+            if (wasDraggedRef.current) {
+              const latched = finalProgress > 0.35;
+              setIsPeeled(latched);
+              setDragProgress(latched ? 1 : 0);
+              dragProgressRef.current = latched ? 1 : 0;
+              if (onPeelStateChange) onPeelStateChange(latched);
             }
           }
         }}
-        onPanStart={handlePanStart}
-        onPan={handlePan}
-        onPanEnd={handlePanEnd}
+        onPointerCancel={() => {
+          dragStartRef.current = null;
+          wasDraggedRef.current = false;
+          setIsDragging(false);
+        }}
         animate={{
           rotateY: shouldReduceMotion ? 0 : curlAngleY,
           rotateX: shouldReduceMotion ? 0 : curlAngleX,
