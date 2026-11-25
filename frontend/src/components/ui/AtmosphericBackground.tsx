@@ -40,19 +40,12 @@ export const AtmosphericBackground: React.FC<AtmosphericBackgroundProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
+    let animationFrameId: number | null = null;
+    let isRunning = false;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-
-    window.addEventListener('resize', handleResize, { passive: true });
-
-    // Initialize 18 motes
+    // Initialize motes
     interface Mote {
       x: number;
       y: number;
@@ -76,7 +69,7 @@ export const AtmosphericBackground: React.FC<AtmosphericBackgroundProps> = ({
         x: Math.random() * width,
         y: Math.random() * height,
         vx: (Math.random() - 0.5) * 0.35,
-        vy: -0.15 - Math.random() * 0.25, // Gentle upward drift like sunlight motes
+        vy: -0.15 - Math.random() * 0.25,
         radius: 1.0 + Math.random() * 1.8,
         color: colors[Math.floor(Math.random() * colors.length)],
         alpha: 0.15 + Math.random() * 0.25,
@@ -84,43 +77,79 @@ export const AtmosphericBackground: React.FC<AtmosphericBackgroundProps> = ({
       });
     }
 
-    let isVisible = !document.hidden;
-    const handleVisibilityChange = () => {
-      isVisible = !document.hidden;
+    const stopLoop = () => {
+      isRunning = false;
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
     };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     const render = () => {
-      if (isVisible) {
-        ctx.clearRect(0, 0, width, height);
+      if (document.hidden || window.innerWidth < 768) {
+        stopLoop();
+        return;
+      }
 
-        for (let i = 0; i < motes.length; i++) {
-          const m = motes[i];
-          m.x += m.vx;
-          m.y += m.vy;
-          m.alphaPhase += 0.02;
+      ctx.clearRect(0, 0, width, height);
 
-          // Wrap boundaries
-          if (m.y < -10) m.y = height + 10;
-          if (m.x < -10) m.x = width + 10;
-          if (m.x > width + 10) m.x = -10;
+      for (let i = 0; i < motes.length; i++) {
+        const m = motes[i];
+        m.x += m.vx;
+        m.y += m.vy;
+        m.alphaPhase += 0.02;
 
-          const dynamicAlpha = Math.max(0.05, m.alpha + Math.sin(m.alphaPhase) * 0.1);
+        // Wrap boundaries
+        if (m.y < -10) m.y = height + 10;
+        if (m.x < -10) m.x = width + 10;
+        if (m.x > width + 10) m.x = -10;
 
-          ctx.beginPath();
-          ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
-          ctx.fillStyle = `${m.color}${dynamicAlpha.toFixed(2)})`;
-          ctx.fill();
-        }
+        const dynamicAlpha = Math.max(0.05, m.alpha + Math.sin(m.alphaPhase) * 0.1);
+
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${m.color}${dynamicAlpha.toFixed(2)})`;
+        ctx.fill();
       }
 
       animationFrameId = window.requestAnimationFrame(render);
     };
 
-    render();
+    const startLoop = () => {
+      if (isRunning) return;
+      if (document.hidden || window.innerWidth < 768) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      isRunning = true;
+      animationFrameId = window.requestAnimationFrame(render);
+    };
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      if (window.innerWidth < 768) {
+        stopLoop();
+        ctx.clearRect(0, 0, width, height);
+      } else {
+        startLoop();
+      }
+    };
+
+    window.addEventListener('resize', handleResize, { passive: true });
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopLoop();
+      } else {
+        startLoop();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    startLoop();
 
     return () => {
-      window.cancelAnimationFrame(animationFrameId);
+      stopLoop();
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };

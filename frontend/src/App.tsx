@@ -21,27 +21,18 @@ const Community = lazy(() => import('./pages/Community'));
 const CommunityPostDetail = lazy(() => import('./pages/CommunityPostDetail'));
 const CommunityOnboarding = lazy(() => import('./pages/CommunityOnboarding'));
 const ReportSighting = lazy(() => import('./pages/ReportSighting'));
-const CreativeShowcase = lazy(() => import('./pages/CreativeShowcase'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
-
-
-// Internal Creative Review Harness Guard:
-// Strictly barred from public production routes; accessible only during active dev mode,
-// test runners, or when explicitly requested via dev harness query flag.
-const isDevHarnessActive = () => {
-  if (typeof window === 'undefined') return false;
-  return (
-    Boolean(import.meta.env.DEV) ||
-    import.meta.env.MODE === 'test' ||
-    window.location.search.includes('harness=true') ||
-    sessionStorage.getItem('safepaws_dev_harness') === 'active'
-  );
-};
+// Compile-time development-only review harness.
+// Dead-code eliminated in production builds where import.meta.env.DEV is false.
+// Runtime query strings and storage overrides are strictly prohibited.
+const CreativeShowcase = import.meta.env.DEV
+  ? lazy(() => import('./pages/CreativeShowcase'))
+  : null;
 
 const SetupProfileRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore();
-  
+
   if (!isAuthenticated || user?.profileCompleted) {
     return <Navigate to="/" replace />;
   }
@@ -50,7 +41,7 @@ const SetupProfileRoute = ({ children }: { children: React.ReactNode }) => {
 
 const DashboardRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore();
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
@@ -70,7 +61,7 @@ const PageLoader = () => (
 export default function App() {
   const hydrate = usePetStore(state => state.hydrate);
   const { isInitializing, checkSession } = useAuthStore();
-  
+
   React.useEffect(() => {
     hydrate();
   }, [hydrate]);
@@ -92,20 +83,20 @@ export default function App() {
           <Routes>
           {/* Public / Marketing */}
           <Route path="/" element={<LandingPage />} />
-          
+
           {/* Public Finders / Tools */}
           <Route path="/p/:tagId" element={<PublicTagProfile />} />
           <Route path="/scan" element={<Scan />} />
 
           {/* Onboarding */}
           <Route path="/setup-profile" element={<SetupProfileRoute><SetupProfile /></SetupProfileRoute>} />
-          
+
           {/* Authenticated App Shell */}
           <Route path="/dashboard" element={<DashboardRoute><Dashboard /></DashboardRoute>} />
           <Route path="/pets/new" element={<DashboardRoute><NewPet /></DashboardRoute>} />
           <Route path="/pets/:petId" element={<DashboardRoute><PetDetail /></DashboardRoute>} />
           <Route path="/lost/new" element={<DashboardRoute><ReportLost /></DashboardRoute>} />
-          
+
           {/* Public Community & Recovery */}
           <Route path="/community" element={<Community />} />
           <Route path="/community/post/:postId" element={<CommunityPostDetail />} />
@@ -114,8 +105,8 @@ export default function App() {
           <Route path="/alerts/:alertId" element={<AlertDetail />} />
           <Route path="/sightings/new" element={<ReportSighting />} />
 
-          {/* Internal Development & Review Harness (Quarantined from public production navigation) */}
-          {isDevHarnessActive() && (
+          {/* Internal Development & Review Harness: compile-time eliminated in production builds */}
+          {import.meta.env.DEV && CreativeShowcase && (
             <Route path="/showcase" element={<CreativeShowcase />} />
           )}
 

@@ -27,6 +27,12 @@ export default defineConfig({
       port: 3002,
       reuseExistingServer: true,
       timeout: 15000,
+    },
+    {
+      command: 'npx vite --port 3000 --host 127.0.0.1',
+      port: 3000,
+      reuseExistingServer: true,
+      timeout: 15000,
     }
   ],
   projects: [

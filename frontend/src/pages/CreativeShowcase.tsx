@@ -141,22 +141,22 @@ export default function CreativeShowcase() {
         <section className="mb-14">
           <div className="mb-3">
             <span className="font-mono text-[10px] uppercase tracking-widest text-[#8B4A00] font-bold">
-              02B // HIGH-RESOLUTION STICKER FORENSIC CLOSE-UP
+              02B // HIGH-RESOLUTION STICKER FORENSIC CLOSE-UP (&ge; 640 &times; 720 CSS PIXELS)
             </span>
           </div>
-          <div className="p-8 sm:p-12 bg-white/80 backdrop-blur-md rounded-sm border border-[#1C1A17]/15 shadow-sm flex flex-col items-center text-center">
-            <div id="high-res-sticker-inspection" className="py-4">
+          <div className="p-8 sm:p-12 bg-white/80 backdrop-blur-md rounded-sm border border-[#1C1A17]/15 shadow-sm flex flex-col items-center text-center overflow-x-auto">
+            <div id="high-res-sticker-inspection" className="py-4 w-full flex flex-col items-center">
               <InteractiveSticker
                 title="ARCHIVAL CERTIFICATE SEAL"
-                serialNumber="CERT-9082-SP-HQ"
+                serialNumber="REG-2026-SP-9082"
                 subtitle="CRYPTOGRAPHIC BIOMETRIC PROVENANCE"
                 variant="gold"
-                size="lg"
+                size="xl"
                 onPeelStateChange={(peeled) => setDetailedPeelState(peeled)}
               />
             </div>
             <div className="mt-4 font-mono text-xs text-[#6E665C]">
-              LARGE-SCALE SPECIMEN (60x60) // INSPECT METALLIC REVERSE FOIL & ARCHIVAL SEAL: {detailedPeelState ? 'PEELED / INSPECTED' : 'SEALED'}
+              LARGE-SCALE SPECIMEN (640&times;720 CSS PX) // INSPECT METALLIC REVERSE FOIL & ARCHIVAL SEAL: {detailedPeelState ? 'PEELED / INSPECTED' : 'SEALED'}
             </div>
           </div>
         </section>
