@@ -151,7 +151,7 @@ test.describe('UX-06.7 Increment 1R — Creative Primitives Validation & Quality
     // H. Sticker Fully Peeled / Reverse Foil & Archival Docket Detail
     await stickerButton.click();
     await page.waitForTimeout(400); // Settle 48deg spring curl
-    await expect(page.getByText('SAFEPAWS CENTRAL LEDGER')).toBeVisible();
+    await expect(highResContainer.getByText('SAFEPAWS CENTRAL LEDGER')).toBeVisible();
 
     const shotFullyPeeled = path.join(screenshotsDir, 'sticker_fully_peeled_reverse_foil_hires.png');
     await highResContainer.screenshot({ path: shotFullyPeeled });
