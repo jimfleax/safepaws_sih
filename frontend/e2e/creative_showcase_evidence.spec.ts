@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 test.describe('Creative Showcase — Increment 1 Visual & Interaction Verification', () => {
-  const screenshotsDir = path.resolve(__dirname, '../../docs/screenshots/creative-charter');
+  const screenshotsDir = path.resolve(process.cwd(), '../docs/screenshots/creative-charter');
   const brainScreenshotsDir = path.resolve(
     '/home/samudra/.gemini/antigravity-cli/brain/64840b91-20dd-480a-bae0-115056cbb502/screenshots/creative-charter'
   );
